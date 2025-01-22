@@ -1,4 +1,5 @@
-# Car Sharing 101 (Introduction to Free-Floating Carsharing). Draft v0.2.0
+# Car Sharing 101 (Introduction to Free-Floating Carsharing)
+## Draft v0.2.0
 
 ## Abstract
 
