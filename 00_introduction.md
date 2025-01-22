@@ -1,0 +1,38 @@
+# 00. Introduction
+
+# The purpose of this work
+
+...The recent history of carsharing was plaqued first by provider oversaturation (due to cheap venture money, some markets saw 4-5 providers operating in a space that can only support 1-2 competing networks (ref)), followed by unproductive mergers and acquisitions (ref), chaotic market exists and entries (ref brussels?) and even some legal scandals (ref). Combined with the change in political climate, where at least in some cities the quality of life is now threatened by reactionary governments (ref), it created a certain public narrative of distrust in free-floating carsharing as a business model. The stronger version of this narrative claims that free-floating carsharing simply cannot be profitable; a weaker version claims that it could be, but that so far no single company managed to make it profitable.
+
+One of the reasons for my writing this summary is that as a carsharing advocate, and as a data scientist, I don't think that this statement is true. It is possible to build a profitable free-floating carsharing business, and all of the parts that are neccessary for this already exist on the market, although not necessaritly within a single company.
+
+🔥 What this thing is - conceptual models, but once math is agreed upon, "all" that is left is data management, model delivery and versioning, and data delivery infrastructure. This is not covered here.
+
+🔥 Then go section by section, what they contain, to promise a brief overview
+
+# Terminology
+
+🔥KPI
+
+🔥CM1, CM2
+
+How can we best calculate CM1 in practice, either in a model, or while building dashboards and quickly estimating KPIs for a real city? It would of course be nice to track every cost in real time, and link it to a rental that triggered this cost, or to have a full "digital twin" of a city for modeling purposes, but this approach is too complex and demanding to be unrealistic. Moreover, not all usage-related costs can be easily linked to a single rental: it may be easier to do for fuel costs or customer support calls, but harder for cleanings triggered by customer complaints, or routine maintenance of a car.
+
+If we think of this problem, the simplest practical solution would probably be to aggregate the actual costs of running a car-sharing business for a long period of time (say, about a month), and then allocate these costs to rentals based on distance driven. "Distance driven" is a simple and easily available proxy for "usage" or "good sold", as far as vehicle rentals are concerned, and CM1 is by definition "Revenues minus cost of goods sold". For more precise calculations one use a regression model to allocate CM1 based on more than one usage factor (maybe something like "fixed cost per rental + costs proportional to distance driven + costs proportional to time"), or use different regression coefficients for something subproducts in the portfolio (different car models, different cities, usage packages etc.). Yet for the sake of this document, in most cases, we will just assume that a certaion fixed share of revenues (about half of them) become our CM1 profits. In other words, we will assume that the per-km or per-minute price that we use to sell our services to customers is set in such a way that it offsets our running costs with about 100% margin.
+
+In the text of this manual, I would sometimes refer to **CM1 costs** and **CM2 costs**, meaning variable (usage-linked) and fixed (fleet-linked) costs respectively. This may be not a standard usage, but it is short and unambiguous, so I hope it will be clear enough. When we talk about CM1 and CM2 profits, we mean the full value of the "Total" line for this calculation. When we talk about CM1 and CM2 _costs_, we mean the costs (negative) part of this calculation.
+
+🔥Discuss the merits of CM1 (missed revenue) and CM2 (fleet costs) calculations. For short-term calculations that are concerned with the fate of the car in the next few hours, CM1 calculations based on alternative scenarios work better. For long-term calculations however we can afford to use CM2, and use the fixed cost of fleet (leasing, insurance, parking etc.) over time, which makes the calculations simpler. The assumption here is that in the short-term we can change what the car is doing, but we cannot change the number of cars in the city, so the cost of fleet can be considered constant, and taken out of the equation. For long-term, strategic decisions however we can assume that the fleet size will be corrected for the volume of business that we observe in the city, so (🔥 _finish this_ 
+
+🔥Operating area
+
+🔥Zones, Stations (the way we'll be using these terms in this document)
+
+🔥DFR
+
+# Acknowledgements
+
+🔥
+
+# Footnotes
+
