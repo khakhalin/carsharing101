@@ -3,7 +3,7 @@
 
 ## Abstract
 
-Free-floating car-sharing is hard, and no company so far has convincently demonstrated that it can be profitable. This collection of conceptual models offers some specific advice on how to make free-floating car-sharing profitable.
+Free-floating car-sharing is hard, and no company so far has convincently demonstrated that it can be profitable. This collection of conceptual models offers specific advice on how to make free-floating car-sharing profitable.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 * Give titles to all figures
 * Introduce a practice of "Bold business-related advice" every now and then, with quotation-like formatting. So that a person could jump and read only them, if so inclined.
-* The maxim of "always in the worst place"
+* The maxim of "left to its own devices, cars end up standing in the worst possible place"
 * At least the mental image of you "always get the worst car type" (mention in a different part that because of that car type is a good predictive variable to use)
 
 # Editing principles
