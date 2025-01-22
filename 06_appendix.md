@@ -2,7 +2,7 @@
 
 # Default values and parameters
 
-🔥 intro, that we use typical values everywhere, restate the values
+🔥 intro, remind that we use typical values everywhere, restate the values
 
 Call center: about 10€ per call:
 * assuming a salary of 30k a year, 260 working days a year, 20 days of vacation, an 8-hour working day, and 10 minutes per call, with an unachievable perfect load, we are ending up with about 3 €/call in salary alone. 
