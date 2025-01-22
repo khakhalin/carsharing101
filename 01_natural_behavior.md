@@ -45,7 +45,12 @@ Which means that even from this insultingly simple simulation we can extract thr
 2. The number of trapped cars doesn't depend on the quality of the location, is not affected by the demand at this location, and does not get smaller for smaller locations! Smaller locations just accumulate the fleet slower, as the speed at which cars are getting trapped is proportional to the demand.
 3. The first 2-3 cars are trapped very quickly, within about a dozen rentals.
 
-These point can very well be called "The fundamental problem of free-floating carsharing", as most operational and strategic fine-tuning that carsharing companies have to do, to survive as a business, are ultimately caused by this problem. Indeed, let's think for a second: how can one try to counteract this "unfair" accumulation of cars at bad locations?
+Or, if you were to further condence these three thoughts into one message:
+
+> [!WARNING]
+> Don't open new locations unless you know for sure that they will work! Small parking places are your enemy, and the smaller the project, the more dangerious it is!
+
+These points can very well be called "The fundamental problem of free-floating carsharing", as most operational and strategic fine-tuning that carsharing companies have to do, to survive as a business, are ultimately caused by this problem. Indeed, let's think for a second: how can one try to counteract this "unfair" accumulation of cars at bad locations?
 
 * We can try to notice it when the cars are trapped, and move them to a different part of the city. This process is called "fleet relocations", and we will discuss it in detail in Chapter 2
 * We can offer discounts for trips from the village to the city, and thus try to decrease the number of cars at a small parking. The pricing solutions to this problem will be discussed in Chapter 3
