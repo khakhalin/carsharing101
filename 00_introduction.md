@@ -4,7 +4,9 @@ As I am writing this in 2025, the public image of carsharing is not particularly
 
 The main reason for me writing this little summary is that as an advocate of car minimalism, and as a data scientist, I don't think that these statements are true! I believe that it is absolutely possible to build a profitable free-floating carsharing business, and that all the necessary parts for that to happen already exist on the market, although not necessaritly within a single company.
 
-🔥 That the writing alternates between basic considerations, mathematical models, and **practical business advice** that stems from these considerations and these models. Explain how it will be marked and labeled in the text (some nice emoji? Github-specific design?)
+🔥 Can be used to onboard new players, or new team members; should help existing business (I hope), but also may potentially be used as a source for a practical introductory course in transportation data science
+
+🔥 the writing alternates between basic considerations, mathematical models, and **practical business advice** that stems from these considerations and these models. Explain how it will be marked and labeled in the text (some nice emoji? Github-specific design?)
 
 🔥 Then go section by section, what they contain, to promise a brief overview
 
