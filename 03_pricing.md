@@ -41,9 +41,12 @@ For more info, see for example: Yang, H., & Huang, H. J. (2005). Mathematical an
 
 🔥 A note on how a drop-fee becomes a burden once the demand is high
 
+🔥🔥🔥 DROP-OFF SIMULATION
+
 ## Destination-based rebates
 
 🔥 The idea
+
 🔥 The example of Zity. However that it may be hard for customers to remember which parts of the inner city offer them a rebate. While you can reward customers for certain behaviors by offering them a payback _after_ they have finished a ride in a target area, it is hard to inform them of this target area _before_ the ride, as at this point you don't yet know where in the city center they are going, or if they are going to the city center to begin with. Promoting these "ideal target areas" in a non-invasive, non-obtrusive ways presents an interface problem.
 
 Interestingly, the idea of inner-city rebates synergizes well with natural tendencies in city development and urban planning, such as congestion pricing and dedicated inner-city mobility hubs. As congestion pricing is promoted, and as well-labeled dedicated parking spaces in the inner city are becoming a new normal, it creates a useful psychological framework on which a cars-sharing compay can easily latch. Instead of trying to introduce a novel idea of a target area that offers a rebte, a car-sharing company can advertise the fact that a customer would not have to pay the congestion fee if they use shared transportation and park in a mobility hub (compared to if they use a private car). It seems that this narrative would be simpler, and more relatable, and thus may influence customer behavior more.
@@ -95,7 +98,8 @@ Compare outputs on a Gaussian city and Fake Berlin.
 🔥
 
 🔥 On pricing in a city, 3 different approaches:
-1. Cut into zones, then calculate by zones. Roughly equivalent to the "stations" approach, and can be optimized explicitly (probably via random walk search). But note that zones are an approximation, and also that with these kinds of data getting a reliable estimate is inherently noisy (see section OA for estimations), so this part may be tricky and noisy (but maybe it's ok, at least for a rough picture). And then on top of that IRL we'd have to calculate it for every hour, probably.
+
+1. Cut into zones, then calculate by zone. Roughly equivalent to "stations" approach, and can be optimized explicitly (e.g. via random walk search). But note that zones are an approximation, and also that with these kinds of data getting a reliable estimate is inherently noisy (see section OA for estimations), so this part may be tricky and noisy (but maybe it's ok, at least for a rough picture). And then on top of that IRL we'd have to calculate it for every hour, probably.
 2. Work on pixels, but come up with explicit formula with flows, and thus avoid doing agent-based modeling, and do gradient descent of some sort. For each pixel set the prices, using sensitivity calculate the flows, from the total flow and expected delta cost calculate the target stock and expected flow (this part needs some thinking, as average expected relo targets and relo costs depend on the pixel, and we'll probably need some simplification here). But once this is done, we can iterate, and maybe even calculate the gradients.
 3. Realtime optimization, relying on relo-like formulas (at every point for a given price calculate the expected probability of leaving, and explicitly optimize the price). Warnings on practical stability, weird effects, necessity to limit effects irl by sanity borders. Alternatively, we can also use this approach in an agent based-model, and then look at the median achieved prices. That's the type of stats we'll use for the formulas anyways.
 

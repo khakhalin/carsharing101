@@ -30,7 +30,7 @@ In the text of this manual, I would sometimes refer to **CM1 costs** and **CM2 c
 
 🔥Discuss the merits of CM1 (missed revenue) and CM2 (fleet costs) calculations. For short-term calculations that are concerned with the fate of the car in the next few hours, CM1 calculations based on alternative scenarios work better. For long-term calculations however we can afford to use CM2, and use the fixed cost of fleet (leasing, insurance, parking etc.) over time, which makes the calculations simpler. The assumption here is that in the short-term we can change what the car is doing, but we cannot change the number of cars in the city, so the cost of fleet can be considered constant, and taken out of the equation. For long-term, strategic decisions however we can assume that the fleet size will be corrected for the volume of business that we observe in the city, so (🔥 _finish this_ 
 
-🔥List typical prices and values (20, 10, 5) for CM1 and CM2, and refer to 06_appendix for justification.
+🔥List typical prices and values (20, 10, 5) for CM1 and CM2, and refer to Appendix (with a link) for justification.
 
 🔥Operating area
 

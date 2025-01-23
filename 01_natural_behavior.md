@@ -58,17 +58,17 @@ These points can very well be called "The fundamental problem of free-floating c
 
 But before we discuss the solutions, let's play a bit more with naive simple systems, to get a better intuition for how free-floating fleet "naturally behaves".
 
-# 1.2 Collection of stations
+# 1.2 A set of stations
 
 🔥 Describe the model (it exists in the notebooks already)
 
 🔥 Some basic plot?
 
-## Geography of CM2
+## Spatial CM2: the theory
 
-Now that we have a model with several locations, we have a very important question to entertain: **Which locations on a map are profitabe, and which ones are not? How to tell that?**
+Now that we operate a group of parking stations within a city (even if, for now, a virtual one), we have an important question to answer: **Which of these locations are profitabe, and which ones are not? How to tell that?**
 
-It's an easy question to ask, but not the easiest one to answer, because obvoiusly all locations are somewhat interconnected: after all, we are working with a carsharing business here, where people are driving from one point in space to another. Opening or closing a location changes all flows in a city, and we need to find a way to isolate these effects, and ascribe them to individual locations. Because ultimately we want to know which parts of the city generate the  most profits, which parts are for now more of an investement, and which ones keep dragging the whole company down. Also, in the future, once we move from a collection of stations to a continuous city (or, in this document, a spatial model of a city) we will want to apply similar logic to zones withiin a city, and create nice colorful maps. So let's try to figure out how one can allocate profits and costs to geographical zones, despite the fact that our business by definition happens while customers are driven _between_ the zones, from one zone to another.
+It's an easy question to ask, but not an easy one to answer, because obvoiusly all locations are somewhat interconnected: after all, we are working with a carsharing business here, where people are driving from one point in space to another. Opening or closing a location changes all flows in a city, and we need to find a way to isolate these effects, and ascribe them to individual locations. Because ultimately we want to know which parts of the city generate the  most profits, which parts are for now more of an investement, and which ones keep dragging the whole company down. Also, in the future, once we move from a collection of stations to a continuous city (or, in this document, a spatial model of a city) we will want to apply similar logic to zones withiin a city, and create nice colorful maps. So let's try to figure out how one can allocate profits and costs to geographical zones, despite the fact that our business by definition happens while customers are driven _between_ the zones, from one zone to another.
 
 Let's consider a toy example below. A car was active in a city for 12 hours. Out of these 12 hours, for 3 hours it stood in zone **a**. Then it was rented for a 2 hour -long trip from zone **a** to zone **b**, and generated the company 10€ in CM1 (the units in this example may be a bit off, but let's keep the numbers siimple). Then it stood in zone **b** for 2 hours, was rented for 3 hours to go to zone **c**, generating 10€ more, and stood in zone **c** for the rest of the day (for 6 more hours). The total CM1 profit generated here is +20€. The total cost involved in this case is the cost of owning a car for 12 hours; to keep the math simiple let's assume it to be 12€ (it's a bit more than the number we use in the rest of the work, see Appendix, but it is still a reasonable estimate). Now, how can we allocate, distribute these profits and these costs between 3 zones?
 
@@ -95,9 +95,9 @@ $\displaystyle CM2 = \left( \sum CM1_{in} + \sum CM1_{out} \right)/2 - \left(\su
 
 where $t_{wait}$ is waiting time while parked in the zone, $t_{in}$ and $t_{out}$ are in-transit times for incoming and outgoing rentals respectively, and $C_t$ is the CM2 cost of owning a single car per unit of time. Applying this formula to our case, and assuming a cost of car ownship of 1€/hour, we get CM2 values of $10/2 - 3 - 1 = +1€$ for zone **a** (so-so, breaking even), $10/2 +10/2 -2 - 1.5 = +6.5€$ for zone **b** (great, profitable), and $10/2 -6 -1.5 = −2.5€$ for **c** (bad, unprofitable), which matches our intuitions!
 
-## Applying CM2 calculations to our model
+## CM2 in a collection of stations
 
-🔥
+🔥 ANALYZE AND PLOT
 
 # 1.3 Gaussian City
 
