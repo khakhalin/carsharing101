@@ -51,6 +51,10 @@ $\displaystyle N_\text{opt} = \sqrt{\frac{2 (r + π) \lambda}{C}} - 1$
 
 Equipped with this formula, we can now find the optimal relocation rate (or rather, relocation threshold) for an isolated parking with any given value of demand, put this optimal relocation rate to the formula for CM2 above, and get a curve of _maximal possible profitabilities_ of a separate parking plot, as a function of demand at this plot. The curve for the same set of financial parameters that we used before (20€/car/day of leasing/ownership costs, 20€/relo, 5€/trip CM1 in profit) is shown below, on Fig 2.1.4. The curve starts below zero (because for an almost-zero demand location every car needs to be relocated "to the mainland"), and then somewhat counterintuitively dips even further down (as the rate of relocations increases, but the rentals don't yet contribute much to the economy of the parking lot). At some demand, the curve starts to recover though, and at some critical demand (for these parameters, at about 8 rentals/day in one direction) the parking lot breaks even, and then becomes steadily more and more profitable.
 
+🔥Advice on "general hub profitability threshold", as a callout
+
+🔥Advice on formalizing this requirement within a company (review it every now and then), as it helps to improve communication with sales.
+
 ![Optimal relocatoin threshold as a function of parking spot popularity](figures/02relocations_01village_04ideal_profitability.svg)
 
 Calculating a curve like that for the typical car ownership cost, relocation cost, and CM1/trip for your city can give you a very good starting point for deciding which locations are worth opening, or retaining. If a location doesn't offer enough demand, it will be a burden for business, but once it breaks even, it can become a good investment for the future. In Chapter 4 we will talk more about the concepts of shrinking and expanding the operating area, one location at a time.
@@ -99,7 +103,7 @@ We can see from the previous figure that with one relocation per about every 100
 The result of this experiment (below) shows that there is indeed an optimal volume of relocations to serve this "city": a relocation frequency at which the CM1 profits are maximized. With too few relocations, too many cars end up being trapped at bad zones, and thus effectively excluded from business; with too many relocations, too many of them end up being unprofitable (yielding improvements in rental CM1 that are lower than the cost of relocation). 
 ![Stations model, optimal number of relocations](figures/02relos_02stations_03optimal_number_suburbs.svg)
 
-# 2.4 Relocations and fleet size
+# 2.4 Fleet size planning
 
 Let's now investigate how the ideal volume of relocations depends on the number of cars in the city. Does a need in relocation increase with fleet size, does it decrease, or does it stay more-or-less flat? To answer this question, let us run the same model repeatedly, but with different numbers of cars in the system (from 1 to 40). Also, instead of forcing a relocation every several rentals, regardless of whether it is profitable or not, let us find the best possible relocation at every tick (which is definitely more relocation capacity than we will need in practice!), but only perform those relocations that are likely to be profitable. 
 
@@ -129,11 +133,14 @@ Another practical learning point that we can draw from the left curve is that th
 
 This last point also has an interesting consequence. Among 100 individual experiments that were run to produce the figure above, some required almost 2 times more profitable relocations than some other (say, for a case of 10 cars, we have one experiment with relocation freqiuency of about 0.06 per tick, and another one - with almost 0.12 per tick). Yet from the operational point of view, it is much more desirable to perform the same "reasonable" number of relocations every week: it helps with capacity planning, budgeting, and optimizes utilization of drivers. And this means that even when operations are tuned up perfectly, on some days drivers would be performing relocations are are not quite profitable, while on other days some relocation request may remain unresolved for capacity issues. This is unavoidable.
 
-Finally, the right curve on this figure also spells a very important message, even if one that is not directly related to relocations. It introduces that concept of _optimal fleet size_: the number of cars that, for a given set of stations (or zones), demand, prices, and relocation logic, primises the best CM2 profitability. And moreover, the figure suggests that in principle you can find this optimal fleet by agent-based modeling. This topic however won't be described in this document, and is left as an excercise to the reader.
+Finally, the right curve on this figure also spells a very important message, even if one that is not directly related to relocations. It introduces that concept of an **optimal fleet size**: the number of cars that, for a given set of stations (or zones), demand, prices, and relocation logic, primises the best CM2 profitability. And moreover, the figure suggests that in principle you can find this optimal fleet by agent-based modeling. This topic however won't be described in this document, and is left as an excercise to the reader.
 
 For the sake of  completeness, below you can also find the same curve for the original model "stations" model (the `few_stations` scenario in the script) with 5 zones of similar, linearly decreasing demand. The curve is conceptually similar, but has a less prominent peak, as in this specific case all zones are basicaly "OK", and it is only an occasional random overconcentration of cars at some of the zones that needs to be solved by relocations. Still what is encouraging is that even this simple model still lets us pick an optimal fleet size for a given set of destinations.
 
 ![Curves of the optimal number of relocations, and best achieved CM2, as a function of fleet size. Original scenario, where all zones have relatively high demand](figures/02relos_02stations_04fleet_size_few_stations.svg)
+
+🔥 That in practice we may decide to have a bit higher fleet to gradually shape customer behavior, and be able to expand quickly. Or on the contracy, we may have to operate on a lower fleet, for purchasing reasons, or political reasons (as some cities attempt to regulate the number of carsharing licenses they issue)
+
 # 2.5 Imperfect relocations
 
 🔥 Explain the IRL situation when relocaiton agents either don't want to, or cannot follow the instructions, and so are tempted to either grab easier cars (those closer to their last target), or deliver to zones closer nearby, instead of those that were strictly speaking recommended.

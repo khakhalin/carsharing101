@@ -111,7 +111,6 @@ Here they show that one can optimize stuff, except that they optimize for a diff
 Gu, Z., Shafiei, S., Liu, Z., & Saberi, M. (2018). Optimal distance-and time-dependent area-based pricing with the Network Fundamental Diagram. Transportation Research Part C: Emerging Technologies, 95, 1-28.
 Adaptive pricing approach to tolls: how to optimally price a toll, as a function of where people go after passing a toll. In a way, car-sharing may be considered a similar problem, except each car has a unique "toll" that you pay as you start the rental. The price you're going to pay may theoretically depend on the statistics of where customers typically go to, from this point at this time. Seems to be a more complicated approach though, compared to what we are proposing. An alternative?
 
-
 ## Measuring price elasticity
 
 🔥 A model with 2 equivalent providers - show the curve
@@ -122,8 +121,8 @@ Adaptive pricing approach to tolls: how to optimally price a toll, as a function
 
 1.  Distribution of walking distances: One competitor, same price
 2.  Same, but different prices 
-3.  How willingness to walk changes with price   
-4.  How willingness to walk changes with DFR
+3.  How willingness to walk (typical walking distance) changes with price   
+4.  How willingness to walk (typical walking distance) changes with DFR
 
 # Footnotes
 

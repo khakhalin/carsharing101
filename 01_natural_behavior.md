@@ -126,9 +126,11 @@ It is also important to note that in practice, depending on the business model o
 
 ## CM2 and DFR maps in a city
 
-* 🔥 Build DFR map and CM2 maps, side by side
+🔥 Build DFR map and CM2 maps, side by side
 
-# Are these simple models reasonable?
+🔥 Aside: distribution of models. A thought experiment showing that you're always getting the worst car possible.
+
+# Are simple models reasonable?
 
 🔥 But before we go any further, let's review the key abstractions and simplifications that we used in the model above, and consider if these simplifications are worth it. If Poisson process approximation is reasonable, we should retain it for all other models in this study, as it is simple, and easy to code[^3]. If it is unreasonable, and makes our models too unrealistic, ten it should be replaced with something more complicated. 🔥
 

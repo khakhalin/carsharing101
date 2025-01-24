@@ -5,23 +5,25 @@
 
 # How lean a car-sharing business has to be?
 
-Let's assume that we are trying to create a lean team of skilled and highly motivated professionals. An average salary across a team like that, in Germany in 2024, will be around 5000 €/mo (less for junior people, more for seniors and management). Around 40% more will go into taxes and social security, and 20% more into health insurance and retirement contributions, leading to a total cost of about 8000 €/mo per employee.
+🔥Let's assume that we are trying to create a lean team of skilled and highly motivated professionals. An average salary across a team like that, in Germany in 2024, will be around 5000 €/mo (less for junior people, more for seniors and management). Around 40% more will go into taxes and social security, and 20% more into health insurance and retirement contributions, leading to a total cost of about 8000 €/mo per employee.
 
-🔥
+🔥Estimate as profit-generatinc cars per data scientists (or any other skilled office worker). Estimate as data scientists per city. "The paradox of a data-driven business" - despite ultimately being a physical company, it does not scale easily, as it's so data-driven that the overhead is almost fixed. Although, look how Bsky developed an app at x100 fewer people than Twitter.
 
-# Long-term potential
+# The future of carsharing
 
-🔥 set the problem
+🔥 set the problem. Does it have a future? at which point does car-sharing become profitable for households?
 
 **
 
-The most popular car in Germany in 2023 was VW Golf. The cost of owning it was ~300€/mo for the car itself + some 50€/mo for insurance, so ~350€/mo.
+The most popular car in Germany in 2024 was VW Golf. The cost of owning it was ~300 €/mo for the car itself + about 50 €/mo for insurance, so ~350 €/mo, or about 10 €/day (basically the same calculation that we have for CM2 estimations in the appendix, just without rebates, but also without additional costs specific for carsharing).
 
-On the other hand, a typical SN rental in Berlin costs ~10€.
+On the other hand, a typical SN rental in Berlin costs ~10€. 🔥 - JUSTIFY? Probably based on current prices for some month, so just reference the appendix?
+
+🔥 Can we do it simpler, and just say, CM2 is basically the same in both cases, assuming that the carsharing is just barely profitable, and a certain overhead, that's how much extra a customer would pay? There's a bit of a circular logic here of course, as even if we assume a certain overhead, the amoung of overhead that will go into an individual rental depends on total rentals per day, and these 
 
 Of this 10€, fuel cost should be excluded, as a person owning a car pays it as well. VW Golf does 8L/100 km, fuel costs in 2023 were about 1.8 €/L, Berlin is about 30 km in size, so of a typical 10€ trip, the fuel will cost about 4€ per trip.
 
-Which means that a customer would pay about 6€/trip for the car itself. Dividing the monthly cost of owning a ccar by this value, we get 350/6 = 58, or a threshold of about 2 trips a day. If a person does less than 2 trips a day (weekends included), owning a car becomes less profitable than using carsharing, in 2023 prices.
+Which means that a customer would pay about 6€/trip for the car itself. Dividing the monthly cost of owning a car by this value, we get 350/6 = 58, or a threshold of about 2 trips a day. If a person does less than 2 trips a day (weekends included), owning a car becomes less profitable than using carsharing, in 2023 prices.
 
 Now, on the other hand, according to our rough estimations from Chapter 2, a remote station becomes profitable once it reaches about 10 trips/day (although this assumes that trips are a poisson process, and not a daily commute)
 

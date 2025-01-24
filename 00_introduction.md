@@ -8,6 +8,10 @@ The main reason for me writing this little summary is that as an advocate of car
 
 🔥 the writing alternates between basic considerations, mathematical models, and **practical business advice** that stems from these considerations and these models. Explain how it will be marked and labeled in the text (some nice emoji? Github-specific design?)
 
+🔥Examples of business advice with caution, warning, idea etc. (Maybe use only 2-3 subtypes instead of all 3?)
+
+🔥That all code is here and how to find it, in both directions
+
 🔥 Then go section by section, what they contain, to promise a brief overview
 
 # Legal notice
@@ -42,7 +46,7 @@ In the text of this manual, I would sometimes refer to **CM1 costs** and **CM2 c
 
 🔥
 
-# TEMP cellar (ideas that may or may not happen)
+# TEMP drafts
 
 🔥 What this thing is - conceptual models, but once math is agreed upon, "all" that is left is data management, model delivery and versioning, and data delivery infrastructure. This is not covered here.
 
