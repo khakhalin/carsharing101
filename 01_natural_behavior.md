@@ -48,7 +48,7 @@ Which means that even from this insultingly simple simulation we can extract thr
 Or, if you were to further condence these three thoughts into one message:
 
 > [!CAUTION]
-> Don't open new locations unless you know for sure that they will work! Small parking places are your enemy, and the smaller the project, the more dangerious it is!
+> Don't open new locations unless you are 99% sure that they will work! Small parking places are your enemy, and the smaller the project, the more dangerious it is for the bottom line!
 
 These points can very well be called "The fundamental problem of free-floating carsharing", as most operational and strategic fine-tuning that carsharing companies have to do, to survive as a business, are ultimately caused by this problem. Indeed, let's think for a second: how can one try to counteract this "unfair" accumulation of cars at bad locations?
 
@@ -61,6 +61,8 @@ But before we discuss the solutions, let's play a bit more with naive simple sys
 # 1.2 A set of stations
 
 🔥 Describe the model (it exists in the notebooks already)
+
+![An experiment with five stations](figures/01simple_02stations_01ncars.svg)
 
 🔥 Some basic plot?
 
