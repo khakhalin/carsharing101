@@ -17,7 +17,7 @@ In other situations, to outline a dangerous pitfall, I will give you a warning:
 Or give you a caution:
 
 > [!CAUTION]
-> Advises about risks or negative outcomes of certain actions. What not to do. Don't do it.
+> Advice about risks of certain actions. Things you should not do. Don't do it.
 
 Theoretically, you can try to use these items as a form of TLDR, and skim through the text from one shout-out to another, grasping the main ideas of this work, but ignoring the details, and the justifications.
 
@@ -28,7 +28,7 @@ If however you preer to dive deeper into graphs, you can always track them back 
 This document / repository consists of the following texts:
 
 * **Introduction** - the one you're reading righ tnow
-* **Natural behavior of cars** - a series of models that show what will happen with a car-sharing business if you let the cars be rented, and don't try to actively manage them. These models pave the road for the next section:
+* **Natural behavior of cars** - a series of models that show what will happen with a car-sharing business if you let the cars be rented, and don't try to actively manage them. In some ways, it is the most important chapter in the whole thing, as it describes the cardinal problem of car-sharing; the problem that the following three chapters are then trying to fight.
 * **Relocations** - a study for how to best move cars within the operating area, to achieve the best pereformance. This chapter also, oddly, contains a section on fleet planning (on deciding how many cars to keep in the city).
 * **Pricing** - while the topic of pricing in carsharing is extremely complicated, here I touch on several interesting aspects of it. I don't however go deeply into dynamic pricing, reinforcement learning, and policy optimization, as these topics are not my forte
 * **Operating area** - this chapter describes how to optimally expand and contrict the dynamic area, to achieve profitability while also improving offerings on the market
