@@ -18,6 +18,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo 🔥
 
+* Move "Is Gaussian city local?" to HA optimization, somehow preface it with "Does HA split into sub-HAs?" - and the answer is "no", both because of locality (that doesn't really exist - after 1-2 rentals car is completely mixed), but also because of cost structure. As HA within a single metropolitan area shrinks, it devolves into a collection of stations, a series of "highlights" with a strong interaction between them; it doesn't devolve into isolated HAs.
 * Give titles to all figures
 * Introduce a practice of "Bold business-related advice" every now and then, with quotation-like formatting. So that a person could jump and read only them, if so inclined.
 * The maxim of "left to its own devices, cars end up standing in the worst possible place"
