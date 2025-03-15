@@ -1,24 +1,43 @@
 # 00. Introduction
 
-As I am writing this in 2025, the public image of carsharing is not particularly stellar. In the 2010s, during the era of cheap money, the field was plagued by provider oversaturation, with some markets having 4-5 providers operating in a space that could only support 1-2 competing networks (just describe Berlin as of 2021?). This period was followed by a series of unproductive mergers and acquisitions (ref), chaotic market exits and expansions (ref brussels?) and even some legal scandals (ref Miles). Combined with the change in political climate, where at least in some cities smart urbanization and the overall quality of life was threatened by reactionary governments (ref Canada, Berlin), it created a narrative of distrust in carsharing as a business model. This unfortunate history made many people believe that free-floating carsharing simply cannot be profitable, that it is a dead-end, akin to other unsustainable fads of the 2010s like daily deal sites or on-demand laundry.
+Let's be honest, as I am writing this text in 2025, the public image of carsharing is not particularly stellar[^1]. During the era of cheap money of the 2010s the field was plagued by provider oversaturation. Some markets that could only support 1-2 competing networks had 4-5 providers engaged in a price war. (For example, around 2021 Berlin had Miles, Sharenow, Weshare, and Sixt, as well as a few minor station-based offers, all working at the same time). This period was followed by a series of unproductive mergers and acquisitions (ref), chaotic market exits and expansions[^brussels_plus][^brussels_plus2][^brussels_minus], and even legal scandals[^miles]. Combined with the change in political climate, where at least in some cities urbanization plans and quality of life improvements were threatened by reactionary governments[^ontario][^berlin_cdu], it created a certain narrative of distrust towards carsharing as a business model. This unfortunate history made many people believe that free-floating carsharing simply cannot be profitable; that it is somehow a dead-end, akin to other unsustainable fads of the 2010s, like daily deal sites or on-demand laundry.
 
-The main reason I am publishing this work is that as an advocate of a car-minimalistic future, and as a data scientist, I don't think that these statements are true. I believe that it is absolutely possible to build a profitable free-floating carsharing business, and that all the necessary parts for that to happen already exist on the market, although not necessaritly within a single company.
+The main reason I am wiriting this work though is that as an advocate for a car-minimalistic future, and as a data scientist, I don't think that these statements are true! I believe that it is absolutely possible to build a profitable free-floating carsharing business, and that all the necessary parts for this to happen already exist on the market, just not necessaritly within a single company. A good car-sharing company should gave good management, good cars, good tech stack, and manage its operations wisely. Now that I no longer work in carsharing, I cannot help with the first three problems, but I can stil help with the last, by publishing this work, and hopefully helping _all competing companies at once_ to improve their operations. At worst, you can use these texts to onboard new team members. At best, you can learn something from them, and boost your service and your profitabilit here and there. One can also try to use this text as a backbone for a practical introductory course in transportation data science and modeling.
 
-🔥 Can be used to onboard new players, or new team members; should help existing business (I hope), but also may potentially be used as a source for a practical introductory course in transportation data science
+The writing here alternates between basic common sense considerations, mathematical models, simulation outputs, and **practical business advice** that stem from these models. I will use Github-specific Markdown to drive these practical points down. For example, you'll see bussiness tips in the text, shown liks this:
 
-🔥 the writing alternates between basic considerations, mathematical models, and **practical business advice** that stems from these considerations and these models. Explain how it will be marked and labeled in the text (some nice emoji? Github-specific design?)
+> [!TIP]
+> Helpful advice for doing carsharing better or more easily. That's your practical take-away!
 
-🔥Examples of business advice with caution, warning, idea etc. (Maybe use only 2-3 subtypes instead of all 3?)
+In other situations, to outline a dangerous pitfall, I will give you a warning:
 
-🔥That all code is here and how to find it, in both directions
+> [!WARNING]
+> Urgent info that needs immediate user attention to avoid problems. Common misunderstandings and things that need to be done if you venture in this direction. Don't forget to do this!
 
-🔥 Then go section by section, what they contain, to promise a brief overview
+Or give you a caution:
+
+> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions. What not to do. Don't do it.
+
+Theoretically, you can try to use these items as a form of TLDR, and skim through the text from one shout-out to another, grasping the main ideas of this work, but ignoring the details, and the justifications.
+
+If however you preer to dive deeper into graphs, you can always track them back to the code of the simulation. All graphs in these documents are directly generated by scripts stored in the folder `scripts` of this repository. To find a script that generated a certain graph you need to build it back from the figure name. For example, you may got interested by a Figure 2.4.2 from a section 2.4 in chapter 2. You can right-click on this image, and learn that the png file in which it is stored is named `02relos_02stations_04fleet_size_few_stations` (note how it's quite similar to the figure number). You can then go to the `scripts` folder, open the `02relos_03fleetsize` Jupyter notebook, and `Ctrl-F` for it, looking for a `plt.savefig()` command that saves this figure on disk. In all (or at least most) simulations the random generator seed is set at the beginning of the script, so re-running the script will genuinely re-generate the images that are linked in the text of the articles. Use this feature at your pleasure, but also be careful! Or maybe comment the `plt.savefig()` command out before playing with the code 😅
+
+# The structure of this work
+
+This document / repository consists of the following texts:
+
+* **Introduction** - the one you're reading righ tnow
+* **Natural behavior of cars** - a series of models that show what will happen with a car-sharing business if you let the cars be rented, and don't try to actively manage them. These models pave the road for the next section:
+* **Relocations** - a study for how to best move cars within the operating area, to achieve the best pereformance. This chapter also, oddly, contains a section on fleet planning (on deciding how many cars to keep in the city).
+* **Pricing** - while the topic of pricing in carsharing is extremely complicated, here I touch on several interesting aspects of it. I don't however go deeply into dynamic pricing, reinforcement learning, and policy optimization, as these topics are not my forte
+* **Operating area** - this chapter describes how to optimally expand and contrict the dynamic area, to achieve profitability while also improving offerings on the market
+* **Conclusions** - a few random thoughts that didn't make it to any of the other chapters
+* **Appendix** - a justification for some of the numerical assumptions used in this work
 
 # Legal notice
 
-While ultimately most of my personal experience with carsharing stems from my tenure at SHARENOW, where I worked from August 2021 to January 2024, the entirety of this text, and all of the code in the associated Jupyter notebooks, was written by me in late 2024 – early 2025, long after my leaving the company. Moreover, to the best of my knowledge, and at least by the time of my last interactions with my former colleagues, neither SHARENOW nor Free2Move (the company that purchased SHARENOW it in 2023) based their operations on the principles described here.
-
-This work presents my vision of how I would have set up a car-sharing business if I could start it from scratch now, at least as far as Data Science and Business Intelligence are concerned. I sincerely hope that it will be hepful for all mobility companies out there, and that together they will be able to make this world better.
+While ultimately most of my personal experience with carsharing stems from my tenure at SHARENOW, where I worked as a Data Scientist in the Advanced Analytics team from August 2021 to January 2024, the entirety of this text, and all of the associated code, was written by me in the fall of 2024, early 2025, **long after my leaving the company**. Moreover, to the best of my knowledge, and at least by the time I last interacted with my former colleagues, neither SHARENOW nor Free2Move (the company that purchased it in 2023) based their operations on the principles described here. This work presents my vision of how I would have set up a car-sharing business from scratch, if I could do it now, at least as far as Data Science and Business Intelligence are concerned. I sincerely hope that this text will be hepful for all mobility companies out there, and that together they will be able to make this world better!
 
 # Terminology
 
@@ -52,3 +71,11 @@ In the text of this manual, I would sometimes refer to **CM1 costs** and **CM2 c
 
 # Footnotes
 
+[^1]: Low mileage, several careful renters … will car-sharing ever really get going? By Jasper Jolly, 15 Mar 2025. https://www.theguardian.com/business/2025/mar/15/low-mileage-several-careful-renters-will-car-sharing-ever-really-get-going
+
+[^brussels_plus]: Miles launches car-sharing service in Brussels. Johannes Reichel, 31.10.2022. https://vision-mobility.de/en/news/miles-launches-car-sharing-service-in-brussels-207618.html
+[^brussels_plus2]: Free-Floating Carsharing in Belgium: An Insights Interview. Invers.com, and interview with Jeffrey Matthijs, April 24, 2023. https://invers.com/en/blog/free-floating-carsharing-in-belgium-an-insights-interview/
+[^brussels_minus]:  Car-sharing provider Miles exits Belgium: ‘Too much vandalism’. By Piet Andries, March 12, 2025. https://newmobility.news/2025/03/12/car-sharing-provider-miles-exits-belgium-too-much-vandalism/
+[^miles]: Car-sharing German company Miles accused of manipulating data to defraud millions in Berlin parking fees. Alexander Saraff Marcos. October 12, 2023. https://www.newsendip.com/car-sharing-german-company-miles-accused-of-manipulating-data-to-defraud-millions-in-berlin-parking-fees/
+[^ontario]: Bikes v cars: backlash after Ontario premier threatens to tear up cycling lanes in Toronto. The Guardian. 18 Nov 2024. https://www.theguardian.com/world/2024/nov/18/ontario-toronto-bike-lanes
+[^berlin_cdu]: Critics decry Berlin's 'behind-the-times' transport policy. Ben Knight. February 6, 2024. https://www.dw.com/en/critics-decry-berlins-behind-the-times-transport-policy/a-68186857
