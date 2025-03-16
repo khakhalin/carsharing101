@@ -69,7 +69,7 @@ But before we discuss the solutions, let's play a bit more with naive simple sys
 
 🔥 Describe the model (it exists in the notebooks already)
 
-![An experiment with five stations](figures/01simple_02stations_01ncars.svg)
+![An experiment with five stations](figures/01simple_02stations_01ncars.svg "An experiment with five stations")
 
 🔥 Some basic plot?
 
@@ -141,21 +141,25 @@ It is also important to note that in practice, depending on the business model o
 
 # Are simple models reasonable?
 
-🔥 But before we go any further, let's review the key abstractions and simplifications that we used in the model above, and consider if these simplifications are worth it. If Poisson process approximation is reasonable, we should retain it for all other models in this study, as it is simple, and easy to code[^3]. If it is unreasonable, and makes our models too unrealistic, ten it should be replaced with something more complicated. 🔥
+Before we go any further, let's review the key abstractions and simplifications that we used in the models above, and think once again if these simplifications are worth it. If Poisson process approximation is reasonable, we will retain it for all other models in this study, as it is simple, and is easy to code[^3]. If however it is unreasonable, and makes our models unrealistic, then we need to replace it with something more complicated before we dare to stir our business based on the outcomes of these models.
 
-1. We assumed that rentals between different points can be approximated by a set of independent stationary Poisson processes. In reality, it is not true of course, so let's briefly discuss, why it is not true, and why it is probably still OK to ignore these details and use Poisson processes to model car rentals:
-2. Real rentals are correlated in time and space: every time there is an event in the city (e.g. a concerts, a demonstration, or an interruption in public transportation), this event would boost rentals in the affected area, slightly correlating them. We will ignore this effect, and asume that we work with average demands in each part of the city.
-3. In real life, if a customer went from point $i$ to point $j$ in a shared car, it is not unreasonable to expect that at some point they would go from the point $j$ back to the point $i$, as ultimately most customers have a place to live, to which they return regularly. We will ignore this fact. This simplificatoin is equivalent to assuming that our city has a decent system public transportaton, as well as, possibly, several competing car- bike- and scooter-sharing offerings. Essentially, we will assume that it is not the trips themselves that form a poisson processes, but a choice of our car sharing company as a mode of transportation. Which is probably a fair assumption for a healthy city with multiple mobility options.
-4. In real life, we have regular customers with preferred routes. In this model we will ignore them.
-5. 🔥 roundtrips
-6. In real life, most rentals happen in the morning, then the activity calms down a bit, peaks again in the early afternoon, and mostly ceases late at night. In our models however we will pretend that night and day do not exist, and rentals happen with the same average frequency all the time. It is easy to see that this simplification will not change the limiting (eventual) distribution of cars in the system, it will only "smoothen" the trajectory towards this end-state. Moreover, this simplifiatoin should not even change the average variations (fluctuatoins) of this spatial distribution over time. In real car sharing, the time (the frequency of events) runs faster during the day, and slower at night, but we will "zoom in" on morning events (by slowing them down), and "zoom out" of night events (by accelerated them). Still, all rentals will be captured, the total number of rentals over a course of a day will be represented, and the trajectory of every car through the city will be faithfully followed.
-7. All trips are instantaneous, with no time spent in-transit. 🔥
+Here's the list of assumptions we made so far:
 
-What is the probable effect of these simplifications? 🔥
-* These make our estimation conservative, as there's another constant income on top that doesn't change the location of cars (round-trips)
-* These may make our estimations slightly optimistic, as there's a drain that doesn't change the location of cars, at the end of the day (commuting)
-* These ultimate don't matter, as they affect neither the distribution of cars in space, nor other measures, like financial estimations, or service quality = DFR (uniformity of time)
-* These don't affect the distributio nof cars in space, but introduce biases between this distribution at one hand, and DFR & financials at the other (transit time)
+🔥🔥🔥 _ADD "Answers" right after the imperfection, only then summarize_
+
+1. We assumed that rentals between different points can be approximated by a set of independent stationary Poisson processes. In reality, it is of course not true, so let's briefly discuss, why it is not true, and why it is probably still OK to ignore these details and use Poisson processes to model car rentals:
+    1. Real rentals are correlated in time and space: every time there is an event in the city (e.g. a concerts, a demonstration, or an interruption in public transportation), this event would boost rentals in the affected area, slightly correlating them. We will ignore this effect, and asume that we work with average demands in each part of the city.
+    2. In real life, if a customer went from point $i$ to point $j$ in a shared car, it is not unreasonable to expect that at some point they would go from the point $j$ back to the point $i$, as ultimately most customers have a place to live, to which they return regularly. We will ignore this fact. This simplificatoin is equivalent to assuming that our city has a decent system public transportaton, as well as, possibly, several competing car- bike- and scooter-sharing offerings. Essentially, we will assume that it is not the trips themselves that form a poisson processes, but a choice of our car sharing company as a mode of transportation. Which is probably a fair assumption for a healthy city with multiple mobility options.
+    3. In real life, we have regular customers with preferred routes. In this model we will ignore them.
+    4. We ignore rondtrips. In real life, it is quite common for a user to rent a car, drive it to a store, pick something without stopping a rental, and drive back. We don't include this type of usage in our models.
+2. In real life, most rentals happen in the morning, then the activity calms down a bit, peaks again in the early afternoon, and mostly ceases late at night (a narrow morning rush hour and a longer, flatter afternoon rush hour). In our models we pretend that night and day do not exist, and rentals happen with the same average frequency all the time. It is easy to see that this simplification will not change the limiting (eventual) distribution of cars in the system, it will only "smoothen" the trajectory towards this end-state. Moreover, this simplifiatoin should not even change the average variations (fluctuatoins) of this spatial distribution over time. In real car sharing, the time (the frequency of events) runs faster during the day, and slower at night, but we will "zoom in" on morning events (by slowing them down), and "zoom out" of night events (by accelerated them). Still, all rentals will be captured, the total number of rentals over a course of a day will be represented, and the trajectory of every car through the city will be faithfully followed.
+3. All trips are instantaneous, with no time spent in-transit. 🔥
+4. We don't consider long-term rentals at all🔥
+
+Let's sum up the effects of these simplifications: 🔥
+* Some of them make our financials estimations conservative, as there's another constant income on top that doesn't change the location of cars (round-trips, long-term shipments)
+* Some may make our estimations slightly optimistic, as there's a drain that traps cars in two bad locations, but doesn't change the location of cars, at the end of the day (commuting)
+* A few ultimately don't matter, as they affect neither the distribution of cars in space, nor financial estimations, nor service quality (DFR, at least as long we are ignoring rush hours, and assume the time to be uniform)
 
 # Footnotes
 
