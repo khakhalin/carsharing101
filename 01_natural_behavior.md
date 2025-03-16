@@ -31,7 +31,7 @@ But so, what is the expected _average_ number of cars at the village parking lot
 Which is of course absolutely bizarre!
 
 > [!CAUTION]
-> If you open a small location and do nothing about it, it will gradually hard a totally disproportional number of idling cars.
+> If you open a small location and do nothing about it, it will hoard a totally disproportional number of idling cars.
 
 Why don't car-sharing companies observe a half of their fleet being stuck in a small peripheral parking spot, in practice? Let's not limit ourselves to just three sample walks, as shown above, but look at 1000 superimposed random walks, and show them on one figure, semi-transparent (see Fig. 1.1.2 below). Let's also calculate the average of all random walks at every point of time, and plot this curve in the same axes (in black), as an approximation for the evolution of the expected average number of cars at the village parking lot $E(N_V)$. To make the simulation easier, here, as in the previous figure, we use discrete time:  at every turn with probability of $p=0.005$ we have a car arriving (the number increasing by one), and with the same probability we have a car leaving (the number decreasing by one); the number starts at zero, and can never get below zero. The x-axis shows the expected total number of transitions to happen by this point ($2pn_t$, where $n_t$ is the number of passed time ticks). Also, for purely illustrative purposes, one of the random walks is shown slightly stronger than  others, as a solid green line.
 
@@ -47,7 +47,7 @@ We can use the average (black) curve of $E(N_V)$ to estimate the number of renta
 
 Which means that even from this insultingly simple simulation we can extract three important, practical take-away points:
 
-> [!NOTE]
+> [!WARNING]
 > 1. Bad locations suck in and trap cars.
 > 2. The number of trapped cars doesn't depend on the quality of the location, is not affected by the demand at this location, and does not get smaller for smaller locations! Smaller locations just accumulate the fleet slower, as the speed at which cars are getting trapped is proportional to the demand.
 > 3. The first 2-3 cars are trapped very quickly, within about a dozen rentals.
