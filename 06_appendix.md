@@ -47,7 +47,7 @@ Finally, every now and then users have issues with a rental, that they are tryin
 
 Gowing through these costs, we arrive it about 5 €/trip in CM1 costs, or, comparing with the brutto revenue of 10 €/ trip, in **CM1 profit of 5 €/trip**. For a smooth operation this estimation can of course be driven down, from 50% to 20-40% of the gross revenue, but it is a good starting point for our calculations.
 
-Note that in all the calculations above we are only concerned with short-term rentals within the home area. The long-term rentals bring in more revenue per rental, while typically having constant, or even lower CM1 costs, so they are more profitable on average. As mentioned previously, however, long-term rentals that originate and finish in the operating area of a carsharing operator constitute almost a different business that exists _on top_ of the main car-sharing business, and just happens to use the same infrastructure, and the same set of cars. It is really nice and helpful that long-term rentals exist, but they are not the main focus of this document.
+Note that in all the calculations above we are only concerned with short-term rentals within the operating area. The long-term rentals bring in more revenue per rental, while typically having constant, or even lower CM1 costs, so they are more profitable on average. As mentioned previously, however, long-term rentals that originate and finish in the operating area of a carsharing operator constitute almost a different business that exists _on top_ of the main car-sharing business, and just happens to use the same infrastructure, and the same set of cars. It is really nice and helpful that long-term rentals exist, but they are not the main focus of this document.
 
 ### Typical relocation cost
 
