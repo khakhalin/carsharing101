@@ -26,6 +26,7 @@ The right panel shows a plot of average relocation frequency over time, and simi
 🔥 TODO: fix the title here below, it has a typo. The title should be "Expected relication rate". Also change "hub" to "station" in figures
 
 ![Relocation frequencies as a function of upper limit of cars at the parking lot](figures/02relocations_01village_02relo_freq.svg)
+
 > [!TIP]
 > The lower the target number of cars at the station, the more you will have to relocate to maintain it.
 
@@ -52,19 +53,27 @@ $\displaystyle N_\text{opt} = \sqrt{\frac{2 (r + π) \lambda}{C}} - 1$
 
 Equipped with this formula, we can find the optimal relocation rate (or rather, relocation threshold) for an isolated parking with any observed or expected demand, put this optimal relocation rate to the formula for CM2 above, and get a curve of _maximal possible profitability_ of a parking station, as a function of demand at this station. The curve for the same financial parameters as before (20€/car/day of leasing/ownership costs, 20€/relo, 5€/trip CM1 in profit; see "Appendix" for comments) is shown below (Fig 2.1.4). It below zero, as for a no-demand location every car needs to be relocated "to the mainland", then counterintuitively dips even further down (as the rate of relocations increases, but the rentals don't yet contribute much to the economy of the parking lot). At some point however the curve starts to recover, and at some critical demand (for these parameters, at about 8 rentals/day _in one direction_) the parking lot breaks even, and then becomes steadily more and more profitable.
 
-🔥Advice on "general hub profitability threshold", as a callout
-
-🔥Advice on formalizing this requirement within a company (review it every now and then), as it helps to improve communication with sales.
-
-🔥Add zero horizontal axis here
-
-![Optimal relocatoin threshold as a function of parking spot popularity](figures/02relocations_01village_04ideal_profitability.svg)
+![Optimal relocation threshold as a function of station popularity](figures/02relocations_01village_04ideal_profitability.svg "Optimal relocation threshold as a function of station popularity")
 > [!TIP]
 > 10 rentals/day one direction (from the station to the city) is a good "Rule of thumb" threshold for a newly opened location to be profitable. If you have reasons to expect the new location to generate 10 rentals a day on average, you can open it.
 
 Calculating a curve like that for your actual CM2 cost, relocation cost, and CM1/trip in a city would give you a very good starting point for deciding which locations are worth opening or retaining. If a location doesn't offer enough demand, it will be a burden for business, but once it breaks even, it can become a good investment for the future. In Chapter 4 we will talk more about the concepts of shrinking and expanding the operating area, one location at a time.
 
+If your company has a dedicate "sales" department, with people trying to negoatiate with businesses and municipalities about opening a station at their premises, it's also useful to communicate this approximate ballpark value to them, so that they could prioritize their projects. 2 rentals a day are not worth fighting for. 15 rentals a day is a no-brainer. 5 rentals a day is a borderline case where assumptions and long-term projections suddenly become important.
+
+## Autonomous vehicles
+
+Before we return back to "normal" scenarios let's indulge in a little aside here. How could anotonomous vehicles (should they ever  happen) change this picture? Usually when people think about autonomous vehicles, they hink about a person sleeping or working in a car while a car is wheezing along a highway. But in case of urban mobility that is another interesting application to autonomous driving: slow, safe, driverless and _userless_ relocations in the middle of a night. Imagine a city in which every car parked in a dark God-forsaken alley would carefully crawl out of this alley at about 2 am, when there's almost no one on the streets, and slowly, carefully move itself towars a target parking station, to be picked up by humans in the morning. How would this change the economics of relocations?
+
+![Optimal relocation threshold as a function of station popularity - for autonomous vehicles](figures/02relocations_01village_05autonomous.svg "Optimal relocation threshold as a function of station popularity - for autonomous vehicles")
+Above is a version of the same graph as before, but for a scenario where cars are very expensive (50 rather than 20 €/day in CM2 costs), but the relocations are very cheap (3 rather than 20 €/relo, accounting for electricity costs and amortization, see Appendix). The non-linear dip for small stations is gone; there is still a clear threshold, but this threshold is now way smaller, at 4 rather than 8 rentals a day (one direction). In other words:
+
+> [!TIP]
+> If autonomous relocations are ever available, they will make free-floating car-sharing more profitable, and more accessible, as operators will be able to cover smaller, less popular stations.
+
 # 2.2 Several stations
+
+🔥 ADD CLEAR CONCLUSIONS EVERYWHERE HERE, AS RIGHT NOW IT"S RATHER CONFUSING
 
 Before we upgrade our models from one location to a set of several locations, lets talk some more about the logic of relocations. To perform a relocation, both in real life and in the model, we need to find the best car to relocate, and a good destination to move it to (a station, a zone, a parking spot, or a certain position deep within the city). Let us assume that our goal here is to maximize profits (as opposed to, for example, promoting our services, undercutting competition, or achieving a certain level of customer experience). Let's also agree that we are going to maximize these profits by maximizing revenue: we don't want cars to stand idly in some forgotten side alleys without serving customers; we want them to be rented again and again, as often as possible. (In real life we may also be concerned about reducing losses, such as vandalism and theft, or by optimising costs, such car cleanness, recharging and refueling etc., but for the sake of this exercise let us ignore everything except the profits received from rentals).)
 
@@ -94,8 +103,6 @@ Unfortunately for our model, in this case relocations don't really help to incre
 Let's now change the model, to make sure that some of the stations are really bad, so that cars could really "get stuck" there (we'll give them ~10 times lower demand, compared to "good stations"), and also that there are not enough "cars" to cover all the stations. The figure below corresponds to 10 stations, half of them with demand of about 0.4, half of them with demand of about 0.03, and only 5 cars to serve the city; a relocation is performed every 20th tick (see `02relos_02ring` script for details, scenario `suburbs`). We can infer from the left plot that relocations were used to move cars from bad (low demand) stations to good ones, maintaining a DFR of about 20% at bad stations, and about 55% at good stations. The bad stations remain unprofitable, but not as unprofitable as they wold have been with the uniform distribution of fleet. in the absence of relocations!
 
 ![Stations model, profitable relocations](figures/02relos_02stations_02financials_suburbs.svg)
-
-🔥 ADD CLEAR CONCLUSIONS EVERYWHERE HERE, AS RIGHT NOW IT"S QUITE CONFUSING
 
 🔥 DFR vs demand?
 
@@ -203,7 +210,6 @@ But the amount of "bad" cars that appear in a city every day is kinda fixed, and
 * 🔥 3 car at once
 * 🔥 Star principle of route optimization
 * 🔥 That Streetcroud shouldn't be possible, if people do relocations right
-
 
 The formula for the expected CM1 effect of a single relocation that was introduced above can also be applied to real-life, physical, data-driven relocations. As a reminder, the original formula was written as
 
