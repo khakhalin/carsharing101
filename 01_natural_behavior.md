@@ -67,11 +67,22 @@ But before we discuss the solutions, let's play a bit more with naive simple sys
 
 # 1.2 A set of stations
 
-🔥 Describe the model (it exists in the notebooks already)
+Let's now make our first step towards a more interesting business area: let's consider five stations, with five different, linearly increasing demand levels; something like `[0.5, 0.4, 0.3, 0.2, 0.1]` (in arbitrary units). Let's assume that the probability of a trip from zone $i$ to zone $j$ is proportional to the product of demand in each zone: $P(i → j) = p_i p_j$. The reasoning here is that people normally move back and forth, so if a lot of people are coming to a zone (a densely inhabited area, an airport, a popular shopping location), a lot of people will also be leaving from this area at some point, making $p_i$ not only the probability of a starting rental, but an estimate for the relative probability of rentals ending in this area. With this in mind, let's now put all cars in one station (it does not matter which one), and let the situation develop "naturally". What will be the expected end-state distribution of cars in this model?
 
-![An experiment with five stations](figures/01simple_02stations_01ncars.svg "An experiment with five stations")
+By now you probably have a hunch of what the answer could be. If you wait long enough (in this case, for 20 000 steps), and then look at the average number of cars in these 5 zones across the next 100 time periods of 2000 steps each, you will see the this average number of cars in each of these locations will be about the same (Fig 1.2.1, right), and the behavior of the "curve" of the number of cars in each location (Fig 1.2.1 left) will be similar to our previous experiments with one tiny village near a large city.
 
-🔥 Some basic plot?
+![An experiment with five stations](figures/01simple_02stations_01ncars.svg)
+
+But let this flatness of car distribution not fool you: if we look at the activity at each station, at either the number of rentals from it (Fig 1.2.2 left), or the average idle time for cars at this station (Fig 1.2.2 right), we'll see the the locations were very different. The best of them created 5 times more car rentals than the worst of them, and had a much lower idling time (waiting time) per car. And yet in the long-run, all of them about the same accupancy.
+
+![An experiment with five stations, idle times](figures/01simple_02stations_02idle.svg)
+
+What does it mean for our business? It means that some of these locations were good (lots of rentals), and some of them were bad (few rentals), and still the cars distributed about equally among them. And when at the smallest demand location cars were idling, with long waiting times between rentals, were were probably wasting money, as we were still paying for these cars, but they weren't generating a profit.
+
+> [!WARNING]
+> Cars tend to distribute uniformly across all of your locations. Because of that, low-demand locations make cars idle for longer, which is bad for the business.
+
+Can we make these financial intuitions a bit more precise? Of course we can: let's remember what we learned about CM1 and CM2 profits in the Chapter 0, and try to apply this logic to this case.
 
 ## Spatial CM2: the theory
 
@@ -106,13 +117,44 @@ where $t_{wait}$ is waiting time while parked in the zone, $t_{in}$ and $t_{out}
 
 ## CM2 in a collection of stations
 
-🔥 ANALYZE AND PLOT
+Now that we agreed how to calculate CM1 and CM2 profits per location, let's check how our 5 locations fared in terms of their profitability. To make the plots more relatable, let's assume that each trip brought us about 5€ in CM1, and that keeping a car for a day costed us about 20€ in CM2 burden (see Appendix). Let's also assume that the mos high-demand of these five locations saw about 20 departing cars per day (and then we'll just simply scale simulated departures to this value). With these assumptions, the situation with CM1 is easy: it's just the number of departures we've seen above, now scaled to Euros (Fig. 1.2.3, left). The weakest of locations brought us about 20€ a day in CM1, the best one, about 90€ in CM1.
+
+As we move from CM1 to CM2 we take these linearly increasing profts, and substract from them the trapped car costs, which are roughly flat on average (as we had about the same number of cars standing at each location, on average), so our entire chain of point moves down (Fig 1.2.3, right). Not surprisingly, the lowest-demand location turned out to be deeply unprofitable, while our "best" location turned to be profitable on average.
+
+![An experiment with five stations, idle times](figures/01simple_02stations_03financials.svg)
+
+If we look at these pictures a bit more carefully, we may notice two more things. One, once we switch to the actual profitability (CM2 profitability) picture on the right, we get quite some noise in our data, on an experiment-by-experiment basis. The second-best location, for example, was ultimately unprofitable on average, but in about one third of runs it was performing OK. On these runs we just got lucky: not too many cars, but also not too many missed sales (moments when the parking lot would stay empty), and just all in all a favorable distribution of trips across our system. Conversely, on some runs even our best location underperformed and eneded up losing us money, even though it was profitable in the long-term.
+
+> [!CAUTION]
+> Car-sharing business has to be data-driven, but remember that it is a stochastic system with small revenue margins, so the data is noisy, and the effects are small. A good location may sometimes cost your money, while a subpar location may bring an unexpected win. Don't be hasty, give it some time, don't close and open locations willy-nilly; make sure you get enough statistical power to make a decision.
+>
+> 🔥 Another business consequence of this finding is that it is not that easy to predict if a small location will be profitable in the long-run, based on its actual performance over a short period of time. It is much more efficient to measure the demand at the station, and then calculate the expected profitability, assuming this demand and optimal fleet management.
+
+
+Another interesting observation is that the distribution of CM2 profits is much wider for our "bad" location (the one with low demand), compared to the "good" one. This happens because this location is slower, cars stick there for longer, and the number of cars at it tends to be "sticky", in a way. If a slow location accumulates too many cars, they take forever to disspate, and vice versa, it takes longer for an unpopular location to get some cars, if at some point it ran empty. Counterintuitively, this can be seen as a good point: if your bad cars accumulates idling cars, if cars are standing there, without generating revenue, you have the time to react and intervene.
+
+> [!TIP]
+> As a counter to the cautious point above: if you can identify bad car distributions early, and intervene, either by moving cars around (Chapter 2), or providing incensives through prices (Chapter 3), you can turn unprofitable days into profitable ones. And because it is slow cars that cost you money, you actually typically have the time to react.
+
+## Service level and lost sales
+
+🔥 If you listened carefully, you may think at this point "many cars are bad", so should't we always have verry few cars in the city? IRL, obviously, branding, service, trust. But even in a simplest model, also missed sales.
+
+🔥Remind DFR
+
+![An experiment with five stations, idle times](figures/01simple_02stations_04financials.svg)
+
+🔥 The interesting thing here, howeveer, is that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, precisely because it is accompanied by lower values of trapped fleet, allowing this fleet to, supposedly, earn money elsewhere. The reasons that unfulfilled demand is dangerous is that it can damage customer trust, and thus harm the business in the long-term, but short-term it does not hurt CM2 values that much.
+
+🔥Musing: On how it makes aggregators (like Free2Move) good: they make market entry easier, and allow players with low fleet and lower
 
 # 1.3 Gaussian City
 
 🔥 Rewrite this below, as it turned to be untrue:
 
-In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations (but also with ebbs and wanes charasteristic for constrained brownian processes). But is it a good model for a real city? A real city is different from our idealistic collection of stations in two ways: first, in a city, the trips that people make are relatively local on average (ref🔥). While people can, and sometimes surely do drive from one end of the city to another end, most trips that people make tend to be relatively short, and contrained to their neighborhood. The other difference, which may or may not be important, is that in a real city the distribution of demand values across zones is markedly long-tailed: there are typically relatively few hot and popular zones (usually in the city center), a few medium zones (high-density high-income living areas; local hotspots of commercial and recreational activity), and many low-demand zones where people either live or work (or sometimes both). So let us check whether cars will still tend to distribute uniformly, if we introduce lots of pixel-like zones, assign some reasonable, spatially coherent demand to them (more in the center, less on the periphery), and force a realistic distribution on the distances of drives performed within this model city.
+In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations (but also with ebbs and wanes charasteristic for constrained brownian processes). But is it a good model for a real city? A real city is different from our idealistic collection of stations in two ways: first, in a city, the trips that people make are relatively local on average (ref🔥). While people can, and sometimes surely do drive from one end of the city to another end, most trips that people make tend to be relatively short, and contrained to their neighborhood. The other difference, which may or may not be important, is that in a real city the distribution of demand values across zones is markedly long-tailed: there are typically relatively few hot and popular zones (usually in the city center), a few medium zones (high-density high-income living areas; local hotspots of commercial and recreational activity), and many low-demand zones where people either live or work (or sometimes both). 
+
+Let us check whether in a city like that cars will still tend to distribute uniformly. We can for example introduce a square grid of pixel-like zones, assign some reasonable, spatially coherent demand to them (more in the center, less on the periphery), and force a realistic distribution on the distances of drives performed within this model city.
 
 Let's start with sketching a hightly abstracted, but still reasonable population density for a large European city. A typical "width" of a decently sized European city is about 10 to 20 km. (For example, if you approximate "city size" as a square root of the nominal city area, you'd get 30 km for Berlin; 25 km for Hamburg, 20 for Vienna, 17 for Munich, 15 for Amsterdam). Let's then model a city that is 20 km wide. To make the center of the city more populated, and the periphery a bit more sparse, let's model the population density as a Gaussian (🔥 formula). To make sure that the densely populated "city center" fit in our 20 km-wide square, let's use the Gaussian width constant $σ$ of 6 km, and to make subsequent calculations faster, let's discretize this population density with a step (pixel size) of 1 km. The resulting population density is shown on the Figure 1.3.1 below, both as a heatmap (left), and as several cross-sections (right).
 

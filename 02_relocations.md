@@ -69,7 +69,7 @@ Before we return back to "normal" scenarios let's indulge in a little aside here
 Above is a version of the same graph as before, but for a scenario where cars are very expensive (50 rather than 20 €/day in CM2 costs), but the relocations are very cheap (3 rather than 20 €/relo, accounting for electricity costs and amortization, see Appendix). The non-linear dip for small stations is gone; there is still a clear threshold, but this threshold is now way smaller, at 4 rather than 8 rentals a day (one direction). In other words:
 
 > [!TIP]
-> If autonomous relocations are ever available, they will make free-floating car-sharing more profitable, and more accessible, as operators will be able to cover smaller, less popular stations.
+> If autonomous relocations ever become available, they will make free-floating car-sharing more profitable, and more accessible, as operators will be able to cover smaller, less popular stations.
 
 # 2.2 Several stations
 
@@ -96,7 +96,7 @@ Had we tried to relocate several cars at once, the formulas and the algorithm wo
 
 The results from a relocation model (script `02relos_02ring` with `few_stations` scenario) are shown in the figure above. Here all model parameters were exactly the same as in the corresponding model from Chapter 1 (5 stations with demand linearly decreasing from 0.5 to 0.1;, 20 cars), but this time around every 20th tick an idle-time-based relocation was performed. We can see the cars are no longer distributed uniformly, as cars from low demand stations are regularly relocated to high-demand stations.
 
-Unfortunately for our model, in this case relocations don't really help to increase the profits (see the figure below; it assumes 20 trips/day from the hottest zone in the model, 5 €/trip in CM1, and 20 €/day as the car cost). 🔥 _Describe what we are supposed to see on this figure_ That relocations are not helpful for this model in particular is not really surprising, given that with this set of parameters (20 cars per 5 stations) our "city" is oversaturated with "cars", as the way the code is written, at any given moment at best 5 cars may be "used", and no car is rented for longer than one tick of time (all trips are instantaneous), so 15 out of 20 cars are always idling. To make relocations profitable in this model we'll need to change the distribution of demand values, and also reduce the fleet (lower the DFR).
+Unfortunately for our model, in this case relocations don't really help to increase the profits (see the figure below; it assumes 20 trips/day from the hottest zone in the model, 5 €/trip in CM1, and 20 €/day as the car cost). 🔥🔥🔥 _Describe what we are supposed to see on this figure_ That relocations are not helpful for this model in particular is not really surprising, given that with this set of parameters (20 cars per 5 stations) our "city" is oversaturated with "cars", as the way the code is written, at any given moment at best 5 cars may be "used", and no car is rented for longer than one tick of time (all trips are instantaneous), so 15 out of 20 cars are always idling. To make relocations profitable in this model we'll need to change the distribution of demand values, and also reduce the fleet (lower the DFR).
 
 ![Stations model with unprofitable relocations](figures/02relos_02stations_02financials_few_stations.svg)
 
