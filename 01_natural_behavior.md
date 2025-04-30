@@ -126,10 +126,7 @@ As we move from CM1 to CM2 we take these linearly increasing profts, and substra
 If we look at these pictures a bit more carefully, we may notice two more things. One, once we switch to the actual profitability (CM2 profitability) picture on the right, we get quite some noise in our data, on an experiment-by-experiment basis. The second-best location, for example, was ultimately unprofitable on average, but in about one third of runs it was performing OK. On these runs we just got lucky: not too many cars, but also not too many missed sales (moments when the parking lot would stay empty), and just all in all a favorable distribution of trips across our system. Conversely, on some runs even our best location underperformed and eneded up losing us money, even though it was profitable in the long-term.
 
 > [!CAUTION]
-> Car-sharing business has to be data-driven, but remember that it is a stochastic system with small revenue margins, so the data is noisy, and the effects are small. A good location may sometimes cost your money, while a subpar location may bring an unexpected win. Don't be hasty, give it some time, don't close and open locations willy-nilly; make sure you get enough statistical power to make a decision.
->
-> 🔥 Another business consequence of this finding is that it is not that easy to predict if a small location will be profitable in the long-run, based on its actual performance over a short period of time. It is much more efficient to measure the demand at the station, and then calculate the expected profitability, assuming this demand and optimal fleet management.
-
+> Car-sharing business has to be data-driven, but remember that it is a stochastic system with small revenue margins, so the data is noisy, and the effects are small. A good location may sometimes cost your money, while a subpar location may bring an unexpected win. Don't be hasty, give it some time, don't close and open locations willy-nilly; make sure you get enough statistical power to make a decision. Or, better yet, instead of only looking at the actual financial behavior of a location, also compare it with modeling results, assuming actual demand, but more balanced car distribution and fleet management.
 
 Another interesting observation is that the distribution of CM2 profits is much wider for our "bad" location (the one with low demand), compared to the "good" one. This happens because this location is slower, cars stick there for longer, and the number of cars at it tends to be "sticky", in a way. If a slow location accumulates too many cars, they take forever to disspate, and vice versa, it takes longer for an unpopular location to get some cars, if at some point it ran empty. Counterintuitively, this can be seen as a good point: if your bad cars accumulates idling cars, if cars are standing there, without generating revenue, you have the time to react and intervene.
 
@@ -138,11 +135,14 @@ Another interesting observation is that the distribution of CM2 profits is much 
 
 ## Service level and lost sales
 
-🔥 If you listened carefully, you may think at this point "many cars are bad", so should't we always have verry few cars in the city? IRL, obviously, branding, service, trust. But even in a simplest model, also missed sales.
+At this point everything we talked about was how standing cars are bad for your business, and that the key to financial success seems to be in having as few cars at a location as possible. But surely it cannot be the end of a story, as if it were, then the winning business strategy would be to have one car per city, running back and forth between two "hot" locations, which does not sound right at all. So before we go further, let's briefly talk about service levels: the local availability of cars to meet the customer demand.
 
-🔥Remind DFR
+A simple way to measure service level is by calculating the demand fulfillment rate, or DFR: for every attempt of renting a car that a customer makes, we should check if there was a car nearby that could have met this demand. In real life, the calculation of DFR may be a bit tricky, as customers may use several different apps to check for cars, including aggregation apps that combine offers from several competing services; cars may be located closer or further from the customer, and cars can come up in different models, while the customer may have some preferences. But in our simulation measuring DFR is relatively straightforward: every time a random numbers generator "attempted" to move a car from one location to another, we will check if the source location had some cars in it, and if the movement actually happened. If there was no car there, then the demand was not fulfilled, making the DFR lower (and resulting in a missing sale).
 
-![An experiment with five stations, idle times](figures/01simple_02stations_04financials.svg)
+🔥Describe the plots
+
+![An experiment with five stations, idle times](figures/01simple_02stations_04dfr.svg)
+🔥  IRL, obviously, branding, service, trust. But even in a simplest model, also missed sales.
 
 🔥 The interesting thing here, howeveer, is that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, precisely because it is accompanied by lower values of trapped fleet, allowing this fleet to, supposedly, earn money elsewhere. The reasons that unfulfilled demand is dangerous is that it can damage customer trust, and thus harm the business in the long-term, but short-term it does not hurt CM2 values that much.
 
