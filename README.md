@@ -20,17 +20,17 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 # Todo 🔥
 
 * add delta CM2s to "HA overlaps" plot, and a nice call-out about flatness of HA 
-* Move "Is Gaussian city local?" to HA optimization, somehow preface it with "Does HA split into sub-HAs?" - and the answer is "no", both because of locality (that doesn't really exist - after 1-2 rentals car is completely mixed), but also because of cost structure. As HA within a single metropolitan area shrinks, it devolves into a collection of stations, a series of "highlights" with a strong interaction between them; it doesn't devolve into isolated HAs.
-* Split python scripts across notebooks to mirror chapter structure (right now all "village scenarios" are in one notebook)
+* Move "Is Gaussian city local?" to HA optimization, somehow preface it with "Does a typical HA naturally split into sub-HAs?" - and the answer is probably "no", both because of locality (that doesn't really exist - after 1-2 rentals car is completely mixed), and because of the cost structure. As HA within a single metropolitan area shrinks, it devolves into a collection of stations, a series of "highlights" with a strong interaction between them; it doesn't seem devolve into isolated continuous HAs. (Think, test)
 * Give titles to all figures
+* Split python scripts across notebooks to mirror chapter structure (right now all "village scenarios" are in one notebook)
 * Add the maxim of "left to its own devices, cars end up standing in the worst possible place"
-* Describe the mental mental image of you "always get the worst car type" (mention in a different part that because of that car type is a good predictive variable to use)
+* Describe somewhere the mental mental image of you "always get the worst car type" (mention in a different part that because of that car type is a good predictive variable to use)
 * Make sure every section (and every 2-3 plots) have at least once "Bold business-related advice"
 
 # Editing principles
 
 * Go through figures, and make sure that they are explained from scratch every time, in terms of how to read them.
-* For rentals, use origin-destination
+* For rentals, use origin-destination (terminology)
 * For relocations, use source-target
 * Check for consistent use between zones and stations, especially early on. Perhaps it makes sense to stick to "stations" until the city is introduced? Or at least be consistent within any given paragraph + make sure that both "stations" and "zones" are defined at first use.
 

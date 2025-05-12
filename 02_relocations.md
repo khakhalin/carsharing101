@@ -200,7 +200,13 @@ But the amount of "bad" cars that appear in a city every day is kinda fixed, and
 
 # 2.6 City model
 
-🔥 Compare the distribution of cars and the CM2 map with and without relocations
+🔥🔥🔥 Compare the distribution of cars and the CM2 map with and without relocations
+
+* 🔥 That we will be assuming no round-trips, so our estimations will be conservative, as essentially we are looking on ly at short-term car-sharing, and some long-term car-sharing will be always happening "on top", and also potentially grow with the growth of the operation area (as it will become convenient for ore and more people)
+* 🔥 Raise a question about how to allocate revenues and tarnsit times. Introduce and build a fair CM2 map (half-half)
+* 🔥 Explain that red on this CM2 map doesn't mean that this part needs to be closed - an example of marginal CM2 map + the idea of active users
+
+It is also important to note that in practice, depending on the business model of a car sharing provider, somewhere between 10 and 50% of rentals are relatively long-term rentals (from several hours to several days). Because of that, the actual distribution of rental times (or rental driving distances, or revenues per rental) is typically bimodal, with a second "peak" that is very broad and shallow, but financially significant. For these rentals the concepts of "origin" and "destination" don't quite make sense, as the majority of these rentals are close to round-trips (customers starting from home, and returning home a day or two later), and the concept of Home Area becomes important only insofar it allows an easy and painless rental, and a good customer experience. It means taht for all "city models" that we explore here, our estimations for CM2 profitability are intentionally conservative (we can always assume that a good measure of long-term rentals are happening on top of the short-term rentals discussed here), and that the actual share of round-trips at each location will be higher than what one can conclude from the trip length distribution introduced above. Fortunately, the presence of long-term trips does not affect any of the results discussed here, except that the long-term trips would consume part of the available fleet, and so compared to our simulations, in real life, the fleet in the city should be increased proportionally.
 
 # 2.7 Real-life considerations
 
