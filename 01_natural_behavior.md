@@ -109,6 +109,9 @@ Allocating **profits** is a bit trickier. If a trip from **a** to **b** generate
 
 Finally, strictly speaking, we are paying for our cars (for owning or leasing them) even when they are rented out, so in the example above, we beared **CM2 costs of owning cars during rentals**.: for 2 hours during the 1st rental, and for 3 hours during the second one. Should we include these costs in our calculation? A good argument for including them is one of consistency. If we apply CM1 profits to zones without double-counting (as described above), and then include full CM2 costs during rentals (also without double-counting), then the sum of CM2 profits across all zones will match the CM2 profits for the entire city, which is a really nice and useful feature. Therefore I recommend to allocate CM2 costs during rentals in exactly same way in which CM1 profits are allocated, as it would result in the most interpretable picture. A half-and-half split between origin and destination zones would be my method of choice.
 
+> [!WARNING]
+> While the idea of calculating CM1 and CM2 profitability in space is noble and extremely useful, there is no one single way to approach this problem. Depending on what you are trying to do, there are several ways to allocate CM1/CM2 profits to the map, so be careful about your decisions. Once the business owners get used to your maps, they will keep interpreting them in the same way, they won't be able to switch. Which makes the choice of a formula for CM2 somewhat political.
+
 Let's now apply this logic to our toy example. On one hand, intuitively, when we look on the picture, how would you have ranked the zones, in terms of how good they are business-wise? You would probably agree that for this snapshot in particuler, zone **b** was the best one (short waiting time, two rentals), zone **a** was the next best, while zone **c** was kind of weak (a really long waiting time at the end). On the other hand, we now have a fancy formula to try:
 
 $\displaystyle CM2 = \left( \sum CM1_{in} + \sum CM1_{out} \right)/2 - \left(\sum t_{wait} + (\sum t_{in} + \sum t_{out})/2 \right) C_t$
@@ -144,7 +147,7 @@ A simple way to measure service level is by calculating the demand fulfillment r
 ![An experiment with five stations, idle times](figures/01simple_02stations_04dfr.svg)
 🔥  IRL, obviously, branding, service, trust. But even in a simplest model, also missed sales.
 
-🔥 The interesting thing here, howeveer, is that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, precisely because it is accompanied by lower values of trapped fleet, allowing this fleet to, supposedly, earn money elsewhere. The reasons that unfulfilled demand is dangerous is that it can damage customer trust, and thus harm the business in the long-term, but short-term it does not hurt CM2 values that much.
+🔥 The interesting thing here, however, is that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, precisely because it is accompanied by lower values of trapped fleet, allowing this fleet to, supposedly, earn money elsewhere. The reasons that unfulfilled demand is dangerous is that it can damage customer trust, and thus harm the business in the long-term, but short-term it does not hurt CM2 values that much.
 
 🔥Musing: On how it makes aggregators (like Free2Move) good: they make market entry easier, and allow players with low fleet and lower
 
@@ -160,20 +163,21 @@ Let's sketch a hightly abstracted, but still qualitatively reasonable population
 
 ![Gaussian city, population density](figures/01simple_03city_01population.svg)
 
-From studies of human mobility, we know that a distribution of travel distances across a typical city can be well approximated by an exponentially decaying function (🔥 ref): as the distance increases, corresponding trips become increasingly rare, and are performed by increasingly smaller shares of population. Only a part of this exponentially decaying curve is relevant for car-sharing however, as the shortest trips (up to a few hundred meters) are typically walked on foot, with a gradual mode transition from walking to driving around distances of 1-3 km. In my personal experience, a distribution of trip distances for a European-style car-sharing (excluding long-term rentals!) can be approximated by an empirical function of $y = x \exp(x^α / λ)$ with coefficients set to $α = 1.2$ and $λ = 8$  [^distance_curve]; the resulting curve is shown below in the leftmost panel of Figure 1.3.2, below. Our trip distance distribution function $p(d)$ starts at 0, peaks at about 7 km, and then decays again to almost-zero at distances of about 20 km. As seen from panels 2-4 on the Figure 1.3.2 below, for a city that is ~20 km wide, the trips from any single origin point (marked with a red dot) still cover most of the city (black clouds represent the density of trip destinations). In other words, even in a relatively large but well-connected city, the operating area does not naturally break into directional clusters, and the fleet continues to mix. Locality only becomes visually obvious when we consider trips from the very periphery of the city (rightmost plot), as in this case customers rarely drive beyond the geometrical center of the city.
+From studies of human mobility, we know that a distribution of travel distances across a typical city can be well approximated by an exponentially decaying function (🔥 ref): as the distance increases, corresponding trips become increasingly rare, and are performed by increasingly smaller shares of population. Only a part of this exponentially decaying curve is relevant for car-sharing however, as the shortest trips (up to a few hundred meters) are typically walked on foot, with a gradual mode transition from walking to driving around distances of 1-3 km. In my personal experience, a distribution of trip distances for a European-style car-sharing (excluding long-term rentals!) can be approximated by an empirical function of $y = x \exp(x^α / λ)$ with coefficients set to $α = 1.2$ and $λ = 8$  [^distance_curve]; the resulting curve is shown below in the leftmost panel of Figure 1.3.2, below. Our trip distance distribution function $p(d)$ starts at 0, peaks at about 7 km, and then decays again to almost-zero at distances of about 20 km. As seen from panels 2-4 on the Figure 1.3.2 below, for a city that is ~20 km wide, the trips from any single origin point (marked with a red dot) still cover most of the city (black clouds represent the density of trip destinations). Locality only becomes visible when we consider trips from the very periphery of the city (rightmost plot), as in this case customers rarely drive beyond the geometrical center of the city.
 
 ![The trips length distribution curve, and "travel neighborhoods for 3 sample pixels"](figures/01simple_03city_02mobility.svg)
 
-In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations, while also demonstarting slow ebb-and-wane fluctuations charasteristic for constrained brownian processes. But is it a good model for a real city?
+> [!TIP]
+> Even in a relatively large but well-connected city, the operating area does not naturally break into directional clusters, and the fleet continues to mix. You won't have "western" and "eastern" cars in your city; all cars will form one large mixing pool.
 
+Let's now put a bunch of cards in the middle of this map, and let the situation evolve freely for a few thousand time steps. The results of a simulation are shown on the Figure 1.3.3 below.
 
+🔥🔥🔥 A figure with 6 panels: 3 snapshots over time, then CM1, CM2 and DFR.
 
+🔥 Aside, potentially like a caution?: distribution of models. A thought experiment showing that you're always getting the worst car possible.
 
-## CM2 and DFR maps in a city
+🔥In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations, while also demonstarting slow ebb-and-wane fluctuations charasteristic for constrained brownian processes. But is it a good model for a real city?
 
-🔥 Build DFR map and CM2 maps, side by side
-
-🔥 Aside: distribution of models. A thought experiment showing that you're always getting the worst car possible.
 
 # Are simple models reasonable?
 
