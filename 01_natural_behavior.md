@@ -134,7 +134,7 @@ If we look at these pictures a bit more carefully, we may notice two more things
 Another interesting observation is that the distribution of CM2 profits is much wider for our "bad" location (the one with low demand), compared to the "good" one. This happens because this location is slower, cars stick there for longer, and the number of cars at it tends to be "sticky", in a way. If a slow location accumulates too many cars, they take forever to disspate, and vice versa, it takes longer for an unpopular location to get some cars, if at some point it ran empty. Counterintuitively, this can be seen as a good point: if your bad cars accumulates idling cars, if cars are standing there, without generating revenue, you have the time to react and intervene.
 
 > [!TIP]
-> As a counter to the cautious point above: if you can identify bad car distributions early, and intervene, either by moving cars around (Chapter 2), or providing incensives through prices (Chapter 3), you can turn unprofitable days into profitable ones. And because it is slow cars that cost you money, you actually typically have the time to react.
+> As a counter to the "Caution" point above: if you can identify bad car distributions early, and intervene, either by moving cars around (Chapter 2), or by providing incensives through prices (Chapter 3), you can turn unprofitable days into profitable ones. And because it is slow cars that cost you money, you actually typically have the time to react.
 
 ## Service level and lost sales
 
@@ -142,14 +142,19 @@ At this point everything we talked about was how standing cars are bad for your 
 
 A simple way to measure service level is by calculating the demand fulfillment rate, or DFR: for every attempt of renting a car that a customer makes, we should check if there was a car nearby that could have met this demand. In real life, the calculation of DFR may be a bit tricky, as customers may use several different apps to check for cars, including aggregation apps that combine offers from several competing services; cars may be located closer or further from the customer, and cars can come up in different models, while the customer may have some preferences. But in our simulation measuring DFR is relatively straightforward: every time a random numbers generator "attempted" to move a car from one location to another, we will check if the source location had some cars in it, and if the movement actually happened. If there was no car there, then the demand was not fulfilled, making the DFR lower (and resulting in a missing sale).
 
-🔥Describe the plots
+Let's look at the interactions between DFR and profitability in our simple system (a constellation of 5 stations with different demands). Across all five locations, DFR wasn't linked to CM1 revenue too tightly (Figure 1.2.4 below, left). For each individual station, higher DFR resulted in slightly higher sales, as fewer sales were missed due to fleet unavailability (aka empty parking lot), but the effect of demand (stratification) was much stronger than the effect of DFR. If we look at CM2 profitability, however (below right), the cloud of dots is way more interesting. The way our cost and revenue constants are chosen (or rather, the way the life in car-sharing is), fleet costs and CM1 revenues have roughly similar magnitudes. Because of that, "lucky" and "unlucky" time periods within each station (runs with low fleet vs. high fleet) differ more in terms of CM2 than runs between different stations (compare to Figure 1.2.3 right below, where 5 clusters overlap across the Y axis). As a result, in the (DFR, CM2) space we get one unstriated cloud of points, with a notable negative correlation between DFR and CM2. Essentially, even though lower DFR was associated with lower CM1 (left), it also brought CM2 savings (lower costs of idling fleet), and thus higher overall CM2 profitability!
 
 ![An experiment with five stations, idle times](figures/01simple_02stations_04dfr.svg)
-🔥  IRL, obviously, branding, service, trust. But even in a simplest model, also missed sales.
 
-🔥 The interesting thing here, however, is that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, precisely because it is accompanied by lower values of trapped fleet, allowing this fleet to, supposedly, earn money elsewhere. The reasons that unfulfilled demand is dangerous is that it can damage customer trust, and thus harm the business in the long-term, but short-term it does not hurt CM2 values that much.
+At this point we should take a step back and think about our model, and about how well it captures the real world. We have just discovered that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, as it is accompanied by smaller trapped fleet, allowing cars to, supposedly, earn money elsewhere in the city. This part is true both in the model and in real life, but in real life unfulfilled demand ilso annoyes customers, ruins people's plans for the day, damages trust, lowers business reputation, and ultimately harms the business in the long-term. We should therefore use Figure 1.2.4 above carefully, and be sure to never drop below a certain critical, politically chosen DFR (probably somewhere in the range of 80-90%).
 
-🔥Musing: On how it makes aggregators (like Free2Move) good: they make market entry easier, and allow players with low fleet and lower
+> [!TIP]
+>  Lower DFR means higher CM2 profitability in the short-term!
+
+> [!CAUTION]
+> But only in the short-term! Keep DFR low for too long, and your business is cooked.
+
+As an aside, this observation also hints at why mobility service aggregators such as FreeNow, Tranzer, or Cabify, are a net good for modern ubranism, and the society as a whole. When lots of offers are available in the same app, any single company can afford to go a bit lower on DFR without upsetting the customer too much, as in the worst case they can alawys take an alternative (the competitor, or a taxi). This lowers the stakes for individual providers, simplifying market entries and expansions. If mobility services in a city are aggregated, new companies can afford to enter the market with a deliberately low DFR and relatively low prices, enjoying a few months of high CM2, by catching opportunistic rides, and not offering a reliable service. This constant risk of competition means that a healthy mobility market is not likely to be monopolized, which is ultimatley good for the city, and its inhabitants.
 
 # 1.3 Gaussian City
 
@@ -178,10 +183,9 @@ Let's now put a bunch of cards in the middle of this map, and let the situation 
 
 🔥In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations, while also demonstarting slow ebb-and-wane fluctuations charasteristic for constrained brownian processes. But is it a good model for a real city?
 
-
 # Are simple models reasonable?
 
-Before we go any further, let's review the key abstractions and simplifications that we used in the models above, and think once again if these simplifications are worth it. If Poisson process approximation is reasonable, we will retain it for all other models in this study, as it is simple, and is easy to code[^3]. If however it is unreasonable, and makes our models unrealistic, then we need to replace it with something more complicated before we dare to stir our business based on the outcomes of these models.
+Before we go further, let's review the key abstractions and simplifications that we used in the models above, and think once again if these simplifications are worth it. If Poisson process approximation is reasonable, we will retain it for all other models in this study, as it is simple, and is easy to code[^3]. If however it is unreasonable, and makes our models unrealistic, then we need to replace it with something more complicated before we dare to stir our business based on the outcomes of these models.
 
 Here's the list of assumptions we made so far:
 
