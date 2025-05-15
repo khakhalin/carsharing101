@@ -102,6 +102,8 @@ Unfortunately for our model, in this case relocations don't really help to incre
 
 Let's now change the model, to make sure that some of the stations are really bad, so that cars could really "get stuck" there (we'll give them ~10 times lower demand, compared to "good stations"), and also that there are not enough "cars" to cover all the stations. The figure below corresponds to 10 stations, half of them with demand of about 0.4, half of them with demand of about 0.03, and only 5 cars to serve the city; a relocation is performed every 20th tick (see `02relos_02ring` script for details, scenario `suburbs`). We can infer from the left plot that relocations were used to move cars from bad (low demand) stations to good ones, maintaining a DFR of about 20% at bad stations, and about 55% at good stations. The bad stations remain unprofitable, but not as unprofitable as they wold have been with the uniform distribution of fleet. in the absence of relocations!
 
+🔥🔥🔥🔥🔥🔥 Make these 10 stations cover a range of demands; having only two clouds is super-confusing. Change the figure, and change the description.
+
 ![Stations model, profitable relocations](figures/02relos_02stations_02financials_suburbs.svg)
 
 🔥 DFR vs demand?
