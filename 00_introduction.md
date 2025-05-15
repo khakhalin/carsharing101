@@ -65,11 +65,11 @@ In the text of this manual, I would sometimes refer to **CM1 costs** and **CM2 c
 
 🔥
 
-This document was written in [Zettlr](https://www.zettlr.com/), which is a wonderful open-source Zettelkasten and academic publishing system, ideal for developing this sort of documentation.
+This document was written in [Zettlr](https://www.zettlr.com/), which is the best open-source Zettelkasten and academic publishing system ever, ideal for developing this sort of documentation! It's such a sweet spot of functionality and simplicity, it has my full and highly emotional endorsement!
 
 # TEMP drafts
 
-🔥 What this thing is - conceptual models, but once math is agreed upon, "all" that is left is data management, model delivery and versioning, and data delivery infrastructure. This is not covered here.
+🔥 What this thing is NOT: here we only discuss conceptual models, but once math is agreed upon, "all" that is left is data management, model delivery and versioning, and data delivery infrastructure. This is not covered here.
 
 # Footnotes
 
