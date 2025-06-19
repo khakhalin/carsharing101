@@ -20,7 +20,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo 🔥
 
-* Write how everything is intentionally in notebooks, to minimize and expose the code, except for a city simulation. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h.
+* Write how everything is intentionally in notebooks, to minimize and expose the code, except for a city simulation. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 * Give titles to all figures
 * Add the maxim of "left to its own devices, cars end up standing in the worst possible place"
 

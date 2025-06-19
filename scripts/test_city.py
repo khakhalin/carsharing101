@@ -1,7 +1,7 @@
 """Minimalistic test, mostly to avoid stupid syntactic mistakes that break the code."""
 
 import pytest
-from city_simulator import City
+from city_simulator import City, car_state
 
 def test_city_creation():
     city = City({'name':'Wroclaw'})
@@ -35,9 +35,13 @@ def test_visualize_city():
     assert True  # If we reach this point, the visualization did not crash
 
 def test_simulation():
-    city = City({'n_cars':10})
+    city = City({'n_cars':100, "p_rental":1})  # Make rentals very probable
     city.init_cars()
     original_cars_xy = city.cars_xy.copy()
-    city.simulate(n_steps=5)
-    assert city.cars_xy.shape[0] == 10
-    assert not (city.cars_xy == original_cars_xy).all()  # At least some cars should have moved
+    city.simulate(n_steps=1)
+    # Now a bunch of probabilistic tests that MAY fail, but P is very low
+    assert (city.car_states == car_state['rented']).any(), "At least one car should be in transit"
+    assert (city.car_timer_transit > 1).any(), "At least one rental should last more than one tick"
+    city.simulate(n_steps=4)
+    assert city.cars_xy.shape[0] == 100
+    assert not (city.cars_xy == original_cars_xy).all(), "At least some cars should have moved"

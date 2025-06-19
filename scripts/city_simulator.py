@@ -10,6 +10,13 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# Console handdler for logging to become visible in notebooks
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
 
 # A list of car states, to be used in numpy arrays
 car_state = {
@@ -37,7 +44,10 @@ class City():
             # Simulation properties
             "n_cars": 100,
             "speed": 30.0,  # Car speed, km/h
-            "trip_lambda":10,  # The higher, the further cars travel, on average,
+            "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
+            "typical_trip_duration_min": 30,  # Typical trip duration, min (to contextualize CM1)
+            "tick_length_min": 10,  # Length of a tick in minutes
+            "trip_lambda":10,  # Km. The higher, the further cars travel, on average VERIFY!!!
             "initial_r": 1,  # Initial radius in which cars are placed, km
             "p_rental": 0.1,  # Rental probability is proportional to this. Tune it up.
             "epsylon": 1e-8,  # Small value for Gumbel-Max trick to avoid log(0) errors
@@ -52,10 +62,26 @@ class City():
                 self.__setattr__(key, value)
 
         # Calculatable fields
+        self.update_calculatable_fields()
+
+
+    def update_calculatable_fields(self):
+        """A separate method, just in case we ever change settings mid-simulation."""
         self.grid_size = int(np.ceil(self.city_width/self.grid_step))
 
         # Dynamic properties
         self.create_density_profile()
+        # The calculation for cm1_per_tick is a bit weird as we want to preseve consistency
+        # with simpler models presented in this project, which means that we need to link
+        # the per-tick revenue here to flat revenues per trip used elsewhere.
+        self.cm1_per_tick = (
+            self.cm1_per_trip / self.typical_trip_duration_min * self.tick_length_min
+        )
+
+        self.stats_cm1 = np.zeros_like(self.grid, dtype=np.float32)  # CM1 profit
+        self.stats_cm2 = np.zeros_like(self.grid, dtype=np.float32)  # CM2 profit
+        self.stats_nrentals = np.zeros_like(self.grid, dtype=np.int32)  # Number of rentals
+        self.stats_idle_time = np.zeros_like(self.grid, dtype=np.int32)  # Idle time in ticks
 
 
     def create_density_profile(self):
@@ -172,15 +198,7 @@ class City():
                     self.car_states[arriving_mask] = car_state["idle"]
                     self.cars_xy[arriving_mask] = self.car_destinations[arriving_mask]
 
-                    # # Accumulate "traveled to" stats (if collecting)
-                    # if collect_stats:
-                    #     dest_y = car_positions[arriving_mask, 1]
-                    #     dest_x = car_positions[arriving_mask, 0]
-                    #     distances_arrived = car_current_trip_distance_km[arriving_mask]
-                    #     np.add.at(km_traveled_to_map, (dest_y, dest_x), distances_arrived)
-
-            # --- 2. Stats
-            # --- 3. New rentals
+            # --- 2. New rentals
 
             available_mask = (self.car_states == car_state["idle"])
             if np.any(available_mask):
@@ -198,7 +216,7 @@ class City():
 
                 # --- Pick where these cars will move
                 n_rented = len(car_indices_getting_rented)
-                start_positions = start_positions[car_indices_getting_rented] # (n_rented, 2)
+                start_positions = self.cars_xy[car_indices_getting_rented] # (n_rented, 2)
 
                 # We create a space of all possible destinations (axis 1) for every car (axis 0)
                 # Now to use a Gumbel-Max trick we first need to calculate log-scores
@@ -234,14 +252,24 @@ class City():
 
                 # Calculate transit time in ticks (at least 1 tick)
                 transit_time_ticks = np.maximum(
-                    1, np.round(distances_km / self.speed)).astype(np.int32)
+                    1, np.round(
+                        distances_km / self.speed * 60 / self.tick_length_min)
+                    ).astype(np.int32)
 
                 # Update state for cars starting the trip
                 self.car_states[car_indices_getting_rented] = car_state["rented"]
                 self.car_timer_transit[car_indices_getting_rented] = transit_time_ticks
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
 
-            # --- 4. Relocations
+                # Update stats
+                x0, y0 = start_positions[:, 0], start_positions[:, 1]
+                x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
+                self.stats_nrentals[x0, y0] += 1
+                cm1_increments = transit_time_ticks * self.cm1_per_tick / 2
+                self.stats_cm1[x0, y0] += cm1_increments  # CM1 goes 50:50 between start and finish
+                self.stats_cm1[x1, y1] += cm1_increments
+
+            # --- 3. Relocations
 
             # For now, nothing here
 
