@@ -19,6 +19,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo 🔥
 
+* Write how everything is intentionally in notebooks, to minimize and expose the code, except for a city simulation. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer.
 * Give titles to all figures
 * Add the maxim of "left to its own devices, cars end up standing in the worst possible place"
 
