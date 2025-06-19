@@ -50,7 +50,7 @@ class City():
             "tick_length_min": 10,  # Length of a tick in minutes
             "settle_down_steps": 0,  # Number of steps without stats collection,
                                      # for the initial conditions to wear off
-            "trip_lambda":10,  # Km. The higher, the further cars travel, on average VERIFY!!!
+            "trip_lambda":8,  # Km. The higher, the further cars travel, on average VERIFY!!!
             "initial_r": 1,  # Initial radius in which cars are placed, km
             "p_rental": 0.1,  # Rental probability is proportional to this. Tune it up.
             "epsylon": 1e-8,  # Small value for Gumbel-Max trick to avoid log(0) errors
@@ -252,8 +252,17 @@ class City():
                 dy = start_positions[:, 1, np.newaxis] - self.flat_grid_coords[np.newaxis, :, 1]
                 distances_km = np.hypot(dx, dy)*self.grid_step # Shape: (n_rented, N_cells)
 
-                log_scores = (np.log(self.flat_demand[np.newaxis, :] + self.epsylon)
-                            - np.log(1.0 + distances_km / self.trip_lambda))
+                def trip_probability(distance):
+                    y = distance*np.exp(-(distance**1.2)/8) / 2.11
+                    return y
+                # Probability of a trip as a function of distance is assumed to be
+                # distance*np.exp(-(distance**1.2)/8) / 2.11
+                # But here we're taking a log of it
+                log_scores = (
+                    np.log(self.flat_demand[np.newaxis, :] + self.epsylon)
+                    + np.log(distances_km + self.epsylon)
+                    - (distances_km**1.2)/self.trip_lambda - np.log(2.11)
+                )
                 # Shape: (n_rented, N_cells)
 
                 # Mask out starting locations to avoid "no distance travelled" rentals"
