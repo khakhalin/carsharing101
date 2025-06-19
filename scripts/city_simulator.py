@@ -169,34 +169,66 @@ class City():
         self.car_timer_transit = np.zeros(self.n_cars, dtype=np.int32) # Remaining ticks in transit
 
 
-    def visualize(self):
+    def visualize(self, plots="all"):
         """Show a basic visualization of the city"""
-        # Demand and current car positions:
-        plt.subplot(121)
-        plt.title("Demand profile and car positions")
-        plt.imshow(self.grid.T, aspect='auto', interpolation='none',
-          extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
-          vmin=0, vmax=1, origin='lower');
-
-        # Visualize cars:
-        if hasattr(self, 'cars_xy'):
-            # Cars were initialized
-            plt.scatter(self.cars_xy[:, 0] + 0.5, self.cars_xy[:, 1] + 0.5,
-                        c='red', s=2, label='Cars')
+        if isinstance(plots, str):
+            if plots == "all":
+                plots = ["cars", "cm1", "idle_times", "cm2"]
+            else:
+                plots = [plots]
+        n_plots = len(plots)
+        if n_plots == 3:
+            n_plots = 4
 
         def cleanup():
+            """Universal design elements."""
             plt.xticks([], [])
             plt.yticks([], [])
             plt.gca().set_aspect('equal', adjustable='box')
-        cleanup()
 
-        plt.subplot(122)
-        plt.title("CM1 statistics")
-        plt.imshow(self.stats_cm1.T, aspect='auto', interpolation='none',
-          extent=[0, self.grid_size, 0, self.grid_size], cmap='Reds',
-          vmin=0, vmax=np.max(self.stats_cm1), origin='lower');
-        cleanup()
-        plt.tight_layout()
+        # Demand and current car positions:
+        plot_counter = 0
+        if "cars" in plots:
+            if n_plots > 1:
+                plot_counter += 1
+                plt.subplot(1, n_plots, plot_counter)
+
+            plt.title("Demand profile and car positions")
+            plt.imshow(self.grid.T, aspect='auto', interpolation='none',
+            extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
+            vmin=0, vmax=1, origin='lower');
+
+            # Visualize cars:
+            if hasattr(self, 'cars_xy'):
+                # Cars were initialized
+                plt.scatter(self.cars_xy[:, 0] + 0.5, self.cars_xy[:, 1] + 0.5,
+                            c='red', s=2, label='Cars')
+
+            cleanup()
+
+        if "cm1" in plots:
+            if n_plots > 1:
+                plot_counter += 1
+                plt.subplot(1, n_plots, plot_counter)
+
+            plt.title("CM1 statistics")
+            plt.imshow(self.stats_cm1.T, aspect='auto', interpolation='none',
+            extent=[0, self.grid_size, 0, self.grid_size], cmap='Reds',
+            vmin=0, vmax=np.max(self.stats_cm1), origin='lower');
+            cleanup()
+            plt.tight_layout()
+
+        if "idle_times" in plots:
+            if n_plots > 1:
+                plot_counter += 1
+                plt.subplot(1, n_plots, plot_counter)
+            cleanup()
+
+        if "cm2" in plots:
+            if n_plots > 1:
+                plot_counter += 1
+                plt.subplot(1, n_plots, plot_counter)
+            cleanup()
 
 
     def simulate(self, n_steps=1):
