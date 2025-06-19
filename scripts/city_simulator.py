@@ -192,8 +192,7 @@ class City():
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-
-            plt.title("Demand profile and car positions")
+                plt.title("Demand profile and car positions")
             plt.imshow(self.grid.T, aspect='auto', interpolation='none',
             extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
             vmin=0, vmax=1, origin='lower');
@@ -203,15 +202,13 @@ class City():
                 # Cars were initialized
                 plt.scatter(self.cars_xy[:, 0] + 0.5, self.cars_xy[:, 1] + 0.5,
                             c='red', s=2, label='Cars')
-
             cleanup()
 
         if "cm1" in plots:
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-
-            plt.title("CM1 statistics")
+                plt.title("CM1 statistics")
             plt.imshow(self.stats_cm1.T, aspect='auto', interpolation='none',
             extent=[0, self.grid_size, 0, self.grid_size], cmap='Reds',
             vmin=0, vmax=np.max(self.stats_cm1), origin='lower');
