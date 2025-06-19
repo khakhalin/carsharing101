@@ -36,9 +36,10 @@ class City():
         default_config = {
             # City properties
             "name": "Verona",
+            "seed": None, # Random seed for reproducibility
             "n_cores": 1,  # Number of city cores
             "city_width": 21, # km
-            "grid_step": 0.2, # km
+            "grid_step": 0.5, # km
             "density_sigma": 6, # Gaussian sigma, km
 
             # Simulation properties
@@ -47,6 +48,8 @@ class City():
             "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
             "typical_trip_duration_min": 30,  # Typical trip duration, min (to contextualize CM1)
             "tick_length_min": 10,  # Length of a tick in minutes
+            "settle_down_steps": 0,  # Number of steps without stats collection,
+                                     # for the initial conditions to wear off
             "trip_lambda":10,  # Km. The higher, the further cars travel, on average VERIFY!!!
             "initial_r": 1,  # Initial radius in which cars are placed, km
             "p_rental": 0.1,  # Rental probability is proportional to this. Tune it up.
@@ -60,6 +63,9 @@ class City():
         if config is not None:
             for key,value in config.items():
                 self.__setattr__(key, value)
+
+        if self.seed is not None:
+            np.random.seed(self.seed)
 
         # Calculatable fields
         self.update_calculatable_fields()
@@ -96,15 +102,21 @@ class City():
         else:
             core_centers = []
             for n_core in range(self.n_cores):
+                # Pick a random core center within a circle inscribed in the grid
+                angle = np.random.uniform(0, 2 * np.pi) # Random angle
+                radius = np.random.uniform(center/4, center)  # Random radius within the circle
                 core_centers += [
-                    (center + np.random.normal()*self.density_sigma/self.grid_step,
-                     center + np.random.normal()*self.density_sigma/self.grid_step)]
+                    (center + radius * np.cos(angle), center + radius * np.sin(angle))
+                ]
 
-        for i in range(self.grid_size):
-            for j in range(self.grid_size):
-                # Distance in km
-                distance_squared = (((i+0.5)-center)**2 + ((j+0.5)-center)**2)*self.grid_step**2
-                self.grid[i,j] = np.exp(-distance_squared/(self.density_sigma)**2)
+        for x0, y0 in core_centers:
+            for i in range(self.grid_size):
+                for j in range(self.grid_size):
+                    # Distance in km
+                    distance_squared = (((i+0.5)-x0)**2 + ((j+0.5)-y0)**2)*self.grid_step**2
+                    self.grid[i,j] += np.exp(-distance_squared/(self.density_sigma)**2)
+
+        self.grid = self.grid / np.max(self.grid)  # Normalize the grid to [0, 1] range
 
         # Pre-process demand for simulations
         self.vectorize_demand()
@@ -159,8 +171,9 @@ class City():
 
     def visualize(self):
         """Show a basic visualization of the city"""
-        # Don't call plt.figure() as the size of the figure is likely to be set in the client
-        # Demand:
+        # Demand and current car positions:
+        plt.subplot(121)
+        plt.title("Demand profile and car positions")
         plt.imshow(self.grid.T, aspect='auto', interpolation='none',
           extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
           vmin=0, vmax=1, origin='lower');
@@ -168,17 +181,30 @@ class City():
         # Visualize cars:
         if hasattr(self, 'cars_xy'):
             # Cars were initialized
-            plt.scatter(self.cars_xy[:, 0], self.cars_xy[:, 1], c='red', s=2, label='Cars')
+            plt.scatter(self.cars_xy[:, 0] + 0.5, self.cars_xy[:, 1] + 0.5,
+                        c='red', s=2, label='Cars')
 
+        def cleanup():
+            plt.xticks([], [])
+            plt.yticks([], [])
+            plt.gca().set_aspect('equal', adjustable='box')
+        cleanup()
+
+        plt.subplot(122)
+        plt.title("CM1 statistics")
+        plt.imshow(self.stats_cm1.T, aspect='auto', interpolation='none',
+          extent=[0, self.grid_size, 0, self.grid_size], cmap='Reds',
+          vmin=0, vmax=np.max(self.stats_cm1), origin='lower');
+        cleanup()
         plt.tight_layout()
-        plt.xticks([], [])
-        plt.yticks([], [])
-        plt.gca().set_aspect('equal', adjustable='box')
 
 
     def simulate(self, n_steps=1):
         """Run a few simulation steps."""
         logger.info(f"Running simulation for {n_steps} steps")
+
+        # TODO: Reset idle time counter for cars
+
         start_time_sim = time.time()
         for step in range(n_steps):
             # --- 1. Arrivals
@@ -261,17 +287,22 @@ class City():
                 self.car_timer_transit[car_indices_getting_rented] = transit_time_ticks
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
 
-                # Update stats
-                x0, y0 = start_positions[:, 0], start_positions[:, 1]
-                x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
-                self.stats_nrentals[x0, y0] += 1
-                cm1_increments = transit_time_ticks * self.cm1_per_tick / 2
-                self.stats_cm1[x0, y0] += cm1_increments  # CM1 goes 50:50 between start and finish
-                self.stats_cm1[x1, y1] += cm1_increments
+                # --- Stats collection
+
+                if step >= self.settle_down_steps:
+                    # We may be waiting for a few steps before collecting stats
+                    x0, y0 = start_positions[:, 0], start_positions[:, 1]
+                    x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
+                    self.stats_nrentals[x0, y0] += 1
+                    cm1_increments = transit_time_ticks * self.cm1_per_tick / 2
+                    self.stats_cm1[x0, y0] += cm1_increments  # CM1 goes 50:50 between start and finish
+                    self.stats_cm1[x1, y1] += cm1_increments
 
             # --- 3. Relocations
 
             # For now, nothing here
+
+        # Update stats for idle time before finishing the simulation
 
         end_time_sim = time.time()
         logger.info(f"Simulation completed in {end_time_sim - start_time_sim:.2f} seconds")
