@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 import time
 from PIL import Image  # For image demand loading
 import logging
@@ -66,6 +67,7 @@ class City():
 
         if self.seed is not None:
             np.random.seed(self.seed)
+        self.total_steps_run = 0  # Total number of simulation steps run so far
 
         # Calculatable fields
         self.update_calculatable_fields()
@@ -86,7 +88,8 @@ class City():
 
         self.stats_cm1 = np.zeros_like(self.grid, dtype=np.float32)  # CM1 profit
         self.stats_cm2 = np.zeros_like(self.grid, dtype=np.float32)  # CM2 profit
-        self.stats_nrentals = np.zeros_like(self.grid, dtype=np.int32)  # Number of rentals
+        self.stats_n_rentals = np.zeros_like(self.grid, dtype=np.int32)  # Number of rentals
+        self.stats_n_arrivals = np.zeros_like(self.grid, dtype=np.int32)  # (for idle time calc)
         self.stats_idle_time = np.zeros_like(self.grid, dtype=np.int32)  # Idle time in ticks
 
 
@@ -154,78 +157,97 @@ class City():
         def random_pixel(center):
             return int(center + (np.random.uniform()*radius*2 - radius)/self.grid_step)
 
-        self.cars_xy = np.zeros(shape=(self.n_cars, 2), dtype=np.int32)
+        self.car_xy = np.zeros(shape=(self.n_cars, 2), dtype=np.int32)
         for i in range(self.n_cars):
             success = False
             while not success:
                 x = random_pixel(center)
                 y = random_pixel(center)
-                self.cars_xy[i,:] = (x,y)
+                self.car_xy[i,:] = (x,y)
                 if (x - center)**2 + (y - center)**2 < radius**2:
                     success = True
 
-        self.car_destinations = np.zeros_like(self.cars_xy)  # Where the car is going
+        self.car_destinations = np.zeros_like(self.car_xy)  # Where the car is going
         self.car_states = np.full(self.n_cars, car_state["idle"], dtype=np.int32)
         self.car_timer_transit = np.zeros(self.n_cars, dtype=np.int32) # Remaining ticks in transit
+        self.car_timer_idle = np.zeros(self.n_cars, dtype=np.int32)  # Idle time in ticks
 
 
     def visualize(self, plots="all"):
-        """Show a basic visualization of the city"""
+        """Show visualizations of the city"""
         if isinstance(plots, str):
             if plots == "all":
                 plots = ["cars", "cm1", "idle_times", "cm2"]
             else:
                 plots = [plots]
         n_plots = len(plots)
-        if n_plots == 3:
-            n_plots = 4
 
-        def cleanup():
+        def _finalize(show_cbar=True):
             """Universal design elements."""
             plt.xticks([], [])
             plt.yticks([], [])
             plt.gca().set_aspect('equal', adjustable='box')
+            if show_cbar:
+                cbar = plt.colorbar(fraction=0.046, pad=0.04)
+                cbar.ax.tick_params(labelsize=8)
 
         # Demand and current car positions:
+        n_days = self.total_steps_run * self.tick_length_min / 60 / 24 + 0.001
         plot_counter = 0
         if "cars" in plots:
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-                plt.title("Demand profile and car positions")
-            plt.imshow(self.grid.T, aspect='auto', interpolation='none',
+                plt.title("Demand profile, car positions")
+            plt.imshow(self.grid, aspect='auto', interpolation='none',
             extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
             vmin=0, vmax=1, origin='lower');
 
             # Visualize cars:
-            if hasattr(self, 'cars_xy'):
+            if hasattr(self, 'car_xy'):
                 # Cars were initialized
-                plt.scatter(self.cars_xy[:, 0] + 0.5, self.cars_xy[:, 1] + 0.5,
+                plt.scatter(self.car_xy[:, 0] + 0.5, self.car_xy[:, 1] + 0.5,
                             c='red', s=2, label='Cars')
-            cleanup()
+            _finalize(show_cbar=False)
 
         if "cm1" in plots:
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-                plt.title("CM1 statistics")
-            plt.imshow(self.stats_cm1.T, aspect='auto', interpolation='none',
-            extent=[0, self.grid_size, 0, self.grid_size], cmap='Reds',
-            vmin=0, vmax=np.max(self.stats_cm1), origin='lower');
-            cleanup()
-            plt.tight_layout()
+                plt.title("CM1, €/day")
+            plt.imshow(self.stats_cm1 / n_days, aspect='auto', interpolation='none',
+                extent=[0, self.grid_size, 0, self.grid_size], cmap='Reds', origin='lower');
+            _finalize()
 
         if "idle_times" in plots:
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-            cleanup()
+                plt.title("Idle time per car, days")
+            # Move from total idle time to idle time per car
+            value = self.stats_idle_time / np.maximum(self.stats_n_arrivals, 1)
+            value = value * self.tick_length_min / 60 / 24  # Convert to days
+            value[value==0] = np.nan  # This will help to show NaNs as gray
+            # cmap = plt.cm.Blues.copy()
+            cmap = colormaps.get_cmap('viridis_r').copy()
+            cmap.set_bad(color='lightgray')
+            vmax = np.nanpercentile(value, 90) # Avoid catering to outliers
+            plt.imshow(value, aspect='auto', interpolation='none',
+                extent=[0, self.grid_size, 0, self.grid_size], cmap=cmap, origin='lower',
+                vmin=0, vmax=vmax)  # Set vmin and vmax to control color range;
+            # Make the colorbar small and fixed in size, right from the plot
+            _finalize()
 
         if "cm2" in plots:
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-            cleanup()
+                plt.title("CM2 statistics")
+            plt.imshow(self.stats_n_arrivals, aspect='auto', interpolation='none',
+                extent=[0, self.grid_size, 0, self.grid_size], cmap="Greens", origin='lower');
+            _finalize()
+
+        plt.tight_layout()
 
 
     def simulate(self, n_steps=1):
@@ -235,31 +257,49 @@ class City():
         # TODO: Reset idle time counter for cars
 
         start_time_sim = time.time()
+        step = 0  # For an edge case of n_steps==0
         for step in range(n_steps):
-            # --- 1. Arrivals
+            idling_mask = (self.car_states == car_state["idle"])
             in_transit_mask = self.car_states == car_state["rented"]
-            arriving_mask = np.zeros(self.n_cars, dtype=bool) # Track arrivals this step for stats
+
+            # At the beginning of the first real step (after settling down), reset stats
+            if self.total_steps_run == self.settle_down_steps:
+                self.car_timer_idle.fill(0)
+                self.stats_idle_time.fill(0)
+                # Increase the n_arrivals by one for every car already parked
+                np.add.at(self.stats_n_arrivals,
+                          (self.car_xy[idling_mask, 1], self.car_xy[idling_mask, 0]), 1)
+
+            # Increment idle time for pixels witn idling cars
+            np.add.at(self.stats_idle_time,
+                      (self.car_xy[idling_mask, 1], self.car_xy[idling_mask, 0]), 1)
+
+            # --- 1. Arrivals
 
             if np.any(in_transit_mask):
                 # Decrement timers for cars in transit
                 self.car_timer_transit[in_transit_mask] -= 1
 
                 # Identify cars arriving *this* tick
+                arriving_mask = np.zeros(self.n_cars, dtype=bool)
                 arriving_mask = in_transit_mask & (self.car_timer_transit <= 0)
                 arriving_indices = np.where(arriving_mask)[0]
 
                 if len(arriving_indices) > 0:
-                    # Update state and position for arriving cars
+                    # Update states and positions for arriving cars
                     self.car_states[arriving_mask] = car_state["idle"]
-                    self.cars_xy[arriving_mask] = self.car_destinations[arriving_mask]
+                    self.car_xy[arriving_mask] = self.car_destinations[arriving_mask]
+                    np.add.at(self.stats_n_arrivals,
+                        (self.car_xy[arriving_mask, 1], self.car_xy[arriving_mask, 0]), 1)
 
             # --- 2. New rentals
 
-            available_mask = (self.car_states == car_state["idle"])
-            if np.any(available_mask):
+            self.car_timer_idle[idling_mask] += 1  # They all idled for one more tick now
+
+            if np.any(idling_mask):
                 # --- Pick which cars are be rented this step
-                available_indices = np.where(available_mask)[0]
-                start_positions = self.cars_xy[available_mask]
+                available_indices = np.where(idling_mask)[0]
+                start_positions = self.car_xy[idling_mask]
                 start_demand = self.grid[start_positions[:, 1], start_positions[:, 0]]
                 move_probability = start_demand * self.p_rental
                 roll_the_dice = np.random.rand(len(available_indices))
@@ -271,7 +311,7 @@ class City():
 
                 # --- Pick where these cars will move
                 n_rented = len(car_indices_getting_rented)
-                start_positions = self.cars_xy[car_indices_getting_rented] # (n_rented, 2)
+                start_positions = self.car_xy[car_indices_getting_rented] # (n_rented, 2)
 
                 # We create a space of all possible destinations (axis 1) for every car (axis 0)
                 # Now to use a Gumbel-Max trick we first need to calculate log-scores
@@ -281,12 +321,12 @@ class City():
                 dy = start_positions[:, 1, np.newaxis] - self.flat_grid_coords[np.newaxis, :, 1]
                 distances_km = np.hypot(dx, dy)*self.grid_step # Shape: (n_rented, N_cells)
 
-                def trip_probability(distance):
-                    y = distance*np.exp(-(distance**1.2)/8) / 2.11
-                    return y
+                # def trip_probability(distance):
+                #     y = distance*np.exp(-(distance**1.2)/8) / 2.11
+                #     return y
                 # Probability of a trip as a function of distance is assumed to be
                 # distance*np.exp(-(distance**1.2)/8) / 2.11
-                # But here we're taking a log of it
+                # But here we're taking a log of it, as a part of a Gumbel trick.
                 log_scores = (
                     np.log(self.flat_demand[np.newaxis, :] + self.epsylon)
                     + np.log(distances_km + self.epsylon)
@@ -326,21 +366,28 @@ class City():
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
 
                 # --- Stats collection
-
-                if step >= self.settle_down_steps:
-                    # We may be waiting for a few steps before collecting stats
+                if self.total_steps_run >= self.settle_down_steps:
                     x0, y0 = start_positions[:, 0], start_positions[:, 1]
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
-                    self.stats_nrentals[x0, y0] += 1
+                    self.stats_n_rentals[x0, y0] += 1
+                    np.add.at(self.stats_n_rentals, (x0, y0), 1)
                     cm1_increments = transit_time_ticks * self.cm1_per_tick / 2
-                    self.stats_cm1[x0, y0] += cm1_increments  # CM1 goes 50:50 between start and finish
-                    self.stats_cm1[x1, y1] += cm1_increments
+                    np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
+                    np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
+                    self.car_timer_idle[car_indices_getting_rented].fill(0)  # Reset idle times
 
             # --- 3. Relocations
 
             # For now, nothing here
 
-        # Update stats for idle time before finishing the simulation
+            self.total_steps_run += 1
+            # end loop
 
         end_time_sim = time.time()
         logger.info(f"Simulation completed in {end_time_sim - start_time_sim:.2f} seconds")
+        n_days = n_steps * self.tick_length_min / 60 / 24
+        n_days_full = self.total_steps_run * self.tick_length_min / 60 / 24
+        logger.info(f"In-simulation time passed: {n_days:.0f} days")
+        n_rentals = self.stats_n_rentals.sum()
+        logger.info(f"Cumulative rentals happened: {n_rentals}")
+        logger.info(f"Average rentals per car per day: {n_rentals / self.n_cars / n_days_full:.2f}")

@@ -158,6 +158,8 @@ As an aside, this observation also hints at why mobility service aggregators suc
 
 # 1.3 Gaussian City
 
+## 1.3.1 Getting to know the Gaussian City
+
 What are the implications of this dynamics for a real city, with on-street parking and a continuous operating area? If we model a city like that, how will the cars distribute? At this point you probably have a very good guess for what the answer could be, but let's also try it in a simulation. A city is different from a previously dscribed collection of stations in several ways:
 
 1. First, the operation area in most cities is continuous, but this can be reasonably well represented by a square grid of small pixel-like zones.
@@ -175,9 +177,17 @@ From studies of human mobility, we know that a distribution of travel distances 
 > [!TIP]
 > Even in a relatively large but well-connected city, the operating area does not naturally break into directional clusters, and the fleet continues to mix. You won't have "western" and "eastern" cars in your city; all cars will form one large mixing pool.
 
-Let's now put a bunch of cards in the middle of this map, and let the situation evolve freely for a few thousand time steps. The results of a simulation are shown on the Figure 1.3.3 below.
+Let's now put a bunch of cards in the middle of this map, and let the situation evolve freely for a few thousand time steps. 
 
-🔥🔥🔥 A figure with 6 panels: 3 snapshots over time, then CM1, CM2 and DFR.
+## 1.3.2. Natural bevavior in a Gaussian city
+
+The results of a simulation are shown on the Figure 1.3.3 below.
+
+🔥🔥🔥 A figure with 3 snapshots over time
+
+🔥 A figure with then CM1, idle time, CM2 
+
+🔥 DFR? Do we do DFR?
 
 🔥 Aside, potentially like a caution?: distribution of models. A thought experiment showing that you're always getting the worst car possible.
 
