@@ -45,11 +45,11 @@ class City():
 
             # Simulation properties
             "n_cars": 100,
-            "speed": 30.0,  # Car speed, km/h
+            "speed": 20.0,  # Car speed, km/h
             "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
             "cm2_per_day": 20,  # CM2 cost pre day of having a car on balance, Eur
-            "typical_trip_duration_min": 30,  # Typical trip duration, min (to contextualize CM1)
-            "tick_length_min": 10,  # Length of a tick in minutes
+            "typical_trip_duration_min": 20,  # Typical trip duration, min (to contextualize CM1)
+            "tick_in_minutes": 10,  # Length of a tick in minutes
             "settle_down_steps": 0,  # Number of steps without stats collection,
                                      # for the initial conditions to wear off
             "trip_lambda":8,  # Km. The higher, the further cars travel, on average VERIFY!!!
@@ -69,6 +69,7 @@ class City():
         if self.seed is not None:
             np.random.seed(self.seed)
         self.total_steps_run = 0  # Total number of simulation steps run so far
+        self.total_rental_time = 0  # Total rental time, in ticks, for all cars
 
         # Calculatable fields
         self.update_calculatable_fields()
@@ -84,6 +85,7 @@ class City():
         # with simpler models presented in this project, which means that we need to link
         # the per-tick revenue here to flat revenues per trip used elsewhere.
 
+        # Spatial stats:
         self.stats_cm1 = np.zeros_like(self.demand, dtype=np.float32)  # CM1 profit
         self.stats_cm2 = np.zeros_like(self.demand, dtype=np.float32)  # CM2 profit
         self.stats_n_rentals = np.zeros_like(self.demand, dtype=np.int32)  # Number of rentals
@@ -190,7 +192,7 @@ class City():
                 cbar.ax.tick_params(labelsize=8)
 
         # Demand and current car positions:
-        n_days = self.total_steps_run * self.tick_length_min / 60 / 24 + 0.001
+        n_days = self.total_steps_run * self.tick_in_minutes / 60 / 24 + 0.001
         plot_counter = 0
         if "cars" in plots:
             if n_plots > 1:
@@ -224,7 +226,7 @@ class City():
                 plt.title("Idle time per car, days")
             # Move from total idle time to idle time per car
             value = self.stats_idle_time / np.maximum(self.stats_n_arrivals, 1)
-            value = value * self.tick_length_min / 60 / 24  # Convert to days
+            value = value * self.tick_in_minutes / 60 / 24  # Convert to days
             value[value==0] = np.nan  # This will help to show NaNs as gray
             # cmap = plt.cm.Blues.copy()
             cmap = colormaps.get_cmap('viridis_r').copy()
@@ -244,9 +246,11 @@ class City():
             # Diverging colormap, red for negative, blue for positive, light gray for zero
             cmap = colormaps.get_cmap('RdBu')
             plt.imshow(self.stats_cm2.T / n_days, aspect='auto', interpolation='none',
-                extent=[0, self.grid_size, 0, self.grid_size],
-                norm=plt.matplotlib.colors.CenteredNorm(),  # Center the colormap at zero
-                cmap=cmap, origin='lower');
+                extent=[0, self.grid_size, 0, self.grid_size], origin='lower',
+                # norm=plt.matplotlib.colors.CenteredNorm(),  # Center the colormap at zero
+                vmin=-self.cm2_per_day*2, vmax=self.cm2_per_day*2,  # Visual empyrics
+                cmap=cmap)
+            # cm2_per_day just gives a reasonable range, and I want to see some blue color
             _finalize()
 
         plt.tight_layout()
@@ -259,11 +263,11 @@ class City():
         # TODO: Reset idle time counter for cars
 
         start_time_sim = time.time()
-        idle_tick_cost = self.cm2_per_day / (24 * 60 / self.tick_length_min)  # CM2 cost of 1 tick
+        idle_tick_cost = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # CM2 cost of 1 tick
         cm1_per_rental_tick = (
-            self.cm1_per_trip / self.typical_trip_duration_min * self.tick_length_min
+            (self.cm1_per_trip / self.typical_trip_duration_min) * self.tick_in_minutes
         )
-        step = 0  # For an edge case of n_steps==0
+
         for step in range(n_steps):
             idling_mask = (self.car_states == car_state["idle"])
             in_transit_mask = self.car_states == car_state["rented"]
@@ -310,6 +314,8 @@ class City():
                 start_positions = self.car_xy[idling_mask]
                 start_demand = self.demand[start_positions[:, 0], start_positions[:, 1]]
                 move_probability = start_demand * self.p_rental
+                # TODO: Change the logic here, so that demand is not proportional
+                # to the number of cars. First generate demand, then match it to cars 🔥🔥🔥
                 roll_the_dice = np.random.rand(len(available_indices))
                 trip_mask = (roll_the_dice < move_probability) # Mask relative to available cars
                 car_indices_getting_rented = available_indices[trip_mask] # Absolute indices
@@ -363,7 +369,7 @@ class City():
 
                 # Calculate transit time in ticks (at least 1 tick)
                 transit_time_ticks = np.maximum(
-                    1, np.round(distances_km / self.speed * 60 / self.tick_length_min)
+                    1, np.round(distances_km / self.speed * 60 / self.tick_in_minutes)
                     ).astype(np.int32)
 
                 # Update state for cars starting the trip
@@ -375,10 +381,11 @@ class City():
                 if self.total_steps_run >= self.settle_down_steps:
                     x0, y0 = start_positions[:, 0], start_positions[:, 1]
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
-                    self.stats_n_rentals[x0, y0] += 1
                     np.add.at(self.stats_n_rentals, (x0, y0), 1)
+                    self.total_rental_time += transit_time_ticks.sum()
                     cm1_increments = transit_time_ticks * cm1_per_rental_tick / 2
-                    cm2_increments = cm1_increments - transit_time_ticks * idle_tick_cost
+                    # logger.info(transit_time_ticks)
+                    cm2_increments = cm1_increments - (transit_time_ticks * idle_tick_cost)/2
                     np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
                     np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
                     np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
@@ -394,12 +401,19 @@ class City():
 
         end_time_sim = time.time()
         logger.info(f"Simulation completed in {end_time_sim - start_time_sim:.2f} seconds")
-        n_days = n_steps * self.tick_length_min / 60 / 24  # Days during this simulation bout
-        n_days_full = self.total_steps_run * self.tick_length_min / 60 / 24
+        n_days = n_steps  * self.tick_in_minutes / 60 / 24  # Days during this simulation bout
+        n_days_full = self.total_steps_run * self.tick_in_minutes / 60 / 24
         logger.info(f"In-simulation time passed: {n_days:.0f} days")
+        logger.info(f"Statistics gathered over: {n_days_full:.0f} days")
         n_rentals = self.stats_n_rentals.sum()
         logger.info(f"Cumulative rentals happened: {n_rentals}")
         logger.info(f"Average rentals per car per day: {n_rentals / self.n_cars / n_days_full:.2f}")
+        logger.info("Average rental time per trip, min: "
+                    f"{self.total_rental_time / n_rentals * self.tick_in_minutes:.2f}")
+        logger.info("Average CM1 gain per trip, Eur: "
+                    f"{self.total_rental_time / n_rentals * cm1_per_rental_tick:.2f}")
+        logger.info("Overall CM2 profit per day, Eur: "
+                    f"{self.stats_cm2.sum() / n_days_full:.2f}")
 
         # Update selected stats
         self.n_days = n_days_full

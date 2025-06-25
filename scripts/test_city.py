@@ -6,7 +6,7 @@ from city_simulator import City, car_state
 def test_city_creation():
     city = City({'name':'Wroclaw'})
     assert city.name == "Wroclaw"
-    assert city.grid.max() > 0  # By now demand density should have been calculated
+    assert city.demand.max() > 0  # By now demand density should have been calculated
 
 def test_vectorize_demand():
     city = City()
