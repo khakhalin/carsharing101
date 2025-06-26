@@ -53,7 +53,7 @@ class City():
             "settle_down_steps": 0,  # Number of steps without stats collection,
                                      # for the initial conditions to wear off
             "trip_lambda":8,  # Km. The higher, the further cars travel, on average VERIFY!!!
-            "initial_r": 1,  # Initial radius in which cars are placed, km
+            "initial_r": 2,  # Initial radius in which cars are placed, km
             "p_rental": 0.1,  # Rental probability is proportional to this. Tune it up.
             "epsylon": 1e-8,  # Small value for Gumbel-Max trick to avoid log(0) errors
         }
@@ -223,7 +223,7 @@ class City():
             if n_plots > 1:
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
-                plt.title("Idle time per car, days")
+                plt.title("Average idle time, days")
             # Move from total idle time to idle time per car
             value = self.stats_idle_time / np.maximum(self.stats_n_arrivals, 1)
             value = value * self.tick_in_minutes / 60 / 24  # Convert to days
@@ -309,18 +309,46 @@ class City():
             self.car_timer_idle[idling_mask] += 1  # They all idled for one more tick now
 
             if np.any(idling_mask):
-                # --- Pick which cars are be rented this step
-                available_indices = np.where(idling_mask)[0]
-                start_positions = self.car_xy[idling_mask]
-                start_demand = self.demand[start_positions[:, 0], start_positions[:, 1]]
-                move_probability = start_demand * self.p_rental
-                # TODO: Change the logic here, so that demand is not proportional
-                # to the number of cars. First generate demand, then match it to cars 🔥🔥🔥
-                roll_the_dice = np.random.rand(len(available_indices))
-                trip_mask = (roll_the_dice < move_probability) # Mask relative to available cars
-                car_indices_getting_rented = available_indices[trip_mask] # Absolute indices
+                # --- Generate demand for rentals
+                roll_for_attempts = np.random.rand(*self.demand.shape)
+                rental_attempts = (roll_for_attempts < self.demand * self.p_rental).astype(np.int32)
+                pixels_with_demand = np.where(rental_attempts > 0)
 
-                if not np.any(trip_mask):
+                # --- Pick which cars are be rented this step
+                # Get a list of all idle cars
+                all_idle_cars = np.where(idling_mask)[0]
+
+                # List the flattened indices of pixels in which these cars are staying.
+                # Then calculate flat indices of pixels with demand. Then match cars
+                # to demand. it will mark the cars that can be rented (but we'll still
+                # need to sample only some of them)
+                pixels_with_idle_cars = np.ravel_multi_index(
+                    (self.car_xy[all_idle_cars, 0], self.car_xy[all_idle_cars, 1]),
+                    self.demand.shape
+                )
+                pixels_with_demand = np.ravel_multi_index(pixels_with_demand, self.demand.shape)
+                car_might_be_rented = np.isin(pixels_with_idle_cars, pixels_with_demand)
+
+                cars_that_might_be_rented = all_idle_cars[car_might_be_rented]
+                pixels_of_cars_that_might_be_rented = pixels_with_idle_cars[car_might_be_rented]
+
+                # Now we need to select the first car from every pixel with rental attempts,
+                # then find global indices of those cars that are rented.
+                # We'll use a fancy feature of np.unique() that returns not just unique values,
+                # but also the indices of the first occurrence of each unique value.
+                # So all we need now is to randomly shuffle cars within each pixel,
+                # which we can do with lexicographic sorting, first by pixels index, then
+                # by a random number.
+                roll_the_dice = np.random.rand(len(cars_that_might_be_rented))
+                sort_indices = np.lexsort((roll_the_dice, pixels_of_cars_that_might_be_rented))
+                unique_pixels, unique_indices = np.unique(
+                    pixels_of_cars_that_might_be_rented[sort_indices],
+                    return_index=True
+                )
+                final_indices = sort_indices[unique_indices]
+                car_indices_getting_rented = cars_that_might_be_rented[final_indices]
+
+                if len(car_indices_getting_rented) == 0:
                     continue
 
                 # --- Pick where these cars will move
