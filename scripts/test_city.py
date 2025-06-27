@@ -35,7 +35,7 @@ def test_visualize_city():
     assert True  # If we reach this point, the visualization did not crash
 
 def test_simulation():
-    city = City({'n_cars':100, "p_rental":1})  # Make rentals very probable
+    city = City({'n_cars':100, "p_factor":1})  # Make rentals very probable
     city.init_cars()
     original_car_xy = city.car_xy.copy()
     city.simulate(n_steps=1)

@@ -18,15 +18,21 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 6. [Appendix: Default parameters](06_appendix.md)
 7. [References](07_references.md)
 
-# Todo 🔥
+# Todo: Text 🔥
 
-* Write how everything is intentionally in notebooks, to minimize and expose the code, except for a city simulation. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
+* Write how everything is intentionally in notebooks, to minimize and expose the code, except for the city simulation. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 * Give titles to all figures
 * Add the maxim of "left to its own devices, cars end up standing in the worst possible place"
 
+# Todo: Code 🔥
+
+* Move visualizer to a different py file
+* Calculate DFR
+* Extract "identify rentals" into a method - it's getting way too long
+
 # Editing principles
 
-* Go through figures, and make sure that they are explained from scratch every time, in terms of how to read them.
+* Go through all figures, and make sure that every figure explained from scratch, in terms of how to read it (at least as a single short sentence)
 * For rentals, use origin-destination (terminology)
 * For relocations, use source-target
 * Check for consistent use of terms "zones" and "stations", especially early on. Perhaps it makes sense to stick to "stations" until the city is introduced? Or at least be consistent within any given paragraph + make sure that both "stations" and "zones" are defined at first use.

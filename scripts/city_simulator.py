@@ -1,15 +1,20 @@
 """Simple city simulator, for free-floating carsharing purposes."""
 
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import time
 from PIL import Image  # For image demand loading
-import logging
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+# Mixins and utils
+from city_visuals import CityVisuals
+
 
 # Console handdler for logging to become visible in notebooks
 console_handler = logging.StreamHandler()
@@ -28,7 +33,7 @@ car_state = {
 }
 
 
-class City():
+class City(CityVisuals):
     """A combo of a city, a simulator, and a visualizer."""
 
     def __init__(self, config=None):
@@ -45,6 +50,7 @@ class City():
 
             # Simulation properties
             "n_cars": 100,
+            "p_factor": 0.4,  # Rental probability factor. The most important tunable parameter!
             "speed": 20.0,  # Car speed, km/h
             "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
             "cm2_per_day": 20,  # CM2 cost pre day of having a car on balance, Eur
@@ -54,8 +60,7 @@ class City():
                                      # for the initial conditions to wear off
             "trip_lambda":8,  # Km. The higher, the further cars travel, on average VERIFY!!!
             "initial_r": 2,  # Initial radius in which cars are placed, km
-            "p_rental": 0.1,  # Rental probability is proportional to this. Tune it up.
-            "epsylon": 1e-8,  # Small value for Gumbel-Max trick to avoid log(0) errors
+            "epsylon": 1e-8,  # Small techincal value to avoid log(0) , 1/0 etc.
         }
 
         # Set default values
@@ -69,6 +74,7 @@ class City():
         if self.seed is not None:
             np.random.seed(self.seed)
         self.total_steps_run = 0  # Total number of simulation steps run so far
+        self.total_steps_that_count = 0  # Steps during stats-collecting phase (after settling down)
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
 
         # Calculatable fields
@@ -88,6 +94,7 @@ class City():
         # Spatial stats:
         self.stats_cm1 = np.zeros_like(self.demand, dtype=np.float32)  # CM1 profit
         self.stats_cm2 = np.zeros_like(self.demand, dtype=np.float32)  # CM2 profit
+        self.stats_n_appops  = np.zeros_like(self.demand, dtype=np.int32)  # Demand
         self.stats_n_rentals = np.zeros_like(self.demand, dtype=np.int32)  # Number of rentals
         self.stats_n_arrivals = np.zeros_like(self.demand, dtype=np.int32)  # (for idle time calc)
         self.stats_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
@@ -95,7 +102,7 @@ class City():
 
     def create_density_profile(self):
         """Calculate a density profile."""
-        logger.info(f"Calculating density profile for {self.n_cores} cores")
+        logger.info(f"Calculating density profile for {self.n_cores} core(s)")
         # Reset density to zero
         self.demand = np.zeros(shape=(self.grid_size, self.grid_size))
         center = self.grid_size / 2
@@ -173,89 +180,6 @@ class City():
         self.car_timer_idle = np.zeros(self.n_cars, dtype=np.int32)  # Idle time in ticks
 
 
-    def visualize(self, plots="all"):
-        """Show visualizations of the city"""
-        if isinstance(plots, str):
-            if plots == "all":
-                plots = ["cars", "cm1", "idle_times", "cm2"]
-            else:
-                plots = [plots]
-        n_plots = len(plots)
-
-        def _finalize(show_cbar=True):
-            """Universal design elements."""
-            plt.xticks([], [])
-            plt.yticks([], [])
-            plt.gca().set_aspect('equal', adjustable='box')
-            if show_cbar:
-                cbar = plt.colorbar(fraction=0.046, pad=0.04)
-                cbar.ax.tick_params(labelsize=8)
-
-        # Demand and current car positions:
-        n_days = self.total_steps_run * self.tick_in_minutes / 60 / 24 + 0.001
-        plot_counter = 0
-        if "cars" in plots:
-            if n_plots > 1:
-                plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
-                plt.title("Demand profile,\n car positions")
-            plt.imshow(self.demand.T, aspect='auto', interpolation='none',
-                extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
-                vmin=0, vmax=1, origin='lower');
-
-            # Visualize cars:
-            if hasattr(self, 'car_xy'):
-                # Cars were initialized
-                plt.scatter(self.car_xy[:, 0] + 0.5, self.car_xy[:, 1] + 0.5,
-                            c='red', s=2, label='Cars')
-            _finalize(show_cbar=False)
-
-        if "cm1" in plots:
-            if n_plots > 1:
-                plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
-                plt.title("CM1, €/day")
-            plt.imshow(self.stats_cm1.T / n_days, aspect='auto', interpolation='none',
-                extent=[0, self.grid_size, 0, self.grid_size], cmap='Blues', origin='lower');
-            _finalize()
-
-        if "idle_times" in plots:
-            if n_plots > 1:
-                plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
-                plt.title("Average idle time, days")
-            # Move from total idle time to idle time per car
-            value = self.stats_idle_time / np.maximum(self.stats_n_arrivals, 1)
-            value = value * self.tick_in_minutes / 60 / 24  # Convert to days
-            value[value==0] = np.nan  # This will help to show NaNs as gray
-            # cmap = plt.cm.Blues.copy()
-            cmap = colormaps.get_cmap('viridis_r').copy()
-            cmap.set_bad(color='lightgray')
-            vmax = np.nanpercentile(value, 90) # Avoid catering to outliers
-            plt.imshow(value.T, aspect='auto', interpolation='none',
-                extent=[0, self.grid_size, 0, self.grid_size], cmap=cmap, origin='lower',
-                vmin=0, vmax=vmax)  # Set vmin and vmax to control color range;
-            # Make the colorbar small and fixed in size, right from the plot
-            _finalize()
-
-        if "cm2" in plots:
-            if n_plots > 1:
-                plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
-                plt.title("CM2, €/day")
-            # Diverging colormap, red for negative, blue for positive, light gray for zero
-            cmap = colormaps.get_cmap('RdBu')
-            plt.imshow(self.stats_cm2.T / n_days, aspect='auto', interpolation='none',
-                extent=[0, self.grid_size, 0, self.grid_size], origin='lower',
-                # norm=plt.matplotlib.colors.CenteredNorm(),  # Center the colormap at zero
-                vmin=-self.cm2_per_day*2, vmax=self.cm2_per_day*2,  # Visual empyrics
-                cmap=cmap)
-            # cm2_per_day just gives a reasonable range, and I want to see some blue color
-            _finalize()
-
-        plt.tight_layout()
-
-
     def simulate(self, n_steps=1):
         """Run a few simulation steps."""
         logger.info(f"Running simulation for {n_steps} steps")
@@ -269,22 +193,25 @@ class City():
         )
 
         for step in range(n_steps):
+            if (step > 0) and (step % 5000) == 0:
+                logger.info(f"..Simulating step {step} of {n_steps}")
             idling_mask = (self.car_states == car_state["idle"])
             in_transit_mask = self.car_states == car_state["rented"]
 
             # At the beginning of the first real step (after settling down), reset stats
             if self.total_steps_run == self.settle_down_steps:
                 self.car_timer_idle.fill(0)
-                self.stats_idle_time.fill(0)
                 # Increase the n_arrivals by one for every car already parked
                 np.add.at(self.stats_n_arrivals,
                           (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
 
             # Increment idle time and CM2 costs for pixels witn idling cars
-            np.add.at(self.stats_idle_time,
-                      (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
-            np.add.at(self.stats_cm2,
-                      (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
+            if self.total_steps_run >= self.settle_down_steps:
+                self.total_steps_that_count += 1
+                np.add.at(self.stats_idle_time,
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
+                np.add.at(self.stats_cm2,
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
 
             # --- 1. Arrivals
 
@@ -301,8 +228,10 @@ class City():
                     # Update states and positions for arriving cars
                     self.car_states[arriving_mask] = car_state["idle"]
                     self.car_xy[arriving_mask] = self.car_destinations[arriving_mask]
-                    np.add.at(self.stats_n_arrivals,
-                        (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
+                    # --- Stats collection - arrivals
+                    if self.total_steps_run >= self.settle_down_steps:
+                        np.add.at(self.stats_n_arrivals,
+                            (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
             # --- 2. New rentals
 
@@ -311,7 +240,7 @@ class City():
             if np.any(idling_mask):
                 # --- Generate demand for rentals
                 roll_for_attempts = np.random.rand(*self.demand.shape)
-                rental_attempts = (roll_for_attempts < self.demand * self.p_rental).astype(np.int32)
+                rental_attempts = (roll_for_attempts < self.demand * self.p_factor).astype(np.int32)
                 pixels_with_demand = np.where(rental_attempts > 0)
 
                 # --- Pick which cars are be rented this step
@@ -392,10 +321,8 @@ class City():
                     chosen_flat_indices, (self.grid_size, self.grid_size))
                 chosen_destinations = np.stack((new_x, new_y), axis=1) # (n_rented, 2)
 
-                # Calculate transit times
+                # Calculate expected transit time in ticks, for every car
                 distances_km = distances_km[np.arange(n_rented), chosen_flat_indices]
-
-                # Calculate transit time in ticks (at least 1 tick)
                 transit_time_ticks = np.maximum(
                     1, np.round(distances_km / self.speed * 60 / self.tick_in_minutes)
                     ).astype(np.int32)
@@ -404,9 +331,11 @@ class City():
                 self.car_states[car_indices_getting_rented] = car_state["rented"]
                 self.car_timer_transit[car_indices_getting_rented] = transit_time_ticks
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
+                self.car_timer_idle[car_indices_getting_rented].fill(0)  # Reset idle times
 
-                # --- Stats collection
+                # --- Stats collection - new rentals
                 if self.total_steps_run >= self.settle_down_steps:
+                    self.stats_n_appops += rental_attempts
                     x0, y0 = start_positions[:, 0], start_positions[:, 1]
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                     np.add.at(self.stats_n_rentals, (x0, y0), 1)
@@ -418,7 +347,6 @@ class City():
                     np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
                     np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
                     np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
-                    self.car_timer_idle[car_indices_getting_rented].fill(0)  # Reset idle times
 
             # --- 3. Relocations
 
@@ -429,19 +357,23 @@ class City():
 
         end_time_sim = time.time()
         logger.info(f"Simulation completed in {end_time_sim - start_time_sim:.2f} seconds")
-        n_days = n_steps  * self.tick_in_minutes / 60 / 24  # Days during this simulation bout
+        # Days during this simulation bout (both technical and those that count):
+        n_days = n_steps  * self.tick_in_minutes / 60 / 24
+        # Total days within simulation (both technical, then stats-collecting)
         n_days_full = self.total_steps_run * self.tick_in_minutes / 60 / 24
+        # Total days with stats collection
+        n_days_that_count = self.total_steps_that_count * self.tick_in_minutes / 60 / 24
         logger.info(f"In-simulation time passed: {n_days:.0f} days")
-        logger.info(f"Statistics gathered over: {n_days_full:.0f} days")
+        logger.info(f"Overall, statistics gathered over: {n_days_that_count:.0f} days")
         n_rentals = self.stats_n_rentals.sum()
         logger.info(f"Cumulative rentals happened: {n_rentals}")
-        logger.info(f"Average rentals per car per day: {n_rentals / self.n_cars / n_days_full:.2f}")
+        logger.info("Average rentals per car per day: "
+                    f"{n_rentals / self.n_cars / n_days_that_count:.2f}")
         logger.info("Average rental time per trip, min: "
                     f"{self.total_rental_time / n_rentals * self.tick_in_minutes:.2f}")
         logger.info("Average CM1 gain per trip, Eur: "
                     f"{self.total_rental_time / n_rentals * cm1_per_rental_tick:.2f}")
         logger.info("Overall CM2 profit per day, Eur: "
-                    f"{self.stats_cm2.sum() / n_days_full:.2f}")
+                    f"{self.stats_cm2.sum() / n_days_that_count:.2f}")
 
-        # Update selected stats
-        self.n_days = n_days_full
+        self.n_days = n_days_that_count  # Used in jupyter analyses

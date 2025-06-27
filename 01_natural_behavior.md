@@ -146,17 +146,17 @@ Let's look at the interactions between DFR and profitability in our simple syste
 
 ![An experiment with five stations, idle times](figures/01simple_02stations_04dfr.svg)
 
-At this point we should take a step back and think about our model, and about how well it captures the real world. We have just discovered that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, as it is accompanied by smaller trapped fleet, allowing cars to, supposedly, earn money elsewhere in the city. This part is true both in the model and in real life, but in real life unfulfilled demand ilso annoyes customers, ruins people's plans for the day, damages trust, lowers business reputation, and ultimately harms the business in the long-term. We should therefore use Figure 1.2.4 above carefully, and be sure to never drop below a certain critical, politically chosen DFR (probably somewhere in the range of 80-90%).
+It makes it a good point to take a step back and think about the scope of our model, and about how well it captures the real world. We have just discovered that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, as lower avilability means a smaller trapped fleet at any given location, allowing cars to, supposedly, earn money elsewhere in the city. And this part is definitely true both in the model and in real life! But in real life unfulfilled demand also annoyes customers, ruins people's plans for the day, damages trust, erodes business reputation, and may ultimately harm the business in the long-term. We should therefore use Figure 1.2.4 above carefully, and draw a wise conclusion from it. When setting DFR as a KPI for your organization, it's smart not to go for 100% (or 95% for this matter), but at the same time we should ensure that it never drops below a certain critical, politically chosen DFR (probably somewhere in the range of 70-90%).
 
 > [!TIP]
->  Lower DFR means higher CM2 profitability in the short-term!
+>  Lower DFR means higher CM2 profitability in the short-term, as having DFR of almost-100% means lots of trapped fleet, which quickly gets very expensive
 
 > [!CAUTION]
-> But only in the short-term! Keep DFR low for too long, and your business is cooked.
+> At the same time, keep DFR low for too long, and your business is cooked! A wise approach is to aim for the middle ground.
 
 As an aside, this observation also hints at why mobility service aggregators such as FreeNow, Tranzer, or Cabify, are a net good for modern ubranism, and the society as a whole. When lots of offers are available in the same app, any single company can afford to go a bit lower on DFR without upsetting the customer too much, as in the worst case they can alawys take an alternative (the competitor, or a taxi). This lowers the stakes for individual providers, simplifying market entries and expansions. If mobility services in a city are aggregated, new companies can afford to enter the market with a deliberately low DFR and relatively low prices, enjoying a few months of high CM2, by catching opportunistic rides, and not offering a reliable service. This constant risk of competition means that a healthy mobility market is not likely to be monopolized, which is ultimatley good for the city, and its inhabitants.
 
-# 1.3 Gaussian City
+# 1.3 The Gaussian City
 
 ## 1.3.1 Getting to know the Gaussian City
 
@@ -179,17 +179,29 @@ From studies of human mobility, we know that a distribution of travel distances 
 
 Let's now put a bunch of cards in the middle of this map, and let the situation evolve freely for a few thousand time steps. 
 
-## 1.3.2. Natural bevavior in a Gaussian city
+## 1.3.2. Natural behavior in a Gaussian city
 
-The results of a simulation are shown on the Figure 1.3.3 below.
+🔥 
+
+![Eventual spatial distribution of cars in a Gaussian City](figures/01simple_03city_03cardistribution.svg)
 
 🔥🔥🔥 A figure with 3 snapshots over time
 
-🔥 A figure with then CM1, idle time, CM2 
+![Key KPI maps for a Gaussian City](figures/01simple_03city_04stats_maps.svg)
+
+Interestingly, the fake city on this picture is still unprofitable, losing about 900 Eur a day, despite a high number of daily rentals (~4 rentals/car/day) and a powerful dense center, generating a lot of activity. For the city above, the losses in the periphery still outweigh the profits. But fear not, in the next few chapters we'll discuss some ways to turn the tide, and make the Gaussian City a jewel of our portfolio!
+
+Note also that, unlike profitable areas, unprofitable ones often look patchy on a map, as most losses come from single cars getting stuck in "demand deserts", which kinda by design makes the maps look pixelated. The same is true for real-life maps of real cities. Also notice that the color intensity of unprofitable areas (the financial cost per pixel) is typically weaker than the intensity (contribution) of profitable pixels, and still unprofitable areas may outweigh, as there are more of them (we integrate over a larger area).
+
+![Key KPI maps for a Gaussian City](figures/01simple_03city_05stats_plots.svg)
+
+🔥 
+
+![Key KPI maps for a Gaussian City](figures/01simple_03city_06stats2_plots.svg)
 
 🔥 DFR? Do we do DFR?
 
-🔥 Aside, potentially like a caution?: distribution of models. A thought experiment showing that you're always getting the worst car possible.
+🔥 Aside, potentially like a caution?: distribution of car models. A thought experiment showing that you're always getting the worst car possible.
 
 🔥In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations, while also demonstarting slow ebb-and-wane fluctuations charasteristic for constrained brownian processes. But is it a good model for a real city?
 
