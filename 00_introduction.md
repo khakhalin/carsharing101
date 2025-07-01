@@ -9,6 +9,11 @@ The writing here alternates between basic common sense considerations, mathemati
 > [!TIP]
 > Helpful advice for doing carsharing better or more easily. That's your practical take-away!
 
+If a point is conceptually important, but perhaps cannot be _immediately_ translated into an action point, it may be given as a note:
+
+> [!NOTE]
+> Typically, a TLDR for a few paragraphs immediately above.
+
 In other situations, to outline a dangerous pitfall, I will give you a warning:
 
 > [!WARNING]
