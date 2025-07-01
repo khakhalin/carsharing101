@@ -173,6 +173,8 @@ In practice, in real life, we may decide to have a bit higher fleet in a ciy, to
 
 # 2.5 City model
 
+🔥🔥🔥 Before we do anything, an alternative CM2 visualization: with grays
+
 🔥🔥🔥 Compare the distribution of cars and the CM2 map with and without relocations
 
 * 🔥 That we will be assuming no round-trips, so our estimations will be conservative, as essentially we are looking on ly at short-term car-sharing, and some long-term car-sharing will be always happening "on top", and also potentially grow with the growth of the operation area (as it will become convenient for ore and more people)

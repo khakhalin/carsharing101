@@ -31,7 +31,7 @@ But so, what is the expected _average_ number of cars at the village parking lot
 Which is of course absolutely bizarre!
 
 > [!CAUTION]
-> If you open a small location and do nothing about it, it will hoard a totally disproportional number of idling cars.
+> If you open a small location and do nothing about it, it will naturally hoard a disproportional number of idling cars.
 
 Why don't car-sharing companies observe a half of their fleet being stuck in a small peripheral parking spot, in practice? Let's not limit ourselves to just three sample walks, as shown above, but look at 1000 superimposed random walks, and show them on one figure, semi-transparent (see Fig. 1.1.2 below). Let's also calculate the average of all random walks at every point of time, and plot this curve in the same axes (in black), as an approximation for the evolution of the expected average number of cars at the village parking lot $E(N_V)$. To make the simulation easier, here, as in the previous figure, we use discrete time:  at every turn with probability of $p=0.005$ we have a car arriving (the number increasing by one), and with the same probability we have a car leaving (the number decreasing by one); the number starts at zero, and can never get below zero. The x-axis shows the expected total number of transitions to happen by this point ($2pn_t$, where $n_t$ is the number of passed time ticks). Also, for purely illustrative purposes, one of the random walks is shown slightly stronger than others, as a solid green line.
 
@@ -49,14 +49,14 @@ We can use the average (black) curve of $E(N_V)$ to estimate the number of renta
 Which means that even from this insultingly simple simulation we can extract three important, practical take-away points:
 
 > [!WARNING]
-> 1. Bad locations suck in and trap cars.
+> 1. Bad locations trap cars.
 > 2. The number of trapped cars doesn't depend on the quality of the location, is not affected by the demand at this location, and does not get smaller for smaller locations! Smaller locations just accumulate the fleet slower, as the speed at which cars are getting trapped is proportional to the demand.
 > 3. The first 2-3 cars are trapped very quickly, within about a dozen rentals.
 
 Or, if you prefer to further condence these three thoughts into one message:
 
 > [!CAUTION]
-> Don't open new locations unless you are 100% sure that they will work! Small parking places are your enemy, and the smaller the project, the more dangerious it is for the bottom line.
+> Don't open new locations unless you are 100% sure that they will work. And the smaller the project, the more dangerious it is for your bottom line!
 
 These points can very well be called "The fundamental problem of free-floating carsharing", as most operational and strategic fine-tuning that carsharing companies have to do, to survive as a business, are ultimately caused by this problem. Indeed, let's think for a second: how can one try to counteract this "unfair" accumulation of cars at bad locations?
 
@@ -80,12 +80,12 @@ But let this flatness of car distribution not fool you: if we look at the activi
 
 What does it mean for our business? It means that some of these locations were good (lots of rentals), and some of them were bad (few rentals), and still the cars distributed about equally among them. And when at the smallest demand location cars were idling, with long waiting times between rentals, were were probably wasting money, as we were still paying for these cars, but they weren't generating a profit.
 
-> [!WARNING]
-> Cars tend to distribute uniformly across all of your locations. Because of that, low-demand locations make cars idle for longer, which is bad for the business.
+> [!NOTE]
+> Cars tend to distribute uniformly across all of your locations. Because of that, low-demand locations make cars idle for longer, which is of course bad for the business.
 
 Can we make these financial intuitions a bit more precise? Of course we can: let's remember what we learned about CM1 and CM2 profits in the Chapter 0, and try to apply this logic to this case.
 
-## Spatial CM2: the theory
+## Spatial CM2: The Theory
 
 Now that we operate a group of parking stations within a city (even if, for now, a virtual one), we have an important question to answer: **Which of these locations are profitabe, and which ones are not? How to tell that?**
 
@@ -111,7 +111,7 @@ Allocating **profits** is a bit trickier. If a trip from **a** to **b** generate
 Finally, strictly speaking, we are paying for our cars (for owning or leasing them) even when they are rented out, so in the example above, we beared **CM2 costs of owning cars during rentals**.: for 2 hours during the 1st rental, and for 3 hours during the second one. Should we include these costs in our calculation? A good argument for including them is one of consistency. If we apply CM1 profits to zones without double-counting (as described above), and then include full CM2 costs during rentals (also without double-counting), then the sum of CM2 profits across all zones will match the CM2 profits for the entire city, which is a really nice and useful feature. Therefore I recommend to allocate CM2 costs during rentals in exactly same way in which CM1 profits are allocated, as it would result in the most interpretable picture. A half-and-half split between origin and destination zones would be my method of choice.
 
 > [!WARNING]
-> While the idea of calculating CM1 and CM2 profitability in space is noble and extremely useful, there is no one single way to approach this problem. Depending on what you are trying to do, there are several ways to allocate CM1/CM2 profits to the map, so be careful about your decisions. Once the business owners get used to your maps, they will keep interpreting them in the same way, they won't be able to switch. Which makes the choice of a formula for CM2 somewhat political.
+> While the idea of calculating CM1 and CM2 profitability in space is noble and extremely useful, there is no one single way to approach this problem. Depending on what you are trying to do, there are several ways to allocate CM1/CM2 profits to the map, so be careful about your decisions. Once business owners get used to your maps, they will keep interpreting them in the same way, and they won't be able to switch. Which makes the original choice of a formula for CM2 important, and somewhat political.
 
 Let's now apply this logic to our toy example. On one hand, intuitively, when we look on the picture, how would you have ranked the zones, in terms of how good they are business-wise? You would probably agree that for this snapshot in particuler, zone **b** was the best one (short waiting time, two rentals), zone **a** was the next best, while zone **c** was kind of weak (a really long waiting time at the end). On the other hand, we now have a fancy formula to try:
 
@@ -129,13 +129,13 @@ As we move from CM1 to CM2 we take these linearly increasing profts, and substra
 
 If we look at these pictures carefully, we may notice two more things. One, once we switch to the actual profitability (CM2 profitability) picture on the right, we get quite some noise in our data, on an experiment-by-experiment basis. The second-best location, for example, was ultimately unprofitable on average, but in about one third of runs it was performing OK. On these runs we just got lucky: not too many cars, but also not too many missed sales (moments when the parking lot would stay empty), and just all in all a favorable distribution of trips across our system. Conversely, on some runs even our best location underperformed and eneded up losing us money, even though it was profitable in the long-term.
 
-> [!CAUTION]
-> Car-sharing business has to be data-driven, but remember that it is a stochastic system with small revenue margins, so the data is noisy, and the effects are small. A good location may sometimes cost your money, while a subpar location may bring an unexpected win. Don't be hasty, give it some time, don't close and open locations willy-nilly; make sure you get enough statistical power to make a decision. Or, better yet, instead of only looking at the actual financial behavior of a location, also compare it with modeling results, assuming actual demand, but more balanced car distribution and fleet management.
+> [!WARNING]
+> Car-sharing business has to be data-driven, but remember that it is a stochastic system with small revenue margins, so the data is noisy, and the effects are small. A good location may sometimes cost your money, while a subpar location may bring an unexpected win. Don't be hasty, give it some time, don't close and open locations willy-nilly; make sure you get enough evidence to make a decision. Or, better yet, instead of only looking at the actual financial behavior of a location, also compare it with modeling results, assuming actual demand, but more balanced car distribution and fleet management.
 
 Another interesting observation is that the distribution of CM2 profits is much wider for our "bad" location (the one with low demand), compared to the "good" one. This happens because this location is slower, cars stick there for longer, and the number of cars at it tends to be "sticky", in a way. If a slow location accumulates too many cars, they take forever to disspate, and vice versa, it takes longer for an unpopular location to get some cars, if at some point it ran empty. Counterintuitively, this can be seen as a good point: if your bad cars accumulates idling cars, if cars are standing there, without generating revenue, you have the time to react and intervene.
 
 > [!TIP]
-> As a counter to the "Caution" point above: if you can identify bad car distributions early, and intervene, either by moving cars around (Chapter 2), or by providing incensives through prices (Chapter 3), you can turn unprofitable days into profitable ones. And because it is slow cars that cost you money, you actually typically have the time to react.
+> As a counter to the "Warning" point above: if you can identify bad car distributions early, and intervene, either by moving cars around (Chapter 2), or by providing incensives through prices (Chapter 3), you can turn unprofitable days into profitable ones. And because it is slow cars that cost you money, you actually typically have the time to react.
 
 ## Service level and lost sales
 
@@ -150,10 +150,7 @@ Let's look at the interactions between DFR and profitability in our simple syste
 It makes it a good point to take a step back and think about the scope of our model, and about how well it captures the real world. We have just discovered that a few missed sales (some unfulfilled demand) does not necessarily ruin profitability, as lower avilability means a smaller trapped fleet at any given location, allowing cars to, supposedly, earn money elsewhere in the city. And this part is definitely true both in the model and in real life! But in real life unfulfilled demand also annoyes customers, ruins people's plans for the day, damages trust, erodes business reputation, and may ultimately harm the business in the long-term. We should therefore use Figure 1.2.4 above carefully, and draw a wise conclusion from it. When setting DFR as a KPI for your organization, it's smart not to go for 100% (or 95% for this matter), but at the same time we should ensure that it never drops below a certain critical, politically chosen DFR (probably somewhere in the range of 70-90%).
 
 > [!TIP]
->  Lower DFR means higher CM2 profitability in the short-term, as having DFR of almost-100% means lots of trapped fleet, which quickly gets very expensive
-
-> [!CAUTION]
-> At the same time, keep DFR low for too long, and your business is cooked! A wise approach is to aim for the middle ground.
+>  Aiming for DFR above 90% means trapped fleet, which quickly gets expensive. Lower DFR means higher CM2 profitability in the short-term, but keeping DFR low for too long erodes business. Aim for the middle ground!
 
 As an aside, this observation also hints at why mobility service aggregators such as FreeNow, Tranzer, or Cabify, are a net good for modern ubranism, and the society as a whole. When lots of offers are available in the same app, any single company can afford to go a bit lower on DFR without upsetting the customer too much, as in the worst case they can alawys take an alternative (the competitor, or a taxi). This lowers the stakes for individual providers, simplifying market entries and expansions. If mobility services in a city are aggregated, new companies can afford to enter the market with a deliberately low DFR and relatively low prices, enjoying a few months of high CM2, by catching opportunistic rides, and not offering a reliable service. This constant risk of competition means that a healthy mobility market is not likely to be monopolized, which is ultimatley good for the city, and its inhabitants.
 
@@ -167,7 +164,7 @@ What are the implications of this dynamics for a real city, with on-street parki
 2. Second, in a city, the trips that people make tend to be at least somewhat local: while every now and then people do drive from one end of a city to another, on average, people tend to make way more short trips rather than longer ones[^Song2010]. We can however model this rather easily, by making the probability of a trip between zones $i$ and $j$ being proportional not only to the demands $ρ_i$ and $ρ_j$ in these zones, but also to a "scaling function" $p(d_{ij})$ that depends on the Euclidian distance between pixels $i$ and $j$ and decreases with $d$. The total probability of a drive between two pixels will therefore be approximated as $p(\text{drive}) = ρ_i ρ_j p_d(d_{ij})$ 
 3. Finally, in a real city the distribution of demand values across zones is markedly long-tailed: there are typically relatively few hot and popular zones (usually in the city center), a few medium zones (high-density high-income living areas; local hotspots of commercial and recreational activity, etc.), and many low-demand zones, such as low-density housing and industrial areas. At the very least, we need to make sure that our demand values $ρ$ fall down fast enough as we get further away from the city center.
 
-Let's sketch a hightly abstracted, but still qualitatively reasonable population density ditribution of a large European city. A typical "width" of a large European city is about 10 to 20 km. (For example, if we approximate "city size" by a square root of the nominal city area, we'll get 30 km for Berlin; 25 km for Hamburg, 20 for Vienna, 17 for Munich, 15 for Amsterdam). Let's pick 20 km for the width of our pixel grid. To make the center of the city more populated, and the periphery more sparse, let's model the population density as a Gaussian: $ρ(r) = C\exp(-r^2/σ^2)$, where $r$ is a radius from the center, $σ$ is the Gaussian width, and $C$ is an abstract constant that does not matter, as it will be renormalized during the Monte-Carlo simulation. To make sure that the densely populated "city center" fits nicely within our 20 km-wide square, let's set the Gaussian width $σ$ to 6 km, and to make calculations reasonably fast, let's set the pixel size (population density discretization) at 1 km. The resulting density is shown in the Figure 1.3.1 below, both as a heatmap (left), and as a collection of cross-sections (right). And if you are concerned that the population density is not the best prediction of trip destinations, let's just agree that $ρ_i$ here represents the overall density of _worthy stuff_ at point $i$: it may be the people you want to visit, but also cafes, restaurants, bookstores, board game clubs, work offices, and other importaint points, worthy of driving to. It is reasonable to assume that a typical city would have more of these "worthy locations" in the center, and fewer of them in the periphery.
+Let's sketch a hightly abstracted, but still qualitatively reasonable population density ditribution of a large European city. A typical "width" of a large European city is about 10 to 20 km. (For example, if we approximate "city size" by a square root of the nominal city area, we'll get 30 km for Berlin; 25 km for Hamburg, 20 for Vienna, 17 for Munich, 15 for Amsterdam). Let's pick 20 km for the width of our pixel grid. To make the center of the city more populated, and the periphery more sparse, let's model the population density as a Gaussian: $ρ(r) = C\exp(-r^2/σ^2)$, where $r$ is a radius from the center, $σ$ is the Gaussian width, and $C$ is an abstract constant that does not matter, as it will be renormalized during the Monte-Carlo simulation. To make sure that the densely populated "city center" fits nicely within our 20 km-wide square, let's set the Gaussian width $σ$ to 6 km, and to make calculations reasonably fast, let's set the pixel size (population density discretization) at 1 km. The resulting density is shown in the Figure 1.3.1 below, both as a collection of cross-sections (left), annd as a heatmap (right). And if you are concerned that the population density is not the best prediction of trip destinations, let's just agree that $ρ_i$ here represents the overall density of _worthy stuff_ at point $i$: it may be the people you want to visit, but also cafes, bookstores, restaurants, board game clubs, work offices, galleries, music schools, and other importaint points, worthy of driving to. It is reasonable to assume that a typical city would have more of these "awesome locations" in the center, and fewer of them in the periphery.
 
 ![Gaussian city, population density](figures/01simple_03city_01population.svg)
 
@@ -175,7 +172,7 @@ From studies of human mobility, we know that a distribution of travel distances 
 
 ![The trips length distribution curve, and "travel neighborhoods for 3 sample pixels"](figures/01simple_03city_02mobility.svg)
 
-> [!TIP]
+> [!NOTE]
 > Even in a relatively large but well-connected city, the operating area does not naturally break into directional clusters, and the fleet continues to mix. Even though user trips tend to be local, you won't have "western" and "eastern" cars in your city; all cars will form one large mixing pool.
 
 Let's now put a bunch of cars in the middle of this map, and let the situation evolve freely for a few thousand time steps. 
@@ -183,33 +180,53 @@ Let's now put a bunch of cars in the middle of this map, and let the situation e
 ## 1.3.2. Natural behavior in a Gaussian city
 
 First, let's revisit the same question that we addressed in simulations of 2-3 parking locations: what type of the "eventual distribution" of cars can we expect in a "Gaussian city", with destination (and origin) density fading towards the periphery? Will the cars remain clustered in the center? I hope at this point you no longer hesitate to make a correct and depressing prediction: they don't. Eventually, if you wait long enough, cars end up being distributed uniformly, all over the place (figure 1.3.3 below).
-
-> [!TIP]
-> After enough rentals, you will be about as likely to observe a parked car in a dense popular area in the city center, as in a God-forsaken side-alley between the industrial area and the railroad. Give them time, and they spread all over the place.
 ![Eventual spatial distribution of cars in a Gaussian City](figures/01simple_03city_03cardistribution.svg)
+> [!NOTE]
+> After enough rentals, you will as likely observe a car in a dense popular city center, as in a God-forsaken side-alley between the industrial area and the railroad. Give them enough time, they spread all over the place!
 
-🔥🔥🔥 A figure with 3 snapshots over time
+Let's now unleash the whole toolbox of measurements and visualizations on this city, starting with CM1 (Figure 1.3.4 below, panel 2). The map of CM1 is easy, almost trivial: the higher the demand, the more likely are rentals to start and end in this pixels, leading to high CM1. The visualization of idle times (panel 3) looks like a somewhat flattened "opposite" of CM1: average idle times are low in the middle, and get increasingly high towards the edges of the city.
+
+CM2 is interesting (panel 4). It is highly positive (shown as blue) in the middle, where the CM1 component (the revenues) dominate, but it gets negative (red) on the periphery, as rentals decrease, while idle times start to grow. Note also that, unlike the profitable center, unprofitable areas look patchy and noisy, as most losses come from single cars that got stuck in "demand deserts", which kinda "by design" makes the map pixelated. The same is 100% true for real-life maps of real cities: profitable areas are smooth, while the unprofitable periphery looks like salt and pepper. Note also that the average color intensity of unprofitable (red) areas does not have to be as strong as the color intensity of profitable pixels (blue) to outweigh them, as the area of peripherall areas is larger than that of the center. A city always has "more" unprofitable areas, than profitable ones, so when calculating CM2 for the entire city, we end up integrating over a larger area. To illustrate this point, I made the fake city on this picture slightly unprofitable, losing about 900 Eur a day, despite a high number of total daily rentals (~4 rentals/car/day) and a powerful dense center, generating lots of activity. For this city, right now, losses in the periphery outweigh the profits. But fear not, in the next few chapters we'll discuss some ways to turn the tables, and make the Gaussian City a jewel of our business portfolio!
 
 ![Key KPI maps for a Gaussian City](figures/01simple_03city_04stats_maps.svg)
-Interestingly, the fake city on the picture aboveis is still unprofitable, losing about 900 Eur a day, despite a high number of daily rentals (~4 rentals/car/day) and a powerful dense center, generating lots of activity. For the city above, the losses in the periphery still outweigh the profits! But fear not, in the next few chapters we'll discuss some ways to turn the tables, and make the Gaussian City a jewel of our business portfolio!
+Finally, the last panel (panel 5, the rightmost one above) shows the map DFR. I guess, the key takeaway here is that DFR maps of a healthy cities are not always visually striking: the service level is kinda flat and monotone in the middle, and is set at a reasonable level of about 60%. On the periphery, you get a noisy landscape in which some pixels are never get covered by a car, while some have more than one car trapped, leading to a DFR of almost 100%. But this picture is decidedly not pathological. (For an example of a dramatic, pathological DFR map, look a bit further below)
 
-Note also that, unlike the profitable center, unprofitable areas look patchy on a map, as most losses come from single cars getting stuck in "demand deserts", which almost "by design" makes the maps look very pixelated. The same is true for real-life maps of real cities! The average color intensity of unprofitable areas (the redness in panel 4 above, illustrating the CM2 financial loss per pixel) is typically weaker than the intensity of profitable pixels (the blue color in the middle, showing the positive CM2 contribution of the city center). And still unprofitable areas may outweigh, as there are more of them, and we integrate over a larger area.
-
-🔥 _introduce the figure below_
+Maps are colorful and they look fancy, but we can also look at scatteplots, plotting our KPI against the underlying demand levels (Figure 1.3.5). CM1 (panel 1) grows with demand; Idle time (panel 2) drops with demand, and does so very sharply. Because of that, CM2 (panel 3) starts as a fuzzy cloud of negative CM2 values for low demand (we lost more money in those pixels that trapped 2-3 cars, we did not lose much in a few pixels that by pure luck got a return trip soon after a car was parked there). But as demand grows, CM2 becomes positive. Finally, DFR (panel 4) is mostly flat, except for the low-demand pixels, where, again, the observed value of DFR depends on the random nature of rentals more than on the underlying qualities of each particular pixel.
 
 ![Key KPI maps for a Gaussian City](figures/01simple_03city_05stats_plots.svg)
 
-🔥 
+A perhaps more impactful type of visual analysis is that contrasting various KPIs with the financial bottom line (CM2), as shown on Figure 1.3.6 below. To get good financials (vertical axis, CM2), we want lots of rentals (panel 1), idle times per car that are under a day, ideally, less than 2-3 hours (panel 2), and a reasonable DFR (panel 3): not too high, but also not too low. Somewhere around 70% is probably a good target, at least for this city.
 
 ![Key KPI maps for a Gaussian City](figures/01simple_03city_06stats2_plots.svg)
 
-🔥 Aside, potentially like a caution?: distribution of car models. A thought experiment showing that you're always getting the worst car possible.
+Can Gaussian city serve as a reasonable representation of a real city? The patterns we just described are mostly realistic, with one exception: there is one more pattern that is all too common in real European cities, and quite painful at that, that the Gaussian city for some reason does not demonstrate. But we can hack it a bit, and reproduce this little annoing pattern as well. I don't want to spoil the story, so bear with me: I'll describe a change we'll implement to the city, and then illustrate the pattern on a map.
 
-🔥In the previous model, we've seen that in a collection of "equidistant" stations, where the probability of a trip from one station to another only depends on their demand, the cars tend to distribute uniformly across these stations, while also demonstarting slow ebb-and-wane fluctuations charasteristic for constrained brownian processes. But is it a good model for a real city?
+The thing is, walkable cities tend to be relatively uniform in terms of population and destination densities in their inner cores: as you move from the suburbs to the center, at some point you get to a stable block structure, coupled with a height profile that is unique for every city, and this this dencity is maintained for a while. In contrast, a gaussian has almost linearly sloping sholders: until you get to the top, the dencity keeps growing. This makes the Gaussian City not a fair approximation of how Paris, Berlin, or Amsterdam look like. Let's therefore flatten the demand profile a bit. Behold a Flattened City! (Figure 1.3.5 below). Here we put a centered normalized 2D gaussian through a logistic function (panel 1), saturating it somewhat around 1, and adding a faster fall to zero (parks, industrial areas) at the periphery (panel 2). It results in a more disk-shaped, puck-shaped map (panel 3) with a uniform center. Let's now run our simulation on this city, and see we can spot a difference.
 
-# Are simple models reasonable?
+![Key KPI maps for a Gaussian City](figures/01simple_03city_07flat_demand.svg)
 
-Before we go further, let's review the key abstractions and simplifications that we used in the models above, and think once again if these simplifications are worth it. If Poisson process approximation is reasonable, we will retain it for all other models in this study, as it is simple, and is easy to code[^6]. If however it is unreasonable, and makes our models unrealistic, then we need to replace it with something more complicated before we dare to stir our business based on the outcomes of these models.
+The results of the simulation are shown on Figure 1.3.8 below, and if you look carefully, the difference with a Gaussian city is quite striking. First of all, even the eventual distribution of cars (panel 1) looks different: thre are very few cars in the middle of the city, and lots of cars on the "dead" periphery. Which is absolutely what is happening in real cities, like Berlin or Madrid: unless you actively fight the distribution of cars (see chapter 2), city centers are quickly emptied of cars, while quiet "sleeping neighborhoods" are getting overloaded with idling fleet. In real cities this picture is further exacerbated by daily patterns of use and customer behaviors / psychology, such as asymmetiric modal preferences (driving a car into a city is often less pleasant than driving it away from a city), but suprisingly, even the basic math of our simulation replicates most of the pattern. Unlike for a Gaussian City, in a Flattened City, the drive of the center is not strong enough to offset the tendency of cars to spread. And while the map of CM1 (panel 2), and that of idle times (panel 3) look vaguely similar to that from a Gaussian city, the maps of CM2 (panel 4) and DFR (panel 5) couldn't be more different. This time around cars are definitely gathering on the periphery of the city (the red ring of negative CM2 values on panel 4), at the levels of service inside the profitable, popular part of the city, are abismal (panel 5). With cars getting "washed out" from the center, DFR in the city core drops to below 20%, making customers unhappy, and contributing to the image of carsharing as an unreliable offer. At the same time, the DFR on the periphery (where we don't need it), sits at 80% and higher.
+
+![Key KPI maps for a Gaussian City](figures/01simple_03city_08flat_maps.svg)
+For the sake of completeness, let's revisit the plots about various KPIs contributing to the bottom line, that we have already built for the Gaussian City (Figure 1.3.6), but now plotting them for the Flattened City instead (Figure 1.3.9 below). The first two plots, while having a slightly different shape, basically tell the same story: high CM1 is good (duh! panel 1), while high idle times are bad (panel 2). The third panel, showing the effect of DFR, is a bit different this time around. In a "washed-out" city with an emptied center, the profitable inner areas are suffering (DFR of 20% and low), while unprofitable peripheral areas are basking in excess service (DFR of 70% and higher).
+
+![Key KPI maps for a Gaussian City](figures/01simple_03city_09flat_stats.svg)
+
+To summarize these results in a one-liner:
+
+ > [!NOTE]
+> In a typical city, cars tend to be parked in a pattern that is OPPOSITE to what you would have preferred. Unless you do something, cars are typically parked in the worst possible place.
+
+Interestingly (and here you will have to believe me, as my next statement is not backed by any calculations), the maxim above can be generalized to cars of different models. Let's run a thought experiment, if you will. Let's say, you have a city with some large expensive electric cars with a good range, and tiny small cars with lower range. Alice needs to come from one of the suburbs on city periphery to the center. It's a rather long trip, along a fast highway, but she has a good choice of cars (because, as we just discussed, suburbs always have way too many cars parked in them), so she will proably pick a larger, smoother-running car with a better range. Then later, Bob needs to come from the center of the city back to the subub. Bob would have preferred a larger car as well, but the city center doesn't have enough cars, so Bob will reserve and drive the first car he can get, regardless of what model it is. And with that, we have just described an asymmetric customer behavior: customers tend to bring large cars to the center, but drive any cars to the periphery. Which means that, once enough time has passed, most tiny cars (ideal for traveling inside the city core) will be lost in the suburbs, while larger cars (ideal for the suburbs) will be more likely to be found in the city core. Leading to the following maxim:
+
+> [!NOTE]
+> The distribution of car models within the city is typically the OPPOSITE to what you would have preferred. Each part of the city typically gets the wrongest possible mix of models.
+
+But as I have mentioned before, not everything is lost! There are ways to fix that, and we'll disuss them in Chapter 2!
+
+# 1.4. Are simple models reasonable?
+
+Now, before we go further, and if you have the time of course, let's talk a bit about the the key abstractions and simplifications that we used in the models so far. Let's think once again if these simplifications are worth it! Is the Poisson process approximation that se use reasonable? Because if it is, then we will retain it for all other models in this study, as it is simple, fast, and easy to code[^6]. If however it is unreasonable, if it makes our models unrealistic, then we would have to replace it with something more complicated before we dare to shape our business based on the outcomes of these models.
 
 Here's the list of assumptions we made so far:
 
