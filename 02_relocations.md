@@ -97,7 +97,7 @@ At this point we already have a sketch of a process, but the math has almost hap
 
 Let's address the first concern first. You'll have to believe me here, but quriously, if we intentionally look at the _total change in a sum of expected idle times_ for both the source and the target zone, we will arrive at exactly the same formula. The proof of this statement is simple but annoying, so let's leave it out of scope of this conversation. Please refer to the references section if you want to learn more about birth-death process, Markov chains, and queueing theory[^birthdeath]. And from the practical POV, don't worry about this, our math works out, even if the derivation looked a bit naive.
 
-The second concern is more interesting, as if we want to account for the incoming flows of cars, we should, in principle, adjust our formulas a bit. The thing is, if a location is acted upon by two Poisson processes, one bringing cars out with a rate of $d$, and another one, bring them _out_ with a rate $a$, then the expected idle time till the next rental is equal not to $1/d$, but to $1/(d-a)$. Respectively, for a station that has $n$ cars in it, the sum of all idle times is expected to be equal to $n/(d-a)$[^twoprocesses]. In our models so far, the probability of a trip from station $i$ to a station $j$ was proportional to the multiple of demands at both stations: $P(i → j) = p_i p_j$, which means that the total flow at a station $j$ is equal to $\sum_i p_i p_j = \tilde p p_j$, where $\tilde p$ is the overall rate of rentals in our system (the share of cars that are moved across locations at every time tick). In turn, this means that $d-a$ in formulas above can be replaced with $d-a = d-\tilde p d = (1-\tilde p)d = d '$ , or basically just the value of $d$ scaled down a bit. Say, if at every step we end up moving 1% of cars, then all our calculations above remain fully valid, we just need to replace the demand $d$ with its version scalled down with a 0.99 coefficient. In other words, even though technically our second concern was valid, in practice, we can ignore it. At least in our simplest models (although it can become important in real-life solutions).
+The second concern is more interesting, as if we want to account for the incoming flows of cars, we should, in principle, adjust our formulas a bit. The thing is, if a location is acted upon by two Poisson processes, one bringing cars out with a rate of $d$, and another one, bring them _out_ with a rate $a$, then the expected idle time till the next rental is equal not to $1/d$, but to $1/(d-a)$. Respectively, for a station that has $n$ cars in it, the sum of all idle times is expected to be equal to $n/(d-a)$[^twoprocesses]. In our models so far, the probability of a trip from station $i$ to a station $j$ was proportional to the multiple of demands at both stations: $P(i → j) = p_i p_j$, which means that the total flow at a station $j$ is equal to $\sum_i p_i p_j = \tilde p p_j$, where $\tilde p$ is the overall rate of rentals in our system (the share of cars that are moved across locations at every time tick). In turn, this means that $d-a$ in formulas above can be replaced with $d-a = d-\tilde p d = (1-\tilde p)d = d '$ , or basically just the value of $d$ scaled down a bit. Say, if at every step we end up moving 5% of cars, then all our calculations above remain fully valid, we just need to replace the demand $d$ with its version scalled down with a 0.95 coefficient. In other words, even though technically the second concern was valid, in practice, at least in our simplest models, we can ignore it, as all demand values are scaled proportionally (although it can become important in real-life solutions, with more complex interactions between incoming and outgoing flows).
 
 To some up, let's reiterate the relocation algorithm we will follow in our simulations:  
 1. Look at all stations, at demand $d$ at each of them, and at the number of cars $n$ parked at each station currently
@@ -109,27 +109,39 @@ To some up, let's reiterate the relocation algorithm we will follow in our simul
 
 The results from a relocation model (script `02relos_02ring` with `few_stations` scenario) are shown in the figure below. Here all model parameters were exactly the same as in the corresponding model from Chapter 1 (5 stations with demand linearly decreasing from 0.5 to 0.1;, 20 cars), but this time around we perform a relocation at every 20th tick. We can see the cars are no longer distributed uniformly (the right panel below is no longer flat), as cars from low demand stations are regularly relocated to high-demand stations!
 
+🔥 Add figure title
+
+🔥 Change labels to: Demand at a location, Number of cars at a location
+
+🔥 Make figure font larger. In general, copy design from 01_natural_behavior, to them look like sisters
+
 ![alt text](figures/02relos_02stations_01ncars_few_stations.svg "alt text")
 
 Unfortunately for our model, in this case relocations don't really increase the profits, as we have too many cars in the system (see the figure below; it assumes 20 trips/day from the hottest zone in the model, 5 €/trip in CM1, and 20 €/day as the car cost). 🔥🔥🔥 _Describe what we are supposed to see on this figure_ The way the code is written, at any given moment at best 5 cars may be "used", and no car is rented for longer than one tick of time (all trips are instantaneous), but we have 20 cars in total, meaning that 15 out of 20 cars are always idling. Which is why in this run of a model, even highest-demand zones are almost never profitable. To make relocations count, we need to raise the stakes of each relocation, and either change the distribution of demand values, or reduce the fleet (lower the DFR), or both.
+
+🔥 Copy figure design from natural behavior: 1) First CM1 and CM2 as functions of demand, then 2) CM1 and CM2 as functions of DFR.
+
+🔥 Add figure title
 
 ![Stations model with unprofitable relocations](figures/02relos_02stations_02financials_few_stations.svg)
 
 Let's change the model, to make sure that some of the stations are really bad, so that cars could really "get stuck" there (we'll give them ~10 times lower demand, compared to "good stations"), and also that there are not enough "cars" to cover all the stations. The figure below corresponds to 10 stations, half of them with demand of about 0.4, half of them with demand of about 0.03, and only 5 cars to serve the city; a relocation is performed every 20th tick (see `02relos_02ring` script for details, scenario `suburbs`). We can infer from the left plot that relocations were used to move cars from bad (low demand) stations to good ones, maintaining a DFR of about 20% at bad stations, and about 55% at good stations. The bad stations remain unprofitable, but not as unprofitable as they wold have been with the uniform distribution of fleet. in the absence of relocations!
 
-🔥🔥🔥🔥🔥🔥 Make these 10 stations cover a range of demands; having only two clouds is super-confusing. Change the figure, and change the description.
+🔥🔥🔥🔥🔥🔥 Make stations cover a range of demands; having only two clouds is super-confusing. Change the model in whatever ways necessary. Change the figure, and change the description.
 
 ![Stations model, profitable relocations](figures/02relos_02stations_02financials_suburbs.svg)
 
+🔥 The cost/CM1 figure is cool, but too new and complicated. It can be introduced as a separate type of a visualization, but with a separate paragraph explaining it. Or maybe skip algotether. Try it for this experiment, and only if it's particularly cool, include it, otherwise skip.
+
 🔥 DFR vs demand?
 
-🔥 An aside on how carsharing cannot replace public transit, and should never be positioned as such, because we fundamentally depend on cars being a cherry on top, a preferred, but not the only means of transportation. By nature of statistics above, we cannot guarantee both a good service (availability), a good price, and a good coverage. To guarantee a good service and a good price we would have to limit our offerings only to high-demand areas of the city, essentially becoming a fancy "Drive-it-yourself" shuttle between a few fixed points in space, which is not that interesting. We can still offer a good price and a wide coverage of "hotter" and "cooler" locations, as in simulations above, if we allow ourselves to drop DFR at weaker... _or long-term rentals without releasing the car, which guarantees a trip, but is expensive_ ??????????? 🔥🔥  _Is it even true? is it worth to say it? How to phrase it? Think again later...._ 🔥 🔥
-
-# 2.3 Optimal number of relocations
+# 2.3 Optimal relocation frequency
 
 From the previous figure we can see that in our model, with a constant rate of relocations of one relo per 100 rentals (every 20th tick) not all cars were removed from "really bad zones". Did it happen because it was actually better, from the CM1 point of view, to keep some cars there? Or did it happen only because we did not have enough relocation capacity to clear these stations out completely? Let us explore this question by running the model with _different relocation volumes_, from 1 to 200 relocations per experiment (which would correspond to a range from 2000 to 10 time ticks per relocation). As we want to assess resulting profitability of our "city", this time around we will also assign a fixed cost for every relocation task (20 €/relocation).
 
 The result of this experiment (below) shows that there is indeed an optimal volume of relocations to serve this "city": a relocation frequency at which the profits are maximized. (Strictly speaking we modeled CM1 profits, but as the number of cars in the city is fixed, this optimum also corresponds to optimal CM2 profits). With too few relocations, too many cars end up being trapped at bad zones, and thus effectively excluded from rental business. With too many relocations, on the other hand, too many relocations ended up being unprofitable (we moved a car to a better zone, but it didn't yield enough gain  in rental CM1 to offset the cost). 
+
+🔥 Add figure title
 
 ![Stations model, optimal number of relocations](figures/02relos_02stations_03optimal_number_suburbs.svg)
 
@@ -169,14 +181,14 @@ From the left curve we can learn that, not suprisingly, when the fleet is very l
 As you grow the fleet, you increase the chances of two or more cars randomly meeting at the same not-so-good station, creating a fluctuation of trapped fleet, which is often profitable to resolve. At fleet size continues to increase, the expected frequency of relocations goes through a maximum, but then starts to decrease again, as when the system is overloaded with cars, some of the cars are never getting rented anyways, and therefore it does not matter that much where exactly they are idling. By pure coincedence, for this model the curve of the optimal relocation frequency drops down at about the same fleet (15 cars) at which the CM2 curve for the model as a whole becomes negative, but there is no deep truth in this (the left signifies the fight of better car placement with a fixed relocation cost, while the right curve manifests the fight of CM1 profits with CM2 car costs; the parameters that control the shapes of these two curves are only partially shared).
 
 > [!TIP]
-> Each city (operating area) has the optimal fleet to serve it. You can find this optimal fleet by monte-carlo modeling, which is time consuming, but not particularly hard.
+> Each city (operating area) has the optimal fleet to serve it. You can find this optimal fleet by monte-carlo modeling, which is time consuming, but not particularly hard!
 
 Another practical learning point that we can draw from the left curve is that the number of profitable relocations identified and performed by the model differs a lot from one run to another (note how wide the point "clouds" are!) The reason here is that the number of cars at each station is a one-dimentional brownian process variable, and while it is random, it changes quite slowly (we have already discussed this phenomenon in Chapter 1). If in real life relocations from a zone are low in one month, but high in another, that does not necessarily mean that something structurally changed in the way this zone is used; it may as well be that by pure luck the cards have being dealt slightly differently this time around.
 
 This last point also has an interesting consequence. Among 100 individual experiments that were run to produce the figure above, some required almost 2 times more profitable relocations than some other (say, for a case of 10 cars, we have one experiment with relocation frequency of about 0.06 per tick, and another one - with almost 0.12 per tick). Yet in real life, from the operations point of view, it is much more desirable to perform the same "reasonable" number of relocations every week: it helps with capacity planning, budgeting, and optimizes utilization of drivers. Which in turn means that even when operations are tuned up perfectly, on some days drivers would be performing relocations are are not quite profitable, while on other days some relocation request may remain unresolved for capacity issues. This is unavoidable, and this is ok.
 
 > [!WARNING]
-> Don't be too upset with relocation effeciency on every particular day, or even week. Relocation strategy should be optimized only at larger periods of time: months, or even quarters.
+> Don't be too upset with relocation effeciency on any particular day, or even week. Relocation strategy should be optimized only at larger periods of time: months, or even quarters.
 
 Finally, let's reiterate: the right curve on the figure above spells a very important message. It introduces that concept of an **optimal fleet size**: the number of cars that, for a given operating area, demand, prices, and relocation logic, offers the best CM2 profitability.
 
@@ -188,7 +200,11 @@ In practice, in real life, we may decide to have a bit higher fleet in a ciy, to
 
 # 2.5 City model
 
+## 2.5.1. A better CM2 map
+
 🔥🔥🔥 Before we do anything, an alternative CM2 visualization: with grays
+
+## 2.5.2. The effect of relocations
 
 🔥🔥🔥 Compare the distribution of cars and the CM2 map with and without relocations
 

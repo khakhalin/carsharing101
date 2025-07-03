@@ -62,6 +62,8 @@ sigma = 10 # Gaussian sigma
 
 🔥 The benefit of tendrils and stations (??? - at least describe the idea / hypothesis)
 
+🔥 An aside on how carsharing cannot replace public transit, and should never be positioned as such, because we fundamentally depend on cars being a cherry on top, a preferred, but not the only means of transportation. By nature of statistics above, we cannot guarantee a good **service** (availability), a good **price**, and a good **coverage** at the same time. To guarantee a good service and a good price we would have to limit our offerings only to high-demand areas of the city, essentially becoming a fancy "Drive-it-yourself" shuttle between a few fixed points in space. To offer a good service and high coverage with on-street parking, we would have to increase the fleet, and then recuperate the costs, making the service expensive. Finally, we can offer good price and a wide coverage by dropping the DFR and 
+
 # 4.4. Expanding the OA
 
 🔥 The main idea: Rework into a series of options:

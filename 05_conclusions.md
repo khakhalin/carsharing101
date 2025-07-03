@@ -1,9 +1,22 @@
 # 5. Conclusions
 
-* The paradox of data-drivenness: Number of data scientists
-* The future of mobility: at which point does car-sharing become profitable for households?
+
+🔥 On how carsharing cannot replace public transit, and should never be positioned as such, because we fundamentally depend on cars being a cherry on top, a preferred, but not the only means of transportation. By nature how cars behave in space, we cannot guarantee a good **service** (availability), a good **price**, and a good **coverage** at the same time. 
+
+* To guarantee a good service and a good price we would have to limit our offerings only to high-demand areas of the city, becoming a fancy "Drive-it-yourself" shuttle between a few fixed mobility stations.
+* To offer a good service and high coverage with on-street parking, we would have to increase the fleet, and then somehow recuperate the costs, making the service expensive.
+* Finally, we can offer a good price and a wide coverage by dropping the DFR and resigning to a shadow existence of a fun but unreliable means of transportation.
+
+You can pick any two, but you cannot get all three!
+
+![Pick any two KPIs](figures/venn.svg)
+
+
+Of three business strategies outlined, only a "Pricey premium service" does not seem to be working in practice, as at this price point it becomes easier to get a taxy than to rent a car that you have to also drive itself. 🔥 An "opportunitistic approach" works if it's coupled with long-term rentals and car pre-booking, essentially becoming a "standard" rental car service where you can rent a car for a few days, and then drop it off almost anywhere. A mobility stations approach seems to be the most promising option so far, as it is also aligned with most progressive trends in modern urbanism and city planning that deprioritizes cars, while acknowledging an important functions that they can solve (rare unusual trips for most people, more regular service for a smaller circle of people with special needs). Relocations, and especially automated relocations by self-driving cars without a passenger (that would be possible at night, and at very low speeds) also offer a promising hybrid model where cars can be rented directly at only few locations, but can be dropped anywhere, or ordered to a particular location for a fee (to compensate the relocation cost). Personally, I believe that this "hybrid" mode is likely to be the future, and may end up finally hitting the magic center on the Venn diagram above.
 
 # How lean a car-sharing business has to be?
+
+🔥 The paradox of data-drivenness: Number of data scientists
 
 🔥Let's assume that we are trying to create a lean team of skilled and highly motivated professionals. An average salary across a team like that, in Germany in 2024, will be around 5000 €/mo (less for junior people, more for seniors and management). Around 40% more will go into taxes and social security, and 20% more into health insurance and retirement contributions, leading to a total cost of about 8000 €/mo per employee.
 
