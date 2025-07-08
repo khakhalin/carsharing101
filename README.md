@@ -29,6 +29,9 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 * Extract "identify rentals" into a method - it's getting way too long
 * Do we want to add at least some unit tests?
 * Do we want an integration test that calculates city financials in 2-3 different ways, and checks that the stats are fully consistent?
+* 
+# Notebooks
+* Move pricing from one station notebook to a separate notebook
 
 # Editing principles
 
@@ -37,4 +40,14 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 * For relocations, use source-target
 * Check for consistent use of terms "zones" and "stations", especially early on. Perhaps it makes sense to stick to "stations" until the city is introduced? Or at least be consistent within any given paragraph + make sure that both "stations" and "zones" are defined at first use.
 
-
+# Standards for illustrations
+```python
+plt.figure(figsize=(10, 4), facecolor='white')
+plt.title("Fig. 0.0.0: Description", loc='left')
+if accompanied_by_averages:
+    plt.plot(x, y, '.', alpha=0.1, markersize=10)
+    plt.plot(x.mean(axis=0), y.mean(axis=0), 'ks-')
+elif scatterplot_alone:
+	plt.plot(x, y, '.', alpha=0.3, markersize=10) 
+plt.tight_layout()
+```

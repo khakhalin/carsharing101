@@ -23,8 +23,6 @@ In the left panel we can see 500 random traces that a model like that can follow
 
 The right panel shows a plot of average relocation frequency over time, and similarly to the average $N_V(t)$ curve, once the system stabilizes, the expected relocation frequency becomes roughly constant (even if more variable). It turns out that there is a simple formula for the average frequency of these relocations. Let's say that the flow of cars to this small parking space happens at a rate $λ$, and as discussed, a discrete one-dimensional bordered random walk is equally likely to visit all points from 0 to $N_{\max}$. Then the probability that a new arriving car will find the parking lot at top capacity of $N_{\max}$ will be equal to $P(N_V=N_{\max}) = 1/(N_{\max}+1)$, and the rate of relocation, relative to the rate of inflow $λ$ will be equal to $\frac{λ/N_{\max}}{λ} = 1/(N_{\max}+1)$. And just in case you don't believe this calculation (as strictly speaking we never proved that a random process like that will lead to uniformly distributed values of $N_V$), Fig 2.1.2 below shows an "experimentally" observed chart of relative relocation frequencies from a simulation (500 experiments per point, 6500 time points per experiment), together with a "theoretical curve" of $1/(1+N)$.
 
-🔥 TODO: fix the title here below, it has a typo. The title should be "Expected relication rate". Also change "hub" to "station" in figures
-
 ![Relocation frequencies as a function of upper limit of cars at the parking lot](figures/02relocations_01village_02relo_freq.svg)
 
 > [!TIP]
@@ -125,7 +123,20 @@ Unfortunately for our model, in this case relocations don't really increase the 
 
 ![Stations model with unprofitable relocations](figures/02relos_02stations_02financials_few_stations.svg)
 
+🔥 
+
+![Stations model with unprofitable relocations](figures/02relos_02stations_03dfr_few_stations.svg)
+
+
 Let's change the model, to make sure that some of the stations are really bad, so that cars could really "get stuck" there (we'll give them ~10 times lower demand, compared to "good stations"), and also that there are not enough "cars" to cover all the stations. The figure below corresponds to 10 stations, half of them with demand of about 0.4, half of them with demand of about 0.03, and only 5 cars to serve the city; a relocation is performed every 20th tick (see `02relos_02ring` script for details, scenario `suburbs`). We can infer from the left plot that relocations were used to move cars from bad (low demand) stations to good ones, maintaining a DFR of about 20% at bad stations, and about 55% at good stations. The bad stations remain unprofitable, but not as unprofitable as they wold have been with the uniform distribution of fleet. in the absence of relocations!
+
+TODO: 🔥🔥🔥🔥🔥🔥
+* Rework the notebook, make it return parameters on scenario name. We shouldn't manually re-run the same sell with different global values of scenario name; that's unhealthy!!
+* Turn CM1-CM2 figure into a function, to call it 2 times - first for simple stations, then for suburbs
+* Add a cell for the "Suburbs" scenario
+* Troubleshoot "Suburbs" scenario to show a more reasonable (lower DFR) situation
+* Remove DFR figure for "simple stations", as it's too confusing. Introduce the idea of "we have too many cars, let's tweak the parameters to make it realistic" earlier (right after we built CM2 as a function of demand, and realized that nothing is profitable). Stress that we started with these settings to get nice n_cars per location plots, and to allow a direct comparison with "natural behavior" from chapter 1. But now it's time to make it  a bit realistic.
+* Only after CM2 figure is made more realistic, add a DFR figure, and talk about the effects of DFR
 
 🔥🔥🔥🔥🔥🔥 Make stations cover a range of demands; having only two clouds is super-confusing. Change the model in whatever ways necessary. Change the figure, and change the description.
 
