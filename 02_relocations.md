@@ -1,16 +1,19 @@
 # 2. Relocations
 
-🔥 Define what a relocation is
+In the previous chapter we discussed how cars tend to be trapped in low-demand areas even as high-demand areas suffocate without fleet. One obvious way to try to fix this is to develop a habit of intervening! What if every now and then we would find a car that is stuck in a technical road between a highway and a garbage-collecting station, pay a hired driver, and "by force" move it to the center of the city? We will call this a **relocation**!
 
-Why would a carsharing company spend its own money to move cars from one area of the city to another? Why would we pay someone to do so? Sure, every now and then we need to run all sorts of service drives, bringing cars to a workshop, returning them back to the city, moving cars to charging poles to charge, or to gas stations to refuel. But what about cars that are clean and sound, and are just standing somewhere, waiting for a rental? Surely, if a customer ended a trip in some particular location within a city, sooner or later either they, or another similar customer, will want to start a trip nearby and bring the car back in the game. Should not we just wait? Would not the "natural" distribution of cars in the city be the best one for the business?
+But do we really have to do that? Why would we _spend our own money_ on moving cars from one area of the city to another? It's one thing to sometimes perform unavoidable service drives: bringing broken cars to a workshop for example, returning them back to the city, or moving cars to charging poles and gas stations to charge and refuel. But if a car is clean and sound, and is just standing suboptimally, isn't it better just to wait? If someone traveled _to_ this location at some point, then surely sooner or later someone else would travel _from_ it, right? Should not we just wait?
 
-From the Chapter 1 we know that the answer to this rhetorical question is a resonding "NO"! The default, "natural" distribution of cars within the city is horrible for business, and can easily ruin a carsharing company by rendering it unprofitable. Until carsharing becomes a dominant form of car-use, making high service level (DFR) the top priority, cars have to be redistributed to optimize profits. This last phrase may sound annoyingly capitalist and exploitative, but even from the most altruistic point of view, to have the highest societal impact, in terms of reducing the carbon footprint of the city, carsharing companies should invest in the efficiency of their operations, and pump any spare money they have into expansions. It's much better for everyone if companies can bring carsharing to smaller towns, instead of letting their cars idly rust and rot in forgotten backstreets, parking lots, and alleyways.
+From Chapter 1 we know that the answer to this rhetorical question is a resonding "NO"!! The default, "natural" distribution of cars within the city is _horrible_ for business, and can ruin a carsharing company in no time, by rendering it unprofitable. Until carsharing becomes a dominant form of car-use, making high service level (DFR) the top priority, cars have to be redistributed to optimize profits. This phrase may sound annoyingly capitalist and exploitative, but even from the most leftist and altruistic point of view, to have the highest societal impact, in terms of reducing the carbon footprint of the city, while also helping with a modal shift and improving the quality of life, carsharing companies should invest in their operations, pumping any spare money into expansions, better fleet, car cleaning etc. It is much better for _everyone involved_ if we make carsharing reliable and pleasant, rather than paying for cars rusting in forgotten backstreets, covered with leaves and pigeon droppings.
 
-Moreover, even putting the average distribution of cars in the city aside, from Chapter 1 we know that the distribution of cars across different parts of a city is inherently volatile, and that rental cars are prone to spontaneous pile-ups at random points on the map. These fluctuations of fleet density within the city obviously hurt fleet utilization and business efficinency, as every pile-up of cars in one part of the city means that some other part doesn't have enough vehicles, with customers getting underserved and frustrated. To maximize the positive impact (and also, to survive financially), a good carsharing company should identify these "pile-ups" early on, and redirect idling cars to where they are most needed at the moment. The presence of relocations in a city is not a sign of inefficiency; on the other hand, it's a sign of a responsible mobility company, fighting a never-ending fight against entropy.
+Moreover, even putting the stable state distribution of cars aside, from Chapter 1 we know that the on any given day the distribution of cars across different zones and stations is inherently volatile: rental cars are prone to spontaneous pile-ups at random points on the map. These fluctuations of fleet density within the city obviously hurt fleet utilization and business efficinency, as every pile-up of cars in one part of the city means that some other part doesn't have enough vehicles, with customers getting frustrated. To maximize the positive impact (and also, to survive financially), a we need to learn to identify these "pile-ups" early on, and redirect idling cars to where they are most needed at the moment. The presence of relocations in a city is not a sign of inefficiency! The other way around, it's a sign of a responsible mobility company, fighting a never-ending fight against entropy.
 
-There are of course also other, more complicated reasons to relocate a car. For example, a single car may be trapped in an unfortunate, barely reachable location, somewhere in a park, under a bridge, or in some industrial zone. Shared cars may also be used by customer to retrieve their own, private vehicles from towing yards and workshops, in which case some of our shared car would never see a drive back. Or maybe, in a nightmare scenario, a whole district of a city would have access to a good comfortable train to bring people to work in the morning, but no good train to bring them back home in the evening (or the other way around). In a situation like that, day after day, customers would tend to take a train to work, but a shared car back home, accumulating them in one particular partof the city. Situations like that exist, and a good relocation system should be able to automatically identify and rectify them, maintaining the optimal distribution of cars in space.
+There are of course also other, more complicated reasons to relocate a car. For example, due to bad transportation planning, a whole district of a city can have access to a good comfortable train in them morning, to bring people to work, but no good train in the evening, to bring them back (or the other way around). In a situation like that, day after day, customers would tend to take a train in one direction, but would prefer taking a shared car back, accumulating them in one particular partof the city. Situations like that do happen in real life, and a good relocation system should be able to automatically identify and rectify them, optimizing the distribution of cars in space.
 
-Let us now return to three previously described models: the "One station" model (aka a city and a village), the "Multiple stations" model, and finally to a "Gaussian city", to see how the presence of relocations can change the financials of a "virtual company" operating in these "model universes".
+> [!TIP]
+> It is important for a carsharing company to contract drivers, to relocate idling cars from slow to hot parts of the city. (At least until we get self-driving cars that can relocate at night on their own).
+
+So let us learn to relocate! We'll now return to the three previously described models: we'll start with a "One station" model (aka a city and a village nearby); then switch to a "Multiple stations" model, and finally apply what we learned by then to "Gaussian city", to see how the presence of relocations changes the financials of a "virtual company" operating in this model universe.
 
 # 2.1 One station
 
@@ -52,6 +55,7 @@ $\displaystyle N_\text{opt} = \sqrt{\frac{2 (r + π) \lambda}{C}} - 1$
 Equipped with this formula, we can now find the optimal relocation rate (or rather, relocation threshold) from an isolated parking lot with any level of demand, observed or expected. And knowing this optimal relocation rate, we can put it into the formula for CM2 above, and build a curve of **maximal possible profitability of a parking station**, as a function of demand at this station. The curve for the same financial parameters as before (20€/car/day of leasing/ownership costs, 20€/relo, 5€/trip CM1 in profit; see "Appendix" for comments) is shown below (Fig 2.1.4). It starts below zero, as for a no-demand location every car needs to be relocated "to the mainland" immediately. Then it somewhat counterintuitively dips even further down, as the rate of required relocations increases, but the rentals don't yet contribute much to the economy of the parking lot. At some point however the curve starts to recover, and then at some critical demand (for these parameters, at about 8 rentals/day _in one direction_) the parking lot breaks even, and becomes steadily more and more profitable as the demand grows.
 
 ![Optimal relocation threshold as a function of station popularity](figures/02relocations_01village_04ideal_profitability.svg "Optimal relocation threshold as a function of station popularity")
+
 > [!TIP]
 > 10 rentals/day one direction (from the station to the city) is a good "Rule of thumb" threshold for a newly opened location to be profitable. If you have reasons to expect the new location to generate 10 rentals a day on average, you can open it.
 
@@ -59,7 +63,7 @@ Calculating a curve like that for your actual CM2 cost, relocation cost, and CM1
 
 If your company has a dedicate "sales" department, with people trying to negoatiate with businesses and municipalities about opening a station at their premises, it's also useful to communicate this approximate ballpark value to them, so that they could prioritize their projects. 2 rentals a day are not worth fighting for. 15 rentals a day is a no-brainer. 5 rentals a day is a borderline case where assumptions and long-term projections suddenly become important.
 
-## A case of autonomous vehicles
+**Aside: A case of Autonomous Vehicles**
 
 Before we return back to "normal" scenarios let's indulge in a little aside here. How could anotonomous vehicles (should they ever  happen) change this picture? Usually when people think about autonomous vehicles, they hink about a person sleeping or working in a car while a car is wheezing along a highway. But in case of urban mobility that is another interesting application to autonomous driving: slow, safe, driverless and _userless_ relocations in the middle of a night. Imagine a city in which every car parked in a dark God-forsaken alley would carefully crawl out of this alley at about 2 am, when there's almost no one on the streets, and slowly, carefully move itself towars a target parking station, to be picked up by humans in the morning. How would this change the economics of relocations?
 
@@ -67,13 +71,11 @@ Before we return back to "normal" scenarios let's indulge in a little aside here
 Above is a version of the same graph as before, but for a scenario where cars are very expensive (50 rather than 20 €/day in CM2 costs), but the relocations are very cheap (3 rather than 20 €/relo, accounting for electricity costs and amortization, see Appendix). The non-linear dip for small stations is gone; there is still a clear threshold, but this threshold is now way smaller, at 4 rather than 8 rentals a day (one direction). In other words:
 
 > [!TIP]
-> If autonomous relocations ever become available, they will make free-floating car-sharing more profitable, and more accessible, as operators will be able to cover smaller, less popular stations.
+> If autonomous relocations ever become available, they will make car-sharing more profitable and accessible, even if they are not allowed to transport humans! That's because we will be able to offer smaller, less popular stations by performing cheap relocations at night.
 
-# 2.2 Several stations
+# 2.2 Draft relocation algorithm
 
-🔥 ADD CLEAR CONCLUSIONS EVERYWHERE HERE, AS RIGHT NOW IT"S RATHER CONFUSING
-
-Before we upgrade our models from one location to a set of several locations, lets talk some more about the logic of relocations. To perform a relocation, both in real life and in the model, we need to find the best car to relocate, and a good destination to move it to (a station, a zone, a parking spot, or a certain position deep within the city). Let us assume that our goal here is to maximize profits (as opposed to, for example, promoting our services, undercutting competition, or achieving a certain level of customer experience). Let's also agree that we are going to maximize these profits by maximizing revenue: we don't want cars to stand idly in some forgotten side alleys without serving customers; we want them to be rented again and again, as often as possible. (In real life we may also be concerned about reducing losses, such as vandalism and theft, or by optimising costs, such car cleanness, recharging and refueling etc., but for the sake of this exercise let us ignore everything except the profits received from rentals).)
+Before we move from one to several locations, lets talk a bit about the logic of relocations. To perform a relocation, both in real life and in the model, we need to find the best car to relocate, and a good destination to move it to (a station, a zone, a parking spot, or a certain position deep within the city). Let us assume that our goal here is to maximize profits (as opposed to, for example, promoting our services, undercutting competition, or achieving a certain level of customer experience). Let's also agree that we are going to maximize these profits by maximizing revenue: we don't want cars to stand idly in some forgotten side alleys without serving customers; we want them to be rented again and again, as often as possible. (In real life we may also be concerned about reducing losses, such as vandalism and theft, or by optimising costs, such car cleanness, recharging and refueling etc., but for the sake of this exercise let us ignore everything except the profits received from rentals).)
 
 Under these assumptions, the task of maximising profits is roughtly equivalent to the task of minimizing the average idle time for the city. Every time the car is idling without bing rest, we are potentially incurring an opportunity cost, as somewhere in a different part of a city a customer may be looking for a car, and not finding any. We can therefore try to find a car that is idling in a low-demand zone, and move it to an empty or nearly-empty high-demand zone. Or even better, we can try to estimate the expected boost in CM1 from this move, and only perform those moves for which the expected CM1 boost is higher than the relocation cost.
 
@@ -97,7 +99,7 @@ Let's address the first concern first. You'll have to believe me here, but qurio
 
 The second concern is more interesting, as if we want to account for the incoming flows of cars, we should, in principle, adjust our formulas a bit. The thing is, if a location is acted upon by two Poisson processes, one bringing cars out with a rate of $d$, and another one, bring them _out_ with a rate $a$, then the expected idle time till the next rental is equal not to $1/d$, but to $1/(d-a)$. Respectively, for a station that has $n$ cars in it, the sum of all idle times is expected to be equal to $n/(d-a)$[^twoprocesses]. In our models so far, the probability of a trip from station $i$ to a station $j$ was proportional to the multiple of demands at both stations: $P(i → j) = p_i p_j$, which means that the total flow at a station $j$ is equal to $\sum_i p_i p_j = \tilde p p_j$, where $\tilde p$ is the overall rate of rentals in our system (the share of cars that are moved across locations at every time tick). In turn, this means that $d-a$ in formulas above can be replaced with $d-a = d-\tilde p d = (1-\tilde p)d = d '$ , or basically just the value of $d$ scaled down a bit. Say, if at every step we end up moving 5% of cars, then all our calculations above remain fully valid, we just need to replace the demand $d$ with its version scalled down with a 0.95 coefficient. In other words, even though technically the second concern was valid, in practice, at least in our simplest models, we can ignore it, as all demand values are scaled proportionally (although it can become important in real-life solutions, with more complex interactions between incoming and outgoing flows).
 
-To some up, let's reiterate the relocation algorithm we will follow in our simulations:  
+To some up, here's the relocation algorithm we sketched so far:  
 1. Look at all stations, at demand $d$ at each of them, and at the number of cars $n$ parked at each station currently
 2. Sort stations by expected demand per car $d/n$ 
 3. Find a source station with the _smallest_ value of expected demand
@@ -105,33 +107,29 @@ To some up, let's reiterate the relocation algorithm we will follow in our simul
 5. Find a target station with the _highest_ value of expected demand
 6. Pick a random car at the source zone and move it to the target zone
 
+# 2.3 Several stations
+
 The results from a relocation model (script `02relos_02ring` with `few_stations` scenario) are shown in the figure below. Here all model parameters were exactly the same as in the corresponding model from Chapter 1 (5 stations with demand linearly decreasing from 0.5 to 0.1;, 20 cars), but this time around we perform a relocation at every 20th tick. We can see the cars are no longer distributed uniformly (the right panel below is no longer flat), as cars from low demand stations are regularly relocated to high-demand stations!
 
-🔥 Add figure title
-
-🔥 Change labels to: Demand at a location, Number of cars at a location
-
-🔥 Make figure font larger. In general, copy design from 01_natural_behavior, to them look like sisters
-
-![alt text](figures/02relos_02stations_01ncars_few_stations.svg "alt text")
+![alt text](figures/02relos_03stations_01ncars_stations.svg "alt text")
 
 Unfortunately for our model, in this case relocations don't really increase the profits, as we have too many cars in the system (see the figure below; it assumes 20 trips/day from the hottest zone in the model, 5 €/trip in CM1, and 20 €/day as the car cost). 🔥🔥🔥 _Describe what we are supposed to see on this figure_ The way the code is written, at any given moment at best 5 cars may be "used", and no car is rented for longer than one tick of time (all trips are instantaneous), but we have 20 cars in total, meaning that 15 out of 20 cars are always idling. Which is why in this run of a model, even highest-demand zones are almost never profitable. To make relocations count, we need to raise the stakes of each relocation, and either change the distribution of demand values, or reduce the fleet (lower the DFR), or both.
 
-🔥 Copy figure design from natural behavior: 1) First CM1 and CM2 as functions of demand, then 2) CM1 and CM2 as functions of DFR.
+![Stations model with unprofitable relocations](figures/02relos_03stations_02financials.svg)
 
-🔥 Add figure title
-
-![Stations model with unprofitable relocations](figures/02relos_02stations_02financials_few_stations.svg)
+🔥 Describe what we changed in terms of numbers
 
 🔥 
 
-![Stations model with unprofitable relocations](figures/02relos_02stations_03dfr_few_stations.svg)
+![Stations model with unprofitable relocations](figures/02relos_03stations_03financials_better.svg)
 
 
 Let's change the model, to make sure that some of the stations are really bad, so that cars could really "get stuck" there (we'll give them ~10 times lower demand, compared to "good stations"), and also that there are not enough "cars" to cover all the stations. The figure below corresponds to 10 stations, half of them with demand of about 0.4, half of them with demand of about 0.03, and only 5 cars to serve the city; a relocation is performed every 20th tick (see `02relos_02ring` script for details, scenario `suburbs`). We can infer from the left plot that relocations were used to move cars from bad (low demand) stations to good ones, maintaining a DFR of about 20% at bad stations, and about 55% at good stations. The bad stations remain unprofitable, but not as unprofitable as they wold have been with the uniform distribution of fleet. in the absence of relocations!
 
 TODO: 🔥🔥🔥🔥🔥🔥
-* Rework the notebook, make it return parameters on scenario name. We shouldn't manually re-run the same sell with different global values of scenario name; that's unhealthy!!
+* Find a better name for `cm1_per_tick` if we keep the approach at all. Essentially it's a value that both gives cm1 per relo, and renormalizes it in time. That's confusing. Find a better way.
+* And then find a set of meaningful values for the "More realistic configuration" - something that is explainable, justifiable, that at least vaguely makes sense. Or maybe go naive and say "now 10 rentals/day in highest zone, as we get more zones overall, and we're trying to hit a partular rentals/car/day"? It does sound confusing though.
+* Rework the notebook to turn this global variables situation under control. It's bad right now.
 * Turn CM1-CM2 figure into a function, to call it 2 times - first for simple stations, then for suburbs
 * Add a cell for the "Suburbs" scenario
 * Troubleshoot "Suburbs" scenario to show a more reasonable (lower DFR) situation
@@ -140,7 +138,7 @@ TODO: 🔥🔥🔥🔥🔥🔥
 
 🔥🔥🔥🔥🔥🔥 Make stations cover a range of demands; having only two clouds is super-confusing. Change the model in whatever ways necessary. Change the figure, and change the description.
 
-![Stations model, profitable relocations](figures/02relos_02stations_02financials_suburbs.svg)
+![Stations model, profitable relocations](figures/02relos_03stations_04dfr.svg)
 
 🔥 The cost/CM1 figure is cool, but too new and complicated. It can be introduced as a separate type of a visualization, but with a separate paragraph explaining it. Or maybe skip algotether. Try it for this experiment, and only if it's particularly cool, include it, otherwise skip.
 

@@ -1,4 +1,4 @@
-# Car Sharing 101 
+# CarSharing 101 
 ## (Introduction to Free-Floating Carsharing)
 
 ##### Version 0.3.3
@@ -26,11 +26,13 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo: Code 🔥
 
+* Extract "flatter city" into a method (have a post-processing option)
 * Extract "identify rentals" into a method - it's getting way too long
 * Do we want to add at least some unit tests?
 * Do we want an integration test that calculates city financials in 2-3 different ways, and checks that the stats are fully consistent?
-* 
+
 # Notebooks
+
 * Move pricing from one station notebook to a separate notebook
 
 # Editing principles
