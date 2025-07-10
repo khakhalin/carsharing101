@@ -114,8 +114,18 @@ Time to use it in a model!
 
 Let's take the same exact model that we used in Chapter 1 (5 stations with demand linearly decreasing, 20 cars, demand of 20 rentals attempts per day at the hottest location), but this time around  perform a relocation at every 50th tick, moving a single car from the worst station (in terms of expected demand per car) to the best one (in the same sense). The "history of car numbers over time" on the left panel of Figure 2.3.1 below looks similar to curves from Figure 1.2.1 (a case of no relocation), but the average number of cars per station (right panel) is quite different. As before, pale blue dots here show values of individual experiments, while black markers show the average trend. But where in the absence of relocations we got a uniform distribution with about 4 cars per station, here we see a curve sloping upwards, as cars from low-demand stations were regularly relocated to high-demand stations, and so and the end of the day, on average, higher-demand stations carried more cars.
 
+🔥🔥 Simplify the narrative below. Basically go like:
+1. Let's see fi relocations even work. Let's start doing them sometimes and see how the distribution of KPIs over different stations change
+2. Let's start with average fleet. Remember how it was for "natural behavior"? All stations got the same number of cars. What now? Look, we typically get from slow ones and move to hot ones. So it changes. Becomes more to our liking. Sweet!
+3. How CM1 changes? Not easy to discern. We would hope that the values are a bit higher now, but hard to see by eye.
+4. But hey look at CM2. Previously CM1 was growing, costs were flat, so CM2 was growing, and only the hottest one was profitable, while the slowest one was an absolute disaster. Now CM1 is still growing, but the costs are growing too (coz more fleet in hot spots now), so CM2 is kinda flat! All of them are unprofitable now (coz the city sucks: 15 cars out of 20 are always idle), but we get the main message, right? And look, while it's still unprofitable, it's less unprofitable than before (numberz)
+5. NOTE: Relos flatten CM2 across your area, which leads to higher CM2 overall
+6. Now let's cook a more realistic city (list assumptions)
+7. Same pic
+8. Only then DFR
+
+
 ![alt text](figures/02relos_03stations_01ncars_stations.svg "alt text")
-![An experiment with five stations](figures/01simple_02stations_01ncars.svg)
 
 > [NOTE!]
 > Relocations make the distribution of cars closer to our desired destribution, as higher-demand locations on average get more cars.
