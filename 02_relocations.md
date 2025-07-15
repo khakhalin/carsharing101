@@ -108,21 +108,15 @@ To some up, here's the relocation algorithm we sketched so far:
 5. Find a target station with the _highest_ value of expected demand
 6. Pick a random car at the source zone and move it to the target zone
 
-Time to use it in a model!
+Time to try it out in a model!
 
 # 2.3 Several stations
 
-Let's take the same exact model that we used in Chapter 1 (5 stations with demand linearly decreasing, 20 cars, demand of 20 rentals attempts per day at the hottest location), but this time around  perform a relocation at every 50th tick, moving a single car from the worst station (in terms of expected demand per car) to the best one (in the same sense). The "history of car numbers over time" on the left panel of Figure 2.3.1 below looks similar to curves from Figure 1.2.1 (a case of no relocation), but the average number of cars per station (right panel) is quite different. As before, pale blue dots here show values of individual experiments, while black markers show the average trend. But where in the absence of relocations we got a uniform distribution with about 4 cars per station, here we see a curve sloping upwards, as cars from low-demand stations were regularly relocated to high-demand stations, and so and the end of the day, on average, higher-demand stations carried more cars.
+Let's take the same exact model that we used in Chapter 1 (5 stations with demand linearly decreasing up to 20 rental attempts/day at the hottest location; 20 cars in total in the system), but this time around every now and then perform a relocation. For example, let's relocate at every 50th tick, moving a single car from the worst station (in terms of expected demand per car) to the best one (in the same sense). As a reminder, without relocations (Figure 1.2.1 in the previous chapter) cars tended to distribute equally across the city, so on average in the long-term every location had the same average number of cars. CM1 increased linerally with demand, and as a result, CM2 per location also looked linear, just shifted downwards on the Eur/day axist, with slowest stations deeply unprofitable, and hottest stations barely profitable. How would the same set of charts look now?
 
-🔥🔥 Simplify the narrative below. Basically go like:
-1. Let's see fi relocations even work. Let's start doing them sometimes and see how the distribution of KPIs over different stations change
-2. Let's start with average fleet. Remember how it was for "natural behavior"? All stations got the same number of cars. What now? Look, we typically get from slow ones and move to hot ones. So it changes. Becomes more to our liking. Sweet!
-3. How CM1 changes? Not easy to discern. We would hope that the values are a bit higher now, but hard to see by eye.
-4. But hey look at CM2. Previously CM1 was growing, costs were flat, so CM2 was growing, and only the hottest one was profitable, while the slowest one was an absolute disaster. Now CM1 is still growing, but the costs are growing too (coz more fleet in hot spots now), so CM2 is kinda flat! All of them are unprofitable now (coz the city sucks: 15 cars out of 20 are always idle), but we get the main message, right? And look, while it's still unprofitable, it's less unprofitable than before (numberz)
-5. NOTE: Relos flatten CM2 across your area, which leads to higher CM2 overall
-6. Now let's cook a more realistic city (list assumptions)
-7. Same pic
-8. Only then DFR
+
+
+The "history of car numbers over time" on the left panel of Figure 2.3.1 below looks similar to curves from Figure 1.2.1 (a case of no relocation), but the average number of cars per station (right panel) is quite different. As before, pale blue dots here show values of individual experiments, while black markers show the average trend. But where in the absence of relocations we got a uniform distribution with about 4 cars per station, here we see a curve sloping upwards, as cars from low-demand stations were regularly relocated to high-demand stations, and so and the end of the day, on average, higher-demand stations carried more cars.
 
 
 ![alt text](figures/02relos_03stations_01ncars_stations.svg "alt text")
@@ -130,9 +124,18 @@ Let's take the same exact model that we used in Chapter 1 (5 stations with deman
 > [NOTE!]
 > Relocations make the distribution of cars closer to our desired destribution, as higher-demand locations on average get more cars.
 
+🔥🔥 Simplify the narrative below. Basically go like:
+1. A reminder of how no-relocations system looked like (n cars, CM1, CM2) ✅
+2. Let's see if relocations even work. Let's start doing them sometimes and see how the distribution of KPIs over different stations change✅
+3. Let's start with average fleet. Remember how it was for "natural behavior"? All stations got the same number of cars. What now? Look, we typically get from slow ones and move to hot ones. So it changes. Becomes more to our liking. Sweet!
+4. How CM1 changes? Not easy to discern. We would hope that the values are a bit higher now, but hard to see by eye.
+5. But hey look at CM2. Previously CM1 was growing, costs were flat, so CM2 was growing, and only the hottest one was profitable, while the slowest one was an absolute disaster. Now CM1 is still growing, but the costs are growing too (coz more fleet in hot spots now), so CM2 is kinda flat! All of them are unprofitable now (coz the city sucks: 15 cars out of 20 are always idle), but we get the main message, right? And look, while it's still unprofitable, it's less unprofitable than before (numberz)
+6. NOTE: Relos flatten CM2 across your area, which leads to higher CM2 overall
+7. Now let's cook a more realistic city (list assumptions)
+8. Same pic
+9. Only then DFR
+
 Unfortunately to this particualr model city, relocations did not make it profitable, as for this level of demand, we had too many cars in the system. While the CM1 revenue steadily increased with demand at a station (Figure 2.3.2 below, left panel), all stations were CM2-unprofitable on average (right panel). Here, as before, we assumed 5 €/trip in CM1, and 20 €/day as the car cost.
-
-
 
 ![Stations model with unprofitable relocations](figures/02relos_03stations_02financials.svg)
 
@@ -149,7 +152,7 @@ Why is this city so unprofitable, and why is the effect of relocations so small?
 
 Let's change the model, to make sure that some of the stations are really bad, so that cars could really "get stuck" there (we'll give them ~10 times lower demand, compared to "good stations"), and also that there are not enough "cars" to cover all the stations. The figure below corresponds to 10 stations, half of them with demand of about 0.4, half of them with demand of about 0.03, and only 5 cars to serve the city; a relocation is performed every 20th tick (see `02relos_02ring` script for details, scenario `suburbs`). We can infer from the left plot that relocations were used to move cars from bad (low demand) stations to good ones, maintaining a DFR of about 20% at bad stations, and about 55% at good stations. The bad stations remain unprofitable, but not as unprofitable as they wold have been with the uniform distribution of fleet. in the absence of relocations!
 
-TODO: 🔥🔥🔥🔥🔥🔥
+🔥OLDER IDEAS (check but don't follow literally): 🔥
 * And then find a set of meaningful values for the "More realistic configuration" - something that is explainable, justifiable, that at least vaguely makes sense. Or maybe go naive and say "now 10 rentals/day in highest zone, as we get more zones overall, and we're trying to hit a partular rentals/car/day"? It does sound confusing though.
 * Rework the notebook to turn this global variables situation under control. It's bad right now.
 * Turn CM1-CM2 figure into a function, to call it 2 times - first for simple stations, then for suburbs
@@ -223,11 +226,15 @@ This last point also has an interesting consequence. Among 100 individual experi
 
 Finally, let's reiterate: the right curve on the figure above spells a very important message. It introduces that concept of an **optimal fleet size**: the number of cars that, for a given operating area, demand, prices, and relocation logic, offers the best CM2 profitability.
 
+🔥Improve the curve to make it look nice
+
 For the sake of  completeness, below you can also find the same curve for the original "stations" model (called `few_stations` scenario in the Python script), with 5 zones of similar, linearly decreasing demand. The curve is conceptually similar, but has a less prominent peak, as in this specific case all zones are basicaly "OK", and it is only an occasional random overconcentration of cars at some of the zones that needs to be solved by relocations. Still it is encouraging that even this simple model we see a smooth peak of an optimal fleet size (on the right plot).
 
 ![Curves of the optimal number of relocations, and best achieved CM2, as a function of fleet size. Original scenario, where all zones have relatively high demand](figures/02relos_02stations_04fleet_size_few_stations.svg)
 
 In practice, in real life, we may decide to have a bit higher fleet in a ciy, to gradually shape customer behavior, and to be able to expand quickly. For example, when two competitors co-exist in a city, they may be involved in a sort of a "fleet presence war", somewhat similar to a pricing war, but using a different strategy. By oversaturating a city with cars, you can hope to make its citizens associate your brand, and not the brand of your competitor, with car-sharing. If that's the goal, if you want to risk your CM2 margin for shaping the public opinion, you may gove above the recommended fleet size, and adjust the optimal relocation frequency accordingly. Conversely, on some months you may have to operate on a lower fleet, for purchasing or political reasons (as some cities attempt to regulate the number of carsharing licenses they issue). In this case, again, it's worth running a model and figuring out how many weekly relocations you would expect to use.
+
+🔥 2D optimization (both on relocation freq and fleet size) and 2D landscape
 
 # 2.5 City model
 
