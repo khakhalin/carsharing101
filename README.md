@@ -44,7 +44,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Standards for illustrations
 ```python
-plt.figure(figsize=(10, 4), facecolor='white')
+plt.figure(figsize=(10, 4), facecolor='white')  # For two subplots
 plt.title("Fig. 0.0.0: Description", loc='left')
 if accompanied_by_averages:
     plt.plot(x, y, '.', alpha=0.1, markersize=10)
