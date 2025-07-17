@@ -116,7 +116,7 @@ Let's take the same exact model that we used in Chapter 1 (5 stations with deman
 
 ![A reminder: Stations model, showing n_cars, CM1 and CM2, without relocations](figures/02relos_03stations_01norelos.svg "alt text")
 
-Now let's repeat the same experiment, but this time around perform a relocation every now and then. For example, let's relocate at every 20th tick, moving a single car from the worst station (in terms of the current expected demand per car) to the best one (in the same sense). How will it change the KPIs? The average number of cars per station (Figure 2.3.2 below, left panel) looks quite different now! Where in the absence of relocations we had a uniform distribution with about 4 cars per station, now we see a curve sloping upwards, as cars from low-demand stations were regularly relocated to high-demand stations, and so and the end of the day, on average, higher-demand stations carried more cars. The plot of CM1 against demand looks roughly the same (although the values are almost 10% higher!), while CM2 again looks very different. In a "no relocations" case above we subtracted a flat line from a linear dependency, and got a linear depencency. Now we subtract a rirising curve from a rising curve, and get something roughly flat! Granted, this "business" in particular is still unprofitable, but it's not _as_ unprofitable as before! (Without relocations it was losing 150 €/day, while now it is losing 120 €/day, which is clearly better!)
+Now let's repeat the same experiment, but this time around perform a relocation every now and then. For example, let's relocate at every 20th tick, moving a single car from the worst station (in terms of the current expected demand per car) to the best one (in the same sense). How will it change the KPIs? The average number of cars per station (Figure 2.3.2 below, left panel) looks quite different now! Where in the absence of relocations we had a uniform distribution with about 4 cars per station, now we see a curve sloping upwards, as cars from low-demand stations were regularly relocated to high-demand stations, and so and the end of the day, on average, higher-demand stations carried more cars. The plot of CM1 against demand looks roughly the same (although the values are almost 10% higher!), while CM2 again looks very different. In a "no relocations" case above we subtracted a flat line from a linear dependency, and got a linear depencency. Now we subtract a rirising curve from a rising curve, and get something roughly flat! Granted, this "business" in particular is still unprofitable, but it's not _as_ unprofitable as before! (Without relocations it was losing 150 €/day, while now it is losing 120 €/day, which is clearly an improvement!)
 
 ![Same stations model with some relocations](figures/02relos_03stations_02relos.svg)
 
@@ -125,17 +125,11 @@ Now let's repeat the same experiment, but this time around perform a relocation 
 
 Unfortunately for this particular "city", relocations did not make it profitable, but this is not exactly surprising. The way we built this first model, with 20 cars, 5 zones, and one relocation per zone per tick at best, at any given moment only 5 cars out 20 had a chance to generate a profit. It means that no matter what, 15 out of 20 cars are always idling, and while relocations pushed the stats in the right direction, they could not not really turn the tide. To make relocations count, we need to make the model slightly more realistic, and raise the stakes of bad car placement, by adjusting the distribution of demand values across locations, and decreasing the average number of cars per location. 
 
-Let's change a few things about the model. First, instead of changing demand across locations as $d_i = ai$, let's do $d_i = a/(1+i)$, to make sure that we have 1-2 good locations, and a longer tail of bad ones. Second, intead of having 4 cars per location, let's go with 1 car per zone, immediately making both car pile-ups in slow zones and lack of cars in hot zones more financially painful. Let's also adjus the probability of rentals (by fudging the $a$ coefficient above) to make the city without relocations just barely unprofitable (losing 5 €/day in CM2).
-
-This will increase the impact of each relocation on the bottom value, and incidentally better approximate what happens in cities in real life.
-
-
+Let's change a few things about the model. First, instead of changing demand across locations linearly as $d_i = ai$, let's do $d_i = a/(1+i)$, to make sure that we have 1-2 reasonable locations, and a longer tail of bad ones. (The exact value of $a$ above does not matter: it just need to be low enough for the rentals still follow a Poisson distribution, as in this exercise we keep the CM1 values bound, by assuming that the hottest zone supports 20 rentals/day.) And second, instead of having 4 cars per station, let's go to exactly 1 car per station, immediately making both car pile-ups in slow zones and lack of cars in hot zones financially painful. With these inputs, our "city" is unprofitable without relocations, losing 45 €/day in CM2. The charts of fleet, CM1, and CM2 per station (Figure 2.3.3 below) are qualitatively similar to those charts we saw before: the fleet distribution is flat, while CM1 and CM2 grow linearly with demand, with the majority of stations being unpforitable. Just the demand values per zone (x values) are now distributed a bit differently.
 
 ![Stations model with slightly more realistic numbers, no relocations](figures/02relos_03stations_03better_model_no_relos.svg)
 
-🔥 Try the same pair of models with a linear distribution of demands. I'm surprized that the CM2 plot doesn't flatten that much. It would be nice to find a situation in which the effect is larger, esp as we want to later study the same model in terms of optional number of relos and optimal fleet. Better to find a shape of demand that is simple enough to look unassuming, but at the same time work as a good illustration.
-
-🔥 Describe what we changed in terms of numbers
+Let's now re-run the model with an exaggerated relocation rate of one relo at every 20s tick (which for this model meant approximately 8 rentals per relocation). As as before, it redistributed the fleet towards hotter stations (Figure 2.3.4 below, left panel), making CM2 per station flatter (right panel), but interestingly not quite flat. The city also didn't become profitable, but it did improve from losing 45 €/day without relocations to breaking even (total CM2 of around 0).
 
 ![Stations model with slightly more realistic numbers](figures/02relos_03stations_04better_model.svg)
 
@@ -143,19 +137,19 @@ This will increase the impact of each relocation on the bottom value, and incide
 1. Show both NO relos and With relos again
 2. Then show 2 DFRs (only CM2 vs DFR), without relos and with relos. Interpret.
 
-![Stations model, effects of DFR](figures/02relos_03stations_04dfr.svg)
+![Stations model, effects of DFR](figures/02relos_03stations_05dfr.svg)
 
 🔥 DFR vs demand?
 
 # 2.3 Optimal relocation frequency
 
-From the previous figure we can see that in our model, with a constant rate of relocations of one relo per 100 rentals (every 20th tick) not all cars were removed from "really bad zones". Did it happen because it was actually better, from the CM1 point of view, to keep some cars there? Or did it happen only because we did not have enough relocation capacity to clear these stations out completely? Let us explore this question by running the model with _different relocation volumes_, from 1 to 200 relocations per experiment (which would correspond to a range from 2000 to 10 time ticks per relocation). As we want to assess resulting profitability of our "city", this time around we will also assign a fixed cost for every relocation task (20 €/relocation).
+Ok, now we know that relocations help. But let's consider this: judging from the figure above, with a constant rate of relocations of one relo per about 100 rentals (every 20th tick) not all cars were removed from "really bad zones". Did it happen because it was actually better, from the CM1 point of view, to keep some cars there? Or did it happen only because we did not have enough relocation capacity to clear these stations out completely? Let us explore this question by running the model with _different relocation volumes_, from 1 to 200 relocations per experiment (which would correspond to a range from 2000 to 10 time ticks per relocation). As we want to assess resulting profitability of our "city", this time around we will also assign a fixed cost for every relocation task (20 €/relocation).
 
 The result of this experiment (below) shows that there is indeed an optimal volume of relocations to serve this "city": a relocation frequency at which the profits are maximized. (Strictly speaking we modeled CM1 profits, but as the number of cars in the city is fixed, this optimum also corresponds to optimal CM2 profits). With too few relocations, too many cars end up being trapped at bad zones, and thus effectively excluded from rental business. With too many relocations, on the other hand, too many relocations ended up being unprofitable (we moved a car to a better zone, but it didn't yield enough gain  in rental CM1 to offset the cost). 
 
 🔥 Add figure title
 
-![Stations model, optimal number of relocations](figures/02relos_02stations_03optimal_number_suburbs.svg)
+[Stations model, optimal number of relocations](figures/02relos_02stations_03optimal_number_suburbs.svg)
 
 While the system we modeled here was simplistic and artificial, nothing prevents you from modeling your actuall operations in a similar manner. All you need is to split your operating area into zones, either by pixelating it, or by approximating it with polygons, calculate actual rental frequencies between zones (or build an ML model to predict them in the future, if it is our thing), and then directly model the financials of the city with different numbers of daily relocations. Once the curve is ready, pick the optimal number, and secure enough in-house or contracted relocators to move your cars around.
 
