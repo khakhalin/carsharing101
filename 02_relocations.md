@@ -132,16 +132,18 @@ The overall service level (DFR) in the city was also improved by relocations, fr
 
 # 2.4 Optimal relocation frequency
 
-Now we know that relocations can help with CM2. But look, judging from the figures above, with a rate of one relo per 25 rentals not all cars were removed from "really bad zones". We still had fleet standing in slow zones, and these zones were still unprofitable. Did it happen because it was actually better, from the CM2 point of view, to keep some cars there? Or did it happen only because we did not have enough relocation capacity to clear these stations out completely? How to tell the difference?
+Now we know that relocations can help with CM2. But at the same time, judging from the figures above, with a rate of one relo per 25 rentals not all the cars were removed from the "really bad zones"! We still had fleet standing in slow hopeless zones, and moreover, these zones were still deeply unprofitable! Did it happen because it was actually better, from the CM2 point of view, to still keep some cars there? Or did it happen only because we did not have enough relocation capacity to clear these slow stations out completely? And how can we tell the difference?
 
-Let us explore this question by running the model with _different relocation volumes_, from 1 to 200 relocations per experiment (which would correspond to a range from 2000 to 10 time ticks per relocation). And as we want to assess resulting profitability for our system as a whole, this time around we will need to assign a fixed cost for every relocation task (20 €/relocation), as in real life we will of course be paing for relocations, either directly, to contractors, or indirectly, for the time of our employees (see Appendix for a justification of this relocation cost).
+Let us explore this question by running the exact same model with _different relocation frequencies_, with the total number of relocations per 100 rentals ranging from 0 to about 30 (from 1 to 100 relocations per 10000 time ticks). And as we want to assess the profitability of relocations for our system as a whole, this time around we'll need to assign a cost to them, as in real life we would of course have to pay for relocations, either directly, to contractors, or indirectly, having relocations performed by salaried employees. Here, and from now on, we'll be using a rate of 20 €/relocation, which is roughly balanced relative to other numerical values used in our models (as usual, see Appendix for a justification of this cost).
 
-The result of this experiment (below) shows that there is indeed an optimal volume of relocations to serve this "city": a relocation frequency at which the profits are maximized. (Strictly speaking we modeled CM1 profits, but as the number of cars in the city is fixed, this optimum also corresponds to optimal CM2 profits). With too few relocations, too many cars end up being trapped at bad zones, and thus effectively excluded from rental business. With too many relocations, on the other hand, too many relocations ended up being unprofitable (we moved a car to a better zone, but it didn't yield enough gain  in rental CM1 to offset the cost). 
+🔥 Either remove the chart, or tell the trugh.
 
-
+The result of this experiment (Figure 2.4.1 below) shows that there is indeed an optimal volume of relocations in this system: a frequency of relocations at which the profits are maximized. (Strictly speaking we modeled CM1 profits, but as the number of cars in the city is fixed, this optimum also corresponds to optimal CM2 profits). With too few relocations, too many cars end up being trapped at bad zones, and thus effectively excluded from rental business. With too many relocations, on the other hand, too many relocations ended up being unprofitable (we moved a car to a better zone, but it didn't yield enough gain in rental CM1 to offset the cost). 
 ![Stations model, optimal number of relocations](figures/02relos_04optimal_01linear.svg)
 	
-🔥 Add figure title
+The curve in this figure is so disappointing though, isn't it? It is so flat, and has no real maximum!! The relocation don't seem to be bringing much help to this system: while there's a obviously a benefit of moving cars that are stuck in bad zones to hot zones, in the system above the increased revenues (CM1) coming from these relocations just mostly offset the costs of these relocations, no more. Is it always the case, with the assumptions on CM1 per trip and the relocation costs that we used in these models?
+
+To check if it's true, let's change the demand profile a bit, to raise the stakes of getting a car stuck in a bad zone. Instead of a gentle linear decrease in zone quality, $d_i = d_{max}-ik$, let's consider a system with a "long-tailed" distribution, where only 1-2 zones will be good, a few more – reasonable, and then a few more – horrible. There are many ways to model a system like that, and we'll be using a formula of $d_i = d_{max}/(2 +i^2)$, which may look a bit random to you, but does the trick: the curve starts high, and then decreases towards a tail of really bad zones. To play it fair, we'll adjust $d_{max}$ so that the total demand in the system $\sum_i d_i$ is the same for both models. With these adjustments, and repeating the experiments with different relocations frequencies again, we're now getting the curve as shown on on the Figure 2.4.2 below.
 
 ![Stations model, optimal number of relocations](figures/02relos_04optimal_01steps.svg)
 
@@ -149,6 +151,8 @@ The result of this experiment (below) shows that there is indeed an optimal volu
 
 > [!TIP]
 > For a given operating area, and a given number of cars in the city, there is an optimal number of relocations to perform per day, and you can assess this number with modeling; both for optimization and budgeting / contracting purposes.
+
+🔥This is just a simplified model, but once you have a model of your city (more on this later), you can do exactly this, and optimize either the average volume, or criteria for relocations, to maximize CM2. Also helps to sign better contracts, as you know the volumes in advance.
 
 # 2.5 Fleet size planning
 
@@ -174,7 +178,7 @@ If however, for the same two stations, with all the same parameters, we would ha
 
 Actually running the model for different fleet sizes, for the same collection of stations, featuring 5 decent zones with rental probability of ~0.3, and 5 horrible zones rental probability of ~0.03 (scenario `suburbs`, described above), produces the curves below. One shows the optimal number of relocations as the function of fleet size, and the other one - the expected CM2 profitability of this "city" as a function of fleet size:
 
-![Curves of the optimal number of relocations, and best achieved CM2, as a function of fleet size. A scenario at which a half of zones have high demand, and half of zones is horrible](figures/02relos_02stations_04fleet_size_suburbs.svg)
+🔥 FIGURE
 
 From the left curve we can learn that, not suprisingly, when the fleet is very low (in the extreme case, consists of 1 car only) relocations are generally not helpful. With very low fleet, relocations are only recommended if you cover stations (or geographical zones) that are _that horrible_ that a car can be stuck in them for more than a day, missing some 4-5 rentals, and thus 20-25$ in CM1, which would justify the 20€ relocation cost. Which begs the question of why these bad areas are even covered by our business!? We will definitely return to this topic in Chapter 6, when discussing operating area optimization.
 
@@ -196,19 +200,19 @@ Finally, let's reiterate: the right curve on the figure above spells a very impo
 
 For the sake of  completeness, below you can also find the same curve for the original "stations" model (called `few_stations` scenario in the Python script), with 5 zones of similar, linearly decreasing demand. The curve is conceptually similar, but has a less prominent peak, as in this specific case all zones are basicaly "OK", and it is only an occasional random overconcentration of cars at some of the zones that needs to be solved by relocations. Still it is encouraging that even this simple model we see a smooth peak of an optimal fleet size (on the right plot).
 
-![Curves of the optimal number of relocations, and best achieved CM2, as a function of fleet size. Original scenario, where all zones have relatively high demand](figures/02relos_02stations_04fleet_size_few_stations.svg)
-
 In practice, in real life, we may decide to have a bit higher fleet in a ciy, to gradually shape customer behavior, and to be able to expand quickly. For example, when two competitors co-exist in a city, they may be involved in a sort of a "fleet presence war", somewhat similar to a pricing war, but using a different strategy. By oversaturating a city with cars, you can hope to make its citizens associate your brand, and not the brand of your competitor, with car-sharing. If that's the goal, if you want to risk your CM2 margin for shaping the public opinion, you may gove above the recommended fleet size, and adjust the optimal relocation frequency accordingly. Conversely, on some months you may have to operate on a lower fleet, for purchasing or political reasons (as some cities attempt to regulate the number of carsharing licenses they issue). In this case, again, it's worth running a model and figuring out how many weekly relocations you would expect to use.
 
 🔥 2D optimization (both on relocation freq and fleet size) and 2D landscape
 
-# 2.5 City model
+🔥 And again, as in 
 
-## 2.5.1. A better CM2 map
+# 2.6 City model
+
+## 2.6.1. A better CM2 map
 
 🔥🔥🔥 Before we do anything, an alternative CM2 visualization: with grays
 
-## 2.5.2. The effect of relocations
+## 2.6.2. The effect of relocations
 
 🔥🔥🔥 Compare the distribution of cars and the CM2 map with and without relocations
 
@@ -218,17 +222,17 @@ In practice, in real life, we may decide to have a bit higher fleet in a ciy, to
 
 It is also important to note that in practice, depending on the business model of a car sharing provider, somewhere between 10 and 50% of rentals are relatively long-term rentals (from several hours to several days). Because of that, the actual distribution of rental times (or rental driving distances, or revenues per rental) is typically bimodal, with a second "peak" that is very broad and shallow, but financially significant. For these rentals the concepts of "origin" and "destination" don't quite make sense, as the majority of these rentals are close to round-trips (customers starting from home, and returning home a day or two later), and the concept of Home Area becomes important only insofar it allows an easy and painless rental, and a good customer experience. It means taht for all "city models" that we explore here, our estimations for CM2 profitability are intentionally conservative (we can always assume that a good measure of long-term rentals are happening on top of the short-term rentals discussed here), and that the actual share of round-trips at each location will be higher than what one can conclude from the trip length distribution introduced above. Fortunately, the presence of long-term trips does not affect any of the results discussed here, except that the long-term trips would consume part of the available fleet, and so compared to our simulations, in real life, the fleet in the city should be increased proportionally.
 
-# 2.6 Imperfect relocations
+# 2.7 Imperfect relocations
 
 🔥 Explain the IRL situation when relocaiton agents either don't want to, or cannot follow the instructions, and so are tempted to either grab easier cars (those closer to their last target), or deliver to zones closer nearby, instead of those that were strictly speaking recommended.
 
-## In space: Is it more critical to get the sources, or the targets right?
+## 2.7.1 In space: Is it more critical to get the sources, or the targets right?
 
 🔥 Explain that while this model doesn't have a proper spatial compoentn, we'll be modeling the end-effect of spatial imperfections: that either wrong cars are picked to be delivered to proper zones, or proper cars are delievered to suboptimal zones.
 
 🔥 Model 4 scenarios: good relos, random sources, random targets, random both.
 
-## In time: What if we don't relocate for some time?
+## 2.7.2 In time: What if we don't relocate for some time?
 
 🔥 Run a city without relocations. Then turn "optimal relocations" on for some time (step response). Then turn them off again. Make a plot of the number of relocations over time - how quickly it stabilizes, and at what level?  Make a plot of CM2 per day - how much of a change do we observe, and how quickly it deteriorates afterwards?
 
@@ -247,7 +251,7 @@ What relocations do is they help you to save cars that are stuck. Because while 
 
 But the amount of "bad" cars that appear in a city every day is kinda fixed, and defined by the shape of your HA and the activity of your customers. Once you relocate all bad cars for a day, at some point, there is nothing more to relocate (for a given relocation price). You cannot cheat by relocating more
 
-# 2.7 Real-life considerations
+# 2.8 Real-life considerations
 
 🔥 Describe the biggest difference: that we need to run this formula iteratively to generate several relo recommendations together. Or, alternatively, instead of predicting a +1 situation for every zone, predict +2, +3 etc situations, and then identify N worst cars, and N best targets, to then try to pair them into something that can be in practice relocated relatively efficiently.
 * 🔥 terms for parking costs, charging, overflow costs. The case of airports and overflow charges
@@ -286,6 +290,10 @@ This last point, about only partial interchangeability of real cars in a real ci
 
 One potential approach to mitigating this complexity is in following a mixed, modular strategy, where each of the parameters of the "profitability formula" is estimated by a separate expressive ML model, but then the outputs of these model are combined into a final profitability prediction by an explicit formula. This approach, somewhat similar to the "Neural additive model" approach [^Agarwal2020] preserves both interpretabitiliy and expressivenss, and allows for independent retraining of different parts of the model. It also allows for simplifying fall-backs in case one of the sub-models becomes irrevant; for example, because of a sudden change in business environment. For example, the "average generated profit" $\bar π_t(t)$ can be approximated by a constant, by a set of 24 simple averages for each hour of the day, by a set of averages for different hours and weekdays, by a regression model, by a combination of regression models that takes both the time and the car build into account, or by a full-fleged tree-based ML model. As long as the relocation tool is designed in a modular way, one can change this complexity on the fly, substituting different sources for one part of the "big formula", without compromizing or invalidating any of the other parts.
 
+🔥🔥 Find a place where we can talk about CM2 logic vs lost CM1 logic, and about how if we aim at always breaking even and reinvesting at expansion, our marginal daily CM1 opportunity is probably pretty close to a daily CM2 cost of a car (something that we call 20 € in this set of documents). Because if the marginal CM1 opportunity were larger, we would have invested in more fleet to capture this CM1, and if it was much lower, we would have shrunk our fleet in this city, to capture a saving. Therefore in practice, in a well-managed business, the marginal daily CM1 lost should be approximately equal to the daily cost of keeping an extra car in the city.
+
+🔥 Finally, now that we have a sketch for a fancy relocation logic, how does this thought sit together with the "optimal relocation volumes" optimization that we discussed earlier? If each relocation is so individual, and is triggered by a complex ML system, how can you, or rather, should you even try to predict the "total monthly volume of relocations" upfront? The answer is, yes you can, and you certainly should. You should because it improves your planning, your staffing and/or long-term contracts with third-parties (including pricing negotiations), and because operationally it is much easier and cheaper to have the daily volume of relocatios "smoothed" over a week, with about the same number of relocations daily. The costs of daily idling in a bad location (in this work, €20) are probably about equal to the cost of a single relocation anyway (in this work, also €20), which means that in most cases it's better to wait an extra day rather than pay a surcharge for an uncomfortable urgent relocation. (With some notable exceptions, such as airports, see below). But also, you definitely _can_ predict average volumes for a given relocation algorithms, if you have a good city model, and you definitely can find a correspondends between these volumes, and the sets of parameters and thresholds set in your adaptive ML algorithm. An ideal relocation system therefore utilizes both long-term planning and short-term decision making, and is regularly (quarterly? yearly?) recalibrated, to make sure that both of them match.
+
 ## Seasonal demand for relocations
 
 On performance of peripheral hubs in August (a weak month) 🔥🔥 _EDIT BELOW_
@@ -307,6 +315,16 @@ WIth relocations it should in theory be different, as our relocations right now 
 The airport is usually empty in the evenings, and relocations are usually least effective in the evenings, as the lost revenue is minimal in the evenings (given that night is low on activity). So if your agents addressed the most unfortunate cars during the day (those that more than 12 hours expected idle time), then evening relocations to the airport shouldn’t be that profitable. (Very roughly: a car with some 10 hours expected idle time in the evening would miss only, what, 1-2 night rentals? Let’s optimistically say 10€ in CM1 revenue. You relocate it to the airport, lose some 25€ or so in relo costs, so you are 15€ down. A single rental from the airport is probably about 20€, of which some 25%, very roughly, is fuel cost. So you earn 15€ back, arriving at net 0. Is it worth the hassle?) But it’s up to you; I can open the zone as a potential target if you prefer; just let me know!
 
 # Footnotes
+
+In part 2.4 above, when talking about optimal relocation frequency, we switched from linearly decreasing demand to a weirder shape with a longer tail, and I claimed that a shape like that would benefit from relocations more. It sounded reasonable (or at least I hope so), but is it really a type of demand distribution that benefits most form relocations, or was it just a shot in the dark?
+
+Actually, before picking a "simple" demand distribution to illustrate how relocations work, I ran an experiment in which I took a linearly decreasing demand and started wiggling it a bit, only retaining the "wiggle" if it improved the profitability of relocations. The total sum of demand in the system was set to be invariant. It was an inefficient and slow search, but over 200 iterations it converged on an interesting "shoe-like" shape with 2 high-demand zones, three medium-demand zones, and 5 low demand zones (the lowest demand that points were allowed to take). The final shape and the optimization trace are shown on the Figure 2.9 below.
+
+![Reverse-engineering demand profile that needs relocations the most](figures/02relos_04optimal_05search.svg)
+
+For 10 zones, 15 cars, the financials we assumed for all of our models, and this particular level of total demand in the system, this distribution seems to maximize the effect of relocations in the system. But it also looks extremely idiosyncratic, so for the experiment on the optimal relocation frequency I used a similar, but simplified demand distribution.
+
+# References
 
 [^Agarwal2020]: Agarwal, R., Frosst, N., Zhang, X., Caruana, R., & Hinton, G. E. (2020). Neural additive models: Interpretable machine learning with neural nets. arXiv preprint arXiv:2004.13912.
 https://arxiv.org/pdf/2004.13912.pdf

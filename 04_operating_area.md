@@ -86,6 +86,8 @@ But even withthis fancy model, there's a problem of extension from a narrow hub 
 
 🔥 Set up the story
 
+🔥 Add some stuff on decision making, AB testing-inspired optimality. Essentially, the tldr may be that counter-intuitively we don't want to use actuals for making decisions about borderline hubs because they take forever to converge. Unless we run relocations of course. With relocations - sure, use actuals. Without relocations, model average profitabitility based on demand statistics.
+
 As a mathematically simple, but practically important topic, let us check how many rentals are needed to make a good guess about the profitability of a newly opened station (or zone).
 
 First, let's look at how a typical curve of "rentals rate to date" looks for a Poisson process. Below we can see one such curve, for a process with 5 rentals/day on average, accumulated over a course of the first 10 days. We can see that the estimation gradually improves, but it can have wild peaks (especially in the beginning) and deviations from the mean.
