@@ -20,6 +20,9 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo: Text 🔥
 
+* Split "draft relo logic" and "fleet size" in two different subsections. Regenerate and renumber figures if necessary
+* Make sure that relo optimization and fleet optimizatoin numbers match (roughly at least)
+* Swap pricing and OA chapters
 * Write how everything is intentionally in notebooks, to minimize and expose the code, **except for the city simulation**. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 * Give titles to all figures
 * Add the maxim of "left to its own devices, cars end up standing in the worst possible place"
@@ -29,7 +32,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 * Extract "flatter city" into a method (have a post-processing option)
 * Extract "identify rentals" into a method - it's getting way too long
 * Do we want to add at least some unit tests?
-* Do we want an integration test that calculates city financials in 2-3 different ways, and checks that the stats are fully consistent?
+* Do we want an integration test that calculates city financials in 2-3 different ways, and checks that the stats are consistent?
 
 # Notebooks
 
