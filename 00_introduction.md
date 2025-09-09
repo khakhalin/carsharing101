@@ -35,8 +35,8 @@ This document / repository consists of the following texts:
 * **0. Introduction** - the one you're reading righ tnow
 * **1. Natural behavior of cars** - a series of models that show what will happen with a car-sharing business if you let the cars be rented, and don't try to actively manage them. In some ways, it is the most important chapter in the whole thing, as it describes the cardinal problem of car-sharing; the problem that the following three chapters are then trying to fight.
 * **2. Relocations** - a study for how to best move cars within the operating area, to achieve the best pereformance. This chapter also, oddly, contains a section on fleet planning (on deciding how many cars to keep in the city).
-* **3. Pricing** - while the topic of pricing in carsharing is extremely complicated, here I touch on several interesting aspects of it. I don't however go deeply into dynamic pricing, reinforcement learning, and policy optimization, as these topics are not my forte
 * **4. Operating area** - this chapter describes how to optimally expand and contrict the dynamic area, to achieve profitability while also improving offerings on the market
+* **3. Pricing** - while the topic of pricing in carsharing is rich and complicated, here I touch only on some minor aspects of it, leaving the most interesting topics, such as dynamic pricing, reinforcement learning, and policy optimization, beyond the scope
 * **5. Conclusions** - a few random thoughts that didn't make it to any of the other chapters
 * **6. Appendix** - a justification for some of the numerical assumptions used in this work
 

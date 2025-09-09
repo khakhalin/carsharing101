@@ -12,8 +12,8 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 0. [Introduction](00_introduction.md)
 1. [The natural behavior of cars](01_natural_behavior.md)
 2. [Relocations](02_relocations.md)
-3. [Pricing](03_pricing.md)
-4. [Operating area](04_operating_area.md)
+3. [Operating area](04_operating_area.md)
+4. [Pricing](03_pricing.md)
 5. [Conclusion](05_conclusion.md)
 6. [Appendix: Default parameters](06_appendix.md)
 7. [References](07_references.md)
@@ -21,11 +21,9 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 # Todo: Text 🔥
 
 * Split "draft relo logic" and "fleet size" in two different subsections. Regenerate and renumber figures if necessary
-* Make sure that relo optimization and fleet optimizatoin numbers match (roughly at least)
-* Swap pricing and OA chapters
+* Re-run and re-link existing operating area figures, to give them 3XX names (not 4XX)
 * Write how everything is intentionally in notebooks, to minimize and expose the code, **except for the city simulation**. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 * Give titles to all figures
-* Add the maxim of "left to its own devices, cars end up standing in the worst possible place"
 
 # Todo: Code 🔥
 
@@ -49,7 +47,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 ```python
 plt.figure(figsize=(10, 4), facecolor='white')  # For two subplots
 plt.title("Fig. 0.0.0: Description", loc='left')
-if accompanied_by_averages:
+if single_points_accompanied_by_averages:
     plt.plot(x, y, '.', alpha=0.1, markersize=10)
     plt.plot(x.mean(axis=0), y.mean(axis=0), 'ks-')
 elif scatterplot_alone:

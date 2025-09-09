@@ -1,10 +1,10 @@
-# 4. Operating Area
+# 3. Operating Area
 
 Every car sharing business has an effective operating area; they may be called differently in different companies, but it is typically defined as the area on the map within which a rental can be ended. It is OK if a car leaves the operating area during the rental, but once the rental is over, you want it back in the operating area. In some cities, and for some providers, these may look more-or-less like blobs on the map, covering the center of the city. For some, an operating area may consist of a few point-like "parking stations", or, in the most extreme case, of a single parking station in the middle of a city. Still, the concept is rather inevitable, and therefore universal.
 
 In this chapter we will discuss how to optimize an operating area (OA), how to analyze and visualize the profitability of different parts of the operating area; how to expand it (how to grow the business), and how to shrink it (if necessary).
 
-# 4.1. The idea of an optimal OA (operating area)
+# 3.1. The idea of an optimal OA (operating area)
 
 Let's start with a simple question: does the exact shape and size of an operating area even matter? Is it critical to "get it right", and if yes, what is the leeway? We'll start with the simiplest conceptual model ever: let's consider a gaussian city in a vacuum (yes, I know), with a circular home area smack in the center of it. We will gradually increase the size of this home area (change its radius), while tracking CM1 profits and CM2 fleet costs.
 
@@ -34,9 +34,9 @@ Another interesting side effect of this model: if in doubt, pick an OA of about 
 
 One obvious limitation of this model is that it doesn't take into accoung high-density hubs away from the city center, such as city  satellites, urbanized remote neighborhoods, or airports. Some of these cases may in turn be covered by a simple "single station" model we considered in Chapter 2. Or we can switch to a fancier, spatial profitability models below. Let's start with considering a model that is, in a way, the opposite of the one we just considered: we will still work with a "gaussian city", but instead of covering it with a blog of an operating area, we will fill it with a set of scattered point-like "parking stations".
 
-# 4.2. Strategic placement of stations
+# 3.2. Strategic placement of stations
 
-🔥 Minimalistic stations: a model that optimizes stations within a Gaussian city via explicit optimization of locations.
+🔥 DESCRIBE Minimalistic stations: a model that optimizes stations within a Gaussian city via explicit optimization of locations.
 
 ```python
 city_width = 15 # km
@@ -52,17 +52,17 @@ sigma = 10 # Gaussian sigma
 
 ![Ideal station placement, for different numbers of stations](figures/04oa_02stations_02idealized.svg)
 
-# 4.3. Shrinking the OA
+# 3.3. Shrinking the OA
 
 🔥 Return to the idea of marginal CM2 values. Deciding to close the zone. Link back to the CM2 per zone formula, but rewrite it in marginal cases. Then discuss how not all waiting times are equal (night, rush hour). Discuss Acitivity-weighted, with 2 options: missed CM1 or weighted CM2. Argue that CM2-based is better, as preserves consistency with other formulas and city-level estimations (as arguably, it's the one that estimates the actual effect if we close the zone and re-optimize the fleet).
 
 🔥 The algorithm of Shrinking
 
-# 4.3.1. Concentrating fleet
+# 3.3.1. Concentrating fleet
 
 🔥 The benefit of tendrils and stations (??? - at least describe the idea / hypothesis)
 
-# 4.4. Expanding the OA
+# 3.4. Expanding the OA
 
 🔥 The main idea: Rework into a series of options:
 
@@ -78,11 +78,11 @@ But even withthis fancy model, there's a problem of extension from a narrow hub 
 
 🔥 Can we sketch such a model, or would it be too weird? Using willingness to walk to map the decay?
 
-## 4.4.1. Pilot projects
+## 3.4.1. Pilot projects
 
 🔥 The process. That from the customer pov it's better to never close, so one has to be conservative. But also that it takes a while to build a following (even when competing prividers are present, and people are familiar with the business model!)
 
-## 4.4.2. How long does it take to measure station performance?
+## 3.4.2. How long does it take to measure station performance?
 
 🔥 Set up the story
 
@@ -112,13 +112,13 @@ The graph above illustrates three important intuitions.
 
 The main learning point from this entire exercise is therefore rather cynical and underwhelming, but nevertheless very important. When starting a new location that is likely to be only slightly profitable, don't try to pronounce a judgment on it after a month or two. Let it be for at least 3 months, better half a year, or a year, then assess. The chances of "bad luck" during the first 1-2 months of activity, even under the assumption of _ideal_ operations, is quite high (in the extreme case of a breaking-even location, about 50%). So unless the new location seems horrible, or a superstar, it's better to be patient, and to wait for a few hundreds, maybe even thousands rentals to happen.
 
-## 4.4.3. Probing customer interest
+## 3.4.3. Probing customer interest
 
 🔥 The idea of "Relocations as tests"
 
 🔥 Continuous drop-fees
 
-## 4.4.4. Predictive model
+## 3.4.4. Predictive model
 
 🔥 Sketch the predictive model
 

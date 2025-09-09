@@ -1,6 +1,6 @@
-# 3. Pricing
+# 4. Pricing
 
-## Brief introduction to pricing
+## 4.1. Brief introduction to pricing
 
 The basic idea of pricing elasticity is that changing the price up and down compared to some "base value" can change the sales of the product: as the price increases, fewer and fewer people will buy the product, while as price decreases, more people may end up buying it. Obviously, this logic has its limitations: people will only buy less of a product if they can survive without it, or if they can switch to a competitor, or a substitute; and conversely, they will only buy more of a cheaper product if they can still use it. Applied to the world of transportation, we can think of several competing car-sharing companies, a public transportation option located a bit further away, an option to rent a scooter, a bike, or to walk by foot. In this situation, we can expect that changing the rate that we charge to customers would affect their behavior, and we can have either more or less rentals, depending on the price.
 
