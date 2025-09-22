@@ -52,17 +52,45 @@ sigma = 10 # Gaussian sigma
 
 ![Ideal station placement, for different numbers of stations](figures/04oa_02stations_02idealized.svg)
 
-# 3.3. Shrinking the OA
+# 3.3. Mapping the OA
+
+🔥🔥🔥 Before we do anything, an alternative CM2 visualization: with grays
+
+🔥 Examples on top of a simple gaussian city, two gaussians with Perlin noise
+
+🔥 Maybe a predicted map for Berlin, from population density?
+
+🔥 That we will be assuming no round-trips, so our estimations will be conservative, as essentially we are looking only at short-term car-sharing, and some long-term car-sharing will be always happening "on top", and also potentially grow with the growth of the operation area (as it will become convenient for ore and more people)
+
+It is also important to note that in practice, depending on the business model of a car sharing provider, somewhere between 10 and 50% of rentals are relatively long-term rentals (from several hours to several days). Because of that, the actual distribution of rental times (or rental driving distances, or revenues per rental) is typically bimodal, with a second "peak" that is very broad and shallow, but financially significant. For these rentals the concepts of "origin" and "destination" don't quite make sense, as the majority of these rentals are close to round-trips (customers starting from home, and returning home a day or two later), and the concept of Home Area becomes important only insofar it allows an easy and painless rental, and a good customer experience. It means taht for all "city models" that we explore here, our estimations for CM2 profitability are intentionally conservative (we can always assume that a good measure of long-term rentals are happening on top of the short-term rentals discussed here), and that the actual share of round-trips at each location will be higher than what one can conclude from the trip length distribution introduced above. Fortunately, the presence of long-term trips does not affect any of the results discussed here, except that the long-term trips would consume part of the available fleet, and so compared to our simulations, in real life, the fleet in the city should be increased proportionally.
+
+## 2.2.1. Marginal vs fair CM2
+
+🔥 Raise a question about how to allocate revenues and transit times. Introduce and build a fair CM2 map (half-half). 
+
+🔥 Explain that red on this CM2 map doesn't mean that this part needs to be closed - an example of marginal CM2 map + the idea of active users
+
+🔥 I strongly suggest to only use one type of a map, a fair map, and provide marginal estimations for proposed closures or opening only as text. The grayscaled map is very rich in info, and it is pretty, bu it is already hard to process. If you try to maintain two different _types_ of a map on top of it, it's not likely to end well. People will just be confused to no end.
+
+## 2.2.2. Edge effects
+
+🔥 Find a way to model edge effects
+
+## 2.2.3. The effect of relocations
+
+🔥🔥🔥 Compare the distribution of cars and the CM2 map with and without relocations
+
+# 3.4. Shrinking the OA
 
 🔥 Return to the idea of marginal CM2 values. Deciding to close the zone. Link back to the CM2 per zone formula, but rewrite it in marginal cases. Then discuss how not all waiting times are equal (night, rush hour). Discuss Acitivity-weighted, with 2 options: missed CM1 or weighted CM2. Argue that CM2-based is better, as preserves consistency with other formulas and city-level estimations (as arguably, it's the one that estimates the actual effect if we close the zone and re-optimize the fleet).
 
 🔥 The algorithm of Shrinking
 
-# 3.3.1. Concentrating fleet
+# 3.5. Concentrating fleet
 
 🔥 The benefit of tendrils and stations (??? - at least describe the idea / hypothesis)
 
-# 3.4. Expanding the OA
+# 3.6. Expanding the OA
 
 🔥 The main idea: Rework into a series of options:
 
@@ -78,11 +106,11 @@ But even withthis fancy model, there's a problem of extension from a narrow hub 
 
 🔥 Can we sketch such a model, or would it be too weird? Using willingness to walk to map the decay?
 
-## 3.4.1. Pilot projects
+## 3.6.1. Pilot projects
 
 🔥 The process. That from the customer pov it's better to never close, so one has to be conservative. But also that it takes a while to build a following (even when competing prividers are present, and people are familiar with the business model!)
 
-## 3.4.2. How long does it take to measure station performance?
+## 3.6.2. How long does it take to measure station performance?
 
 🔥 Set up the story
 
