@@ -20,7 +20,6 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo: Text 🔥
 
-* Split "draft relo logic" and "fleet size" in two different subsections. Regenerate and renumber figures if necessary
 * Re-run and re-link existing operating area figures, to give them 3XX names (not 4XX)
 * Write how everything is intentionally in notebooks, to minimize and expose the code, **except for the city simulation**. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 * Give titles to all figures

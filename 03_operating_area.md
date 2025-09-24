@@ -56,9 +56,7 @@ sigma = 10 # Gaussian sigma
 
 🔥🔥🔥 Before we do anything, an alternative CM2 visualization: with grays
 
-🔥 Examples on top of a simple gaussian city, two gaussians with Perlin noise
-
-🔥 Maybe a predicted map for Berlin, from population density?
+🔥 Example for a simple gaussian city
 
 🔥 That we will be assuming no round-trips, so our estimations will be conservative, as essentially we are looking only at short-term car-sharing, and some long-term car-sharing will be always happening "on top", and also potentially grow with the growth of the operation area (as it will become convenient for ore and more people)
 
@@ -76,9 +74,11 @@ It is also important to note that in practice, depending on the business model o
 
 🔥 Find a way to model edge effects
 
-## 2.2.3. The effect of relocations
+🔥 Compare the CM2 map with and without relocations on this new type of a visualization, side by side
 
-🔥🔥🔥 Compare the distribution of cars and the CM2 map with and without relocations
+ 🔥two gaussians with Perlin noise, full map and one with a very roughly thresholded OA
+
+🔥 Predicted map for Berlin, based on population density
 
 # 3.4. Shrinking the OA
 
