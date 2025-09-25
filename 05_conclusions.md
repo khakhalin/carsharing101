@@ -1,6 +1,5 @@
 # 5. Conclusions
 
-
 🔥 On how carsharing cannot replace public transit, and should never be positioned as such, because we fundamentally depend on cars being a cherry on top, a preferred, but not the only means of transportation. By nature how cars behave in space, we cannot guarantee a good **service** (availability), a good **price**, and a good **coverage** at the same time. 
 
 * To guarantee a good service and a good price we would have to limit our offerings only to high-demand areas of the city, becoming a fancy "Drive-it-yourself" shuttle between a few fixed mobility stations.
