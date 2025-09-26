@@ -22,13 +22,11 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 * Re-run and re-link existing operating area figures, to give them 3XX names (not 4XX)
 * Write how everything is intentionally in notebooks, to minimize and expose the code, **except for the city simulation**. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
-* Give titles to all figures
 
 # Todo: Code 🔥
 
-* Extract "flatter city" into a method (have a post-processing option)
 * Extract "identify rentals" into a method - it's getting way too long
-* Do we want to add at least some unit tests?
+* Add some sort of uv requirements file to the repo to make the setup reproducible (also learn how)
 * Do we want an integration test that calculates city financials in 2-3 different ways, and checks that the stats are consistent?
 
 # Notebooks
@@ -38,9 +36,11 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 # Editing principles
 
 * Go through all figures, and make sure that every figure explained from scratch, in terms of how to read it (at least as a single short sentence)
-* For rentals, use origin-destination (terminology)
-* For relocations, use source-target
-* Check for consistent use of terms "zones" and "stations", especially early on. Perhaps it makes sense to stick to "stations" until the city is introduced? Or at least be consistent within any given paragraph + make sure that both "stations" and "zones" are defined at first use.
+* Every figure should have a title
+* Terminology:
+    * For rentals, use origin-destination
+    * For relocations, use source-target
+    * Early on, for simulations, stick to "stations", never "zones". For cities, use "zones". Make sure that somewhere (at the earliest convenience) there's a paragraph that discusses how stations, zones, and pixel-based modeling interact
 
 # Standards for illustrations
 ```python

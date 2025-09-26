@@ -47,6 +47,8 @@ class City(CityVisuals):
             "city_width": 21, # km
             "grid_step": 0.5, # km
             "density_sigma": 6, # Gaussian sigma, km
+            "demand_flattening_threshold": 0.4, # Threshold for demand flattening
+            "demand_flattening_factor": 15, # Strength of demand flattening
 
             # Simulation properties
             "n_cars": 100,
@@ -66,18 +68,21 @@ class City(CityVisuals):
         # Set default values
         for key,value in default_config.items():
             self.__setattr__(key, value)
+
         # Immediately overwrite them with custom values (if any):
         if config is not None:
             for key,value in config.items():
                 self.__setattr__(key, value)
 
-        if self.seed is not None:
+        if self.seed is not None:  # If we want reproducibility
             np.random.seed(self.seed)
+
+        # Set dynamic parameters
         self.total_steps_run = 0  # Total number of simulation steps run so far
         self.total_steps_that_count = 0  # Steps during stats-collecting phase (after settling down)
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
 
-        # Calculatable fields
+        # Update calculatable fields (demand, statistics)
         self.update_calculatable_fields()
 
 
@@ -126,9 +131,17 @@ class City(CityVisuals):
                     distance_squared = (((i+0.5)-x0)**2 + ((j+0.5)-y0)**2)*self.grid_step**2
                     self.demand[i,j] += np.exp(-distance_squared/(self.density_sigma)**2)
 
-        self.demand = self.demand / np.max(self.demand)  # Normalize the grid to [0, 1] range
 
-        # Pre-process demand for simulations
+        # Flatten the demand profile a bit, to avoid too extreme differences
+        f = lambda x: 1/(1+np.exp(
+            self.demand_flattening_factor*(self.demand_flattening_threshold-x))
+        )
+        self.demand = f(self.demand)
+
+        # Normalize demand to [0, 1] range
+        self.demand = self.demand / np.max(self.demand)
+
+        # Pre-process demand for simulations (produce fields flat_demand and flat_grid_coords)
         self.vectorize_demand()
 
 
@@ -235,51 +248,13 @@ class City(CityVisuals):
 
             # --- 2. New rentals
 
-            self.car_timer_idle[idling_mask] += 1  # They all idled for one more tick now
+            self.car_timer_idle[idling_mask] += 1  # Idling cars have idled for one more tick now
 
-            if np.any(idling_mask):
-                # --- Generate demand for rentals
-                roll_for_attempts = np.random.rand(*self.demand.shape)
-                rental_attempts = (roll_for_attempts < self.demand * self.p_factor).astype(np.int32)
-                pixels_with_demand = np.where(rental_attempts > 0)
+            app_openings, car_indices_getting_rented = self.identify_new_rentals(idling_mask)
 
-                # --- Pick which cars are be rented this step
-                # Get a list of all idle cars
-                all_idle_cars = np.where(idling_mask)[0]
-
-                # List the flattened indices of pixels in which these cars are staying.
-                # Then calculate flat indices of pixels with demand. Then match cars
-                # to demand. it will mark the cars that can be rented (but we'll still
-                # need to sample only some of them)
-                pixels_with_idle_cars = np.ravel_multi_index(
-                    (self.car_xy[all_idle_cars, 0], self.car_xy[all_idle_cars, 1]),
-                    self.demand.shape
-                )
-                pixels_with_demand = np.ravel_multi_index(pixels_with_demand, self.demand.shape)
-                car_might_be_rented = np.isin(pixels_with_idle_cars, pixels_with_demand)
-
-                cars_that_might_be_rented = all_idle_cars[car_might_be_rented]
-                pixels_of_cars_that_might_be_rented = pixels_with_idle_cars[car_might_be_rented]
-
-                # Now we need to select the first car from every pixel with rental attempts,
-                # then find global indices of those cars that are rented.
-                # We'll use a fancy feature of np.unique() that returns not just unique values,
-                # but also the indices of the first occurrence of each unique value.
-                # So all we need now is to randomly shuffle cars within each pixel,
-                # which we can do with lexicographic sorting, first by pixels index, then
-                # by a random number.
-                roll_the_dice = np.random.rand(len(cars_that_might_be_rented))
-                sort_indices = np.lexsort((roll_the_dice, pixels_of_cars_that_might_be_rented))
-                unique_pixels, unique_indices = np.unique(
-                    pixels_of_cars_that_might_be_rented[sort_indices],
-                    return_index=True
-                )
-                final_indices = sort_indices[unique_indices]
-                car_indices_getting_rented = cars_that_might_be_rented[final_indices]
-
-                if len(car_indices_getting_rented) == 0:
-                    continue
-
+            if len(car_indices_getting_rented) == 0:
+                continue
+            else:
                 # --- Pick where these cars will move
                 n_rented = len(car_indices_getting_rented)
                 start_positions = self.car_xy[car_indices_getting_rented] # (n_rented, 2)
@@ -335,7 +310,7 @@ class City(CityVisuals):
 
                 # --- Stats collection - new rentals
                 if self.total_steps_run >= self.settle_down_steps:
-                    self.stats_n_appops += rental_attempts
+                    self.stats_n_appops += app_openings
                     x0, y0 = start_positions[:, 0], start_positions[:, 1]
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                     np.add.at(self.stats_n_rentals, (x0, y0), 1)
@@ -377,3 +352,49 @@ class City(CityVisuals):
                     f"{self.stats_cm2.sum() / n_days_that_count:.2f}")
 
         self.n_days = n_days_that_count  # Used in jupyter analyses
+
+
+    def identify_new_rentals(self, idling_mask):
+        """Identify which cars get rented this tick."""
+        # --- Generate demand for rentals
+        roll_for_attempts = np.random.rand(*self.demand.shape)
+        rental_attempts = (roll_for_attempts < self.demand * self.p_factor).astype(np.int32)
+        pixels_with_demand = np.where(rental_attempts > 0)
+
+        # If no idling cars, then no cars to rent, but app openings will still happen
+        if not np.any(idling_mask):
+            return rental_attempts, np.array([], dtype=np.int32)
+
+        # --- Pick which cars are be rented this step
+        # Get a list of all idle cars
+        all_idle_cars = np.where(idling_mask)[0]
+
+        # List the flattened indices of pixels in which idlinig cars are staying.
+        # Then calculate flat indices of pixels with rental demand. Then match cars
+        # to demand. It will mark all cars that may be rented at this step
+        # (but we'll still need to roll a dice and move only some of them)
+        pixels_with_idle_cars = np.ravel_multi_index(
+            (self.car_xy[all_idle_cars, 0], self.car_xy[all_idle_cars, 1]),
+            self.demand.shape
+        )
+        pixels_with_demand = np.ravel_multi_index(pixels_with_demand, self.demand.shape)
+        indices = np.isin(pixels_with_idle_cars, pixels_with_demand)
+        cars_that_might_be_rented = all_idle_cars[indices]
+        pixels_of_cars_that_might_be_rented = pixels_with_idle_cars[indices]
+
+        # Now select the first car from every pixel with rental attempts,
+        # then find global indices of those cars that are rented.
+        # We'll use a feature of np.unique() that returns not just unique values,
+        # but also the indices of the first occurrence of each unique value.
+        # So all we need to do, to sample random cars, is to randomly shuffle cars
+        # within each pixel, which we can do with lexicographic sorting,
+        # first by pixels index, then by a random number.
+        roll_the_dice = np.random.rand(len(cars_that_might_be_rented))
+        sort_indices = np.lexsort((roll_the_dice, pixels_of_cars_that_might_be_rented))
+        _unique_pixels, unique_indices = np.unique(
+            pixels_of_cars_that_might_be_rented[sort_indices],
+            return_index=True
+        )
+        final_indices = sort_indices[unique_indices]
+        car_indices_getting_rented = cars_that_might_be_rented[final_indices]
+        return rental_attempts, car_indices_getting_rented

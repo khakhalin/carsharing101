@@ -80,7 +80,7 @@ This document was written in [Zettlr](https://www.zettlr.com/), which is the bes
 
 # TEMP drafts
 
-🔥 What this thing is NOT: here we only discuss conceptual models, but once math is agreed upon, "all" that is left is data management, model delivery and versioning, and data delivery infrastructure. This is not covered here.
+🔥 What this thing is NOT: here we only discuss conceptual models, but once math is agreed upon, "all" that is left is data management, model delivery and versioning, and systems engineering (the actual flesh and blood of a data-driven organization). These topics, sadly, are not covered here.
 
 # Footnotes
 

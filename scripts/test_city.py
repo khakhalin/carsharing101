@@ -3,6 +3,8 @@
 import pytest
 from city_simulator import City, car_state
 
+# -------------- CITY CREATION AND SETUP --------------
+
 def test_city_creation():
     city = City({'name':'Wroclaw'})
     assert city.name == "Wroclaw"
@@ -28,13 +30,18 @@ def test_init_cars():
     assert (city.car_xy == city.car_xy.astype(int)).all(), "Car coordinates should be integers"
     assert (city.car_xy >= 0).all() and (city.car_xy < city.grid_size).all()
 
+# -------------- CITY VISUALIZATION --------------
 
 def test_visualize_city():
+    """Just that it doesn't crash."""
     city = City()
     city.visualize()
     assert True  # If we reach this point, the visualization did not crash
 
+# -------------- SIMULATIONS --------------
+
 def test_simulation():
+    """Integration test of sorts. Make sure the simulation basically runs."""
     city = City({'n_cars':100, "p_factor":1})  # Make rentals very probable
     city.init_cars()
     original_car_xy = city.car_xy.copy()
@@ -44,4 +51,4 @@ def test_simulation():
     assert (city.car_timer_transit > 1).any(), "At least one rental should last more than one tick"
     city.simulate(n_steps=4)
     assert city.car_xy.shape[0] == 100
-    assert not (city.car_xy == original_car_xy).all(), "At least some cars should have moved"
+    assert not (city.car_xy == original_car_xy).all(), "At least some cars should have moved!"
