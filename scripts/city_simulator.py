@@ -226,7 +226,7 @@ class City(CityVisuals):
                 np.add.at(self.stats_cm2,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
 
-            # --- 1. Arrivals
+            # ------------------ 1. Arrivals
 
             if np.any(in_transit_mask):
                 # Decrement timers for cars in transit
@@ -246,84 +246,43 @@ class City(CityVisuals):
                         np.add.at(self.stats_n_arrivals,
                             (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
-            # --- 2. New rentals
+            # ------------------ 2. New rentals
 
             self.car_timer_idle[idling_mask] += 1  # Idling cars have idled for one more tick now
 
             app_openings, car_indices_getting_rented = self.identify_new_rentals(idling_mask)
 
             if len(car_indices_getting_rented) == 0:
-                continue
+                # As we're collecting stats below, show that no cars had moved
+                start_positions = np.zeros((0,2), dtype=np.int32)  # Empty array
             else:
-                # --- Pick where these cars will move
-                n_rented = len(car_indices_getting_rented)
+                # --- Now pick WHERE rented cars will move
                 start_positions = self.car_xy[car_indices_getting_rented] # (n_rented, 2)
+                chosen_destinations, distances_km, transit_time_ticks = \
+                    self.pick_rental_destinations(start_positions)
 
-                # We will create a space of all possible movements, from our selected
-                # subset of cars (axis 0), and to every possible destination (axis 1).
-                # To use a Gumbel-Max trick we first need to calculate log-scores
-                # of every possible move in this space (origin->destination), and then below
-                # we'll randomly sample from this space.
-                dx = start_positions[:, 0, np.newaxis] - self.flat_grid_coords[np.newaxis, :, 0]
-                dy = start_positions[:, 1, np.newaxis] - self.flat_grid_coords[np.newaxis, :, 1]
-                distances_km = np.hypot(dx, dy)*self.grid_step # Shape: (n_rented, N_cells)
-
-                # Probability of a trip as a function of distance is assumed to be governed by:
-                # y = distance*np.exp(-(distance**1.2)/8) / 2.11
-                # But here we're taking a log of it, as a part of a Gumbel trick.
-                log_scores = (
-                    np.log(self.flat_demand[np.newaxis, :] + self.epsylon)  # Target demand
-                    + np.log(distances_km + self.epsylon)
-                    - (distances_km**1.2)/self.trip_lambda - np.log(2.11)
-                )
-                # Shape: (n_rented, N_cells)
-
-                # Mask out starting locations to avoid "no distance travelled" rentals"
-                start_flat_indices = np.ravel_multi_index(
-                    (start_positions[:, 0], start_positions[:, 1]),
-                    (self.grid_size, self.grid_size)
-                    )
-                log_scores[np.arange(n_rented), start_flat_indices] = -np.inf
-
-                # Use Gumbel-Max trick to sample destinations
-                gumbel_noise = -np.log(-np.log(np.random.rand(
-                    n_rented, self.grid_size ** 2) + self.epsylon) + self.epsylon)
-                chosen_flat_indices = np.argmax(log_scores + gumbel_noise, axis=1) # (n_rented,)
-                # These are indexes vs the space of rental possibilities, not across cars or pixels
-
-                # --- Send the cars traveling
-                new_y, new_x = np.unravel_index(
-                    chosen_flat_indices, (self.grid_size, self.grid_size))
-                chosen_destinations = np.stack((new_x, new_y), axis=1) # (n_rented, 2)
-
-                # Calculate expected transit time in ticks, for every car
-                distances_km = distances_km[np.arange(n_rented), chosen_flat_indices]
-                transit_time_ticks = np.maximum(
-                    1, np.round(distances_km / self.speed * 60 / self.tick_in_minutes)
-                    ).astype(np.int32)
-
-                # Update state for cars starting the trip
+                # Update the states of cars starting the trip
                 self.car_states[car_indices_getting_rented] = car_state["rented"]
                 self.car_timer_transit[car_indices_getting_rented] = transit_time_ticks
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
                 self.car_timer_idle[car_indices_getting_rented].fill(0)  # Reset idle times
 
                 # --- Stats collection - new rentals
-                if self.total_steps_run >= self.settle_down_steps:
-                    self.stats_n_appops += app_openings
-                    x0, y0 = start_positions[:, 0], start_positions[:, 1]
-                    x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
-                    np.add.at(self.stats_n_rentals, (x0, y0), 1)
-                    self.total_rental_time += transit_time_ticks.sum()
-                    cm1_increments = transit_time_ticks * cm1_per_rental_tick / 2
-                    # logger.info(transit_time_ticks)
-                    cm2_increments = cm1_increments - (transit_time_ticks * idle_tick_cost)/2
-                    np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
-                    np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
-                    np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
-                    np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
+            if self.total_steps_run >= self.settle_down_steps:
+                self.stats_n_appops += app_openings
+                x0, y0 = start_positions[:, 0], start_positions[:, 1]
+                x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
+                np.add.at(self.stats_n_rentals, (x0, y0), 1)
+                self.total_rental_time += transit_time_ticks.sum()
+                cm1_increments = transit_time_ticks * cm1_per_rental_tick / 2
+                # logger.info(transit_time_ticks)
+                cm2_increments = cm1_increments - (transit_time_ticks * idle_tick_cost)/2
+                np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
+                np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
+                np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
+                np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
 
-            # --- 3. Relocations
+            # ------------------ 3. Relocations
 
             # For now, nothing here
 
@@ -398,3 +357,53 @@ class City(CityVisuals):
         final_indices = sort_indices[unique_indices]
         car_indices_getting_rented = cars_that_might_be_rented[final_indices]
         return rental_attempts, car_indices_getting_rented
+
+
+    def pick_rental_destinations(self, start_positions):
+        """Use Gumbel-Max trick to pick rental destinations for rented cars."""
+        n_rented = len(start_positions)
+
+        # We will create a space of all possible movements, from our selected
+        # subset of cars (axis 0), and to every possible destination (axis 1).
+        # To use a Gumbel-Max trick we first need to calculate log-scores
+        # of every possible move in this space (origin->destination), and then below
+        # we'll randomly sample from this space.
+        dx = start_positions[:, 0, np.newaxis] - self.flat_grid_coords[np.newaxis, :, 0]
+        dy = start_positions[:, 1, np.newaxis] - self.flat_grid_coords[np.newaxis, :, 1]
+        distances_km = np.hypot(dx, dy)*self.grid_step # Shape: (n_rented, N_cells)
+
+        # Probability of a trip as a function of distance is assumed to be governed by:
+        # y = distance*np.exp(-(distance**1.2)/8) / 2.11
+        # But here we're taking a log of it, as a part of a Gumbel trick.
+        log_scores = (
+            np.log(self.flat_demand[np.newaxis, :] + self.epsylon)  # Target demand
+            + np.log(distances_km + self.epsylon)
+            - (distances_km**1.2)/self.trip_lambda - np.log(2.11)
+        )
+        # Shape: (n_rented, N_cells)
+
+        # Mask out starting locations to avoid "no distance travelled" rentals"
+        start_flat_indices = np.ravel_multi_index(
+            (start_positions[:, 0], start_positions[:, 1]),
+            (self.grid_size, self.grid_size)
+            )
+        log_scores[np.arange(n_rented), start_flat_indices] = -np.inf
+
+        # Use Gumbel-Max trick to sample destinations
+        gumbel_noise = -np.log(-np.log(np.random.rand(
+            n_rented, self.grid_size ** 2) + self.epsylon) + self.epsylon)
+        chosen_flat_indices = np.argmax(log_scores + gumbel_noise, axis=1) # (n_rented,)
+        # These are indexes vs the space of rental possibilities, not across cars or pixels
+
+        # --- Send the cars traveling
+        new_y, new_x = np.unravel_index(
+            chosen_flat_indices, (self.grid_size, self.grid_size))
+        chosen_destinations = np.stack((new_x, new_y), axis=1) # (n_rented, 2)
+
+        # Calculate expected transit time in ticks, for every car
+        distances_km = distances_km[np.arange(n_rented), chosen_flat_indices]
+        transit_time_ticks = np.maximum(
+            1, np.round(distances_km / self.speed * 60 / self.tick_in_minutes)
+            ).astype(np.int32)
+
+        return chosen_destinations, distances_km, transit_time_ticks
