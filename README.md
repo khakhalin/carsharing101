@@ -27,6 +27,7 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 # Todo: Code 🔥
 
 * Add some sort of uv requirements file to the repo to make the setup reproducible (also learn how)
+* Do we want unit tests for rental cars selection and rental destination choice? On minimalistic mocks of like 2-3 cars in a ducktyped pseudo-city?
 * Do we want an integration test that calculates city financials in 2-3 different ways, and checks that the stats are consistent?
 
 # Notebooks

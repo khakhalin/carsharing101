@@ -101,8 +101,9 @@ class City(CityVisuals):
         self.stats_cm2 = np.zeros_like(self.demand, dtype=np.float32)  # CM2 profit
         self.stats_n_appops  = np.zeros_like(self.demand, dtype=np.int32)  # Demand
         self.stats_n_rentals = np.zeros_like(self.demand, dtype=np.int32)  # Number of rentals
-        self.stats_n_arrivals = np.zeros_like(self.demand, dtype=np.int32)  # (for idle time calc)
         self.stats_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
+        # We will track n_arrivals to calculate average idle times per car
+        self.stats_n_arrivals = np.zeros_like(self.demand, dtype=np.int32)
 
 
     def create_density_profile(self):
@@ -214,21 +215,15 @@ class City(CityVisuals):
             # At the beginning of the first real step (after settling down), reset stats
             if self.total_steps_run == self.settle_down_steps:
                 self.car_timer_idle.fill(0)
-                # Increase the n_arrivals by one for every car already parked
+                # Increase n_arrivals stats by one for every car already parked
                 np.add.at(self.stats_n_arrivals,
                           (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
 
-            # Increment idle time and CM2 costs for pixels witn idling cars
-            if self.total_steps_run >= self.settle_down_steps:
-                self.total_steps_that_count += 1
-                np.add.at(self.stats_idle_time,
-                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
-                np.add.at(self.stats_cm2,
-                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
-
             # ------------------ 1. Arrivals
 
-            if np.any(in_transit_mask):
+            if not np.any(in_transit_mask):
+                arriving_mask = np.zeros(self.n_cars, dtype=bool)  # No arrivals
+            else:
                 # Decrement timers for cars in transit
                 self.car_timer_transit[in_transit_mask] -= 1
 
@@ -241,50 +236,57 @@ class City(CityVisuals):
                     # Update states and positions for arriving cars
                     self.car_states[arriving_mask] = car_state["idle"]
                     self.car_xy[arriving_mask] = self.car_destinations[arriving_mask]
-                    # --- Stats collection - arrivals
-                    if self.total_steps_run >= self.settle_down_steps:
-                        np.add.at(self.stats_n_arrivals,
-                            (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
             # ------------------ 2. New rentals
 
             self.car_timer_idle[idling_mask] += 1  # Idling cars have idled for one more tick now
 
+            # --- Load-bearing line: identify new rentals:
             app_openings, car_indices_getting_rented = self.identify_new_rentals(idling_mask)
 
             if len(car_indices_getting_rented) == 0:
                 # As we're collecting stats below, show that no cars had moved
                 start_positions = np.zeros((0,2), dtype=np.int32)  # Empty array
             else:
-                # --- Now pick WHERE rented cars will move
                 start_positions = self.car_xy[car_indices_getting_rented] # (n_rented, 2)
-                chosen_destinations, distances_km, transit_time_ticks = \
+
+                # --- Load-bearing line: pick where the rented cars will move:
+                chosen_destinations, transit_times = \
                     self.pick_rental_destinations(start_positions)
 
                 # Update the states of cars starting the trip
                 self.car_states[car_indices_getting_rented] = car_state["rented"]
-                self.car_timer_transit[car_indices_getting_rented] = transit_time_ticks
+                self.car_timer_transit[car_indices_getting_rented] = transit_times
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
                 self.car_timer_idle[car_indices_getting_rented].fill(0)  # Reset idle times
 
-                # --- Stats collection - new rentals
+            # ------------------ 3. Relocations
+
+
+            # ------------------ 4. Stats collection
             if self.total_steps_run >= self.settle_down_steps:
+                self.total_steps_that_count += 1
                 self.stats_n_appops += app_openings
+
+                # Idle times and arrivals (needed to calculate idle time per car)
+                np.add.at(self.stats_idle_time,
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
+                np.add.at(self.stats_cm2,
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
+                np.add.at(self.stats_n_arrivals,
+                          (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
+
+                # Rentals, cm1, cm2
                 x0, y0 = start_positions[:, 0], start_positions[:, 1]
                 x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                 np.add.at(self.stats_n_rentals, (x0, y0), 1)
-                self.total_rental_time += transit_time_ticks.sum()
-                cm1_increments = transit_time_ticks * cm1_per_rental_tick / 2
-                # logger.info(transit_time_ticks)
-                cm2_increments = cm1_increments - (transit_time_ticks * idle_tick_cost)/2
+                self.total_rental_time += transit_times.sum()
+                cm1_increments = transit_times * cm1_per_rental_tick / 2
+                cm2_increments = cm1_increments - (transit_times * idle_tick_cost)/2
                 np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
                 np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
                 np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
                 np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
-
-            # ------------------ 3. Relocations
-
-            # For now, nothing here
 
             self.total_steps_run += 1
             # end loop
@@ -402,8 +404,8 @@ class City(CityVisuals):
 
         # Calculate expected transit time in ticks, for every car
         distances_km = distances_km[np.arange(n_rented), chosen_flat_indices]
-        transit_time_ticks = np.maximum(
+        transit_times = np.maximum(
             1, np.round(distances_km / self.speed * 60 / self.tick_in_minutes)
             ).astype(np.int32)
 
-        return chosen_destinations, distances_km, transit_time_ticks
+        return chosen_destinations, transit_times
