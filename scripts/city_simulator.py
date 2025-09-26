@@ -1,6 +1,7 @@
 """Simple city simulator, for free-floating carsharing purposes."""
 
 import logging
+import sys
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -41,27 +42,35 @@ class City(CityVisuals):
         logger.info("Initializing city")
         default_config = {
             # City properties
-            "name": "Verona",
-            "seed": None, # Random seed for reproducibility
+            "name": "Verona",  # Just a pretty random name
+            "seed": None,  # Random seed for reproducibility
             "n_cores": 1,  # Number of city cores
-            "city_width": 21, # km
-            "grid_step": 0.5, # km
-            "density_sigma": 6, # Gaussian sigma, km
-            "demand_flattening_threshold": 0.4, # Threshold for demand flattening
-            "demand_flattening_factor": 15, # Strength of demand flattening
+            "city_width": 21,    # km
+            "grid_step": 0.5,    # km
+            "density_sigma": 6,  # Gaussian sigma, km
+            "demand_flattening_threshold": 0.4,  # Threshold for demand flattening
+            "demand_flattening_factor": 15,  # Strength of demand flattening
 
-            # Simulation properties
+            # Car trips
             "n_cars": 100,
+            "initial_r": 2,  # Initial radius in which cars are placed, km
+            "trip_lambda": 8,  # Km. The higher, the further cars travel, on average 🔥VERIFY!
             "p_factor": 0.4,  # Rental probability factor. The most important tunable parameter!
+            "tick_in_minutes": 10,  # Length of a tick in minutes
+            "typical_trip_duration_min": 20,  # Typical trip duration, min (to contextualize CM1)
             "speed": 20.0,  # Car speed, km/h
+
+            # Financials
             "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
             "cm2_per_day": 20,  # CM2 cost pre day of having a car on balance, Eur
-            "typical_trip_duration_min": 20,  # Typical trip duration, min (to contextualize CM1)
-            "tick_in_minutes": 10,  # Length of a tick in minutes
+            "relo_cost": 20,    # Relocation cost, Eur
+
+            # Simulation parameters
             "settle_down_steps": 0,  # Number of steps without stats collection,
                                      # for the initial conditions to wear off
-            "trip_lambda":8,  # Km. The higher, the further cars travel, on average VERIFY!!!
-            "initial_r": 2,  # Initial radius in which cars are placed, km
+            "do_relocations": False,  # Whether to do relocations at all
+
+            # Misc
             "epsylon": 1e-8,  # Small techincal value to avoid log(0) , 1/0 etc.
         }
 
@@ -77,7 +86,7 @@ class City(CityVisuals):
         if self.seed is not None:  # If we want reproducibility
             np.random.seed(self.seed)
 
-        # Set dynamic parameters
+        # Set dynamic fields
         self.total_steps_run = 0  # Total number of simulation steps run so far
         self.total_steps_that_count = 0  # Steps during stats-collecting phase (after settling down)
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
@@ -89,6 +98,7 @@ class City(CityVisuals):
     def update_calculatable_fields(self):
         """A separate method, just in case we ever change settings mid-simulation."""
         self.grid_size = int(np.ceil(self.city_width/self.grid_step))
+        logger.debug(f"Grid size: {self.grid_size}x{self.grid_size}")
 
         # Dynamic properties
         self.create_density_profile()
@@ -96,13 +106,12 @@ class City(CityVisuals):
         # with simpler models presented in this project, which means that we need to link
         # the per-tick revenue here to flat revenues per trip used elsewhere.
 
-        # Spatial stats:
         self.stats_cm1 = np.zeros_like(self.demand, dtype=np.float32)  # CM1 profit
         self.stats_cm2 = np.zeros_like(self.demand, dtype=np.float32)  # CM2 profit
         self.stats_n_appops  = np.zeros_like(self.demand, dtype=np.int32)  # Demand
         self.stats_n_rentals = np.zeros_like(self.demand, dtype=np.int32)  # Number of rentals
         self.stats_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
-        # We will track n_arrivals to calculate average idle times per car
+        # We need to track n_arrivals to calculate average idle times per car:
         self.stats_n_arrivals = np.zeros_like(self.demand, dtype=np.int32)
 
 
@@ -176,7 +185,8 @@ class City(CityVisuals):
         radius = self.initial_r / self.grid_step  # Convert km to grid pixels
 
         def random_pixel(center):
-            return int(center + (np.random.uniform()*radius*2 - radius)/self.grid_step)
+            i = int(center + (np.random.uniform()*radius*2 - radius)/self.grid_step)
+            return max(0, min(self.grid_size-1, i))
 
         self.car_xy = np.zeros(shape=(self.n_cars, 2), dtype=np.int32)
         for i in range(self.n_cars):
@@ -193,6 +203,17 @@ class City(CityVisuals):
         self.car_timer_transit = np.zeros(self.n_cars, dtype=np.int32) # Remaining ticks in transit
         self.car_timer_idle = np.zeros(self.n_cars, dtype=np.int32)  # Idle time in ticks
 
+        self.reset_parked_map()
+
+
+    def reset_parked_map(self):
+        """Reset the parked cars map."""
+        self.cars_per_pixel = np.zeros(shape=(self.grid_size, self.grid_size), dtype=np.int32)
+
+        # Update the current map of parked cars
+        for x,y in self.car_xy[self.car_states != car_state["rented"]]:
+            self.cars_per_pixel[x,y] += 1
+
 
     def simulate(self, n_steps=1):
         """Run a few simulation steps."""
@@ -207,6 +228,7 @@ class City(CityVisuals):
         )
 
         for step in range(n_steps):
+            logger.debug(f"Sim step {step} of {n_steps}")
             if (step > 0) and (step % 5000) == 0:
                 logger.info(f"..Simulating step {step} of {n_steps}")
             idling_mask = (self.car_states == car_state["idle"])
@@ -234,33 +256,87 @@ class City(CityVisuals):
 
                 if len(arriving_indices) > 0:
                     # Update states and positions for arriving cars
+                    logger.debug(f"Cars {arriving_indices} arriving at {
+                        [(int(a), int(b)) for a,b in self.car_destinations[arriving_indices]]}")
                     self.car_states[arriving_mask] = car_state["idle"]
                     self.car_xy[arriving_mask] = self.car_destinations[arriving_mask]
+                    # update cars_per_pixel:
+                    np.add.at(self.cars_per_pixel,
+                              (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
             # ------------------ 2. New rentals
 
             self.car_timer_idle[idling_mask] += 1  # Idling cars have idled for one more tick now
 
-            # --- Load-bearing line: identify new rentals:
+            # --- Identify new rentals:
             app_openings, car_indices_getting_rented = self.identify_new_rentals(idling_mask)
 
-            if len(car_indices_getting_rented) == 0:
-                # As we're collecting stats below, show that no cars had moved
-                start_positions = np.zeros((0,2), dtype=np.int32)  # Empty array
-            else:
-                start_positions = self.car_xy[car_indices_getting_rented] # (n_rented, 2)
+            if len(car_indices_getting_rented) != 0:
+                logger.debug(f"Cars {car_indices_getting_rented} rented from {
+                    [(int(a), int(b)) for a,b in self.car_xy[car_indices_getting_rented]]}")
+                rental_start_positions = self.car_xy[car_indices_getting_rented] # (n_rented, 2)
 
-                # --- Load-bearing line: pick where the rented cars will move:
+                # --- Pick where the rented cars will move:
                 chosen_destinations, transit_times = \
-                    self.pick_rental_destinations(start_positions)
+                    self.pick_rental_destinations(rental_start_positions)
 
                 # Update the states of cars starting the trip
                 self.car_states[car_indices_getting_rented] = car_state["rented"]
                 self.car_timer_transit[car_indices_getting_rented] = transit_times
                 self.car_destinations[car_indices_getting_rented] = chosen_destinations
                 self.car_timer_idle[car_indices_getting_rented].fill(0)  # Reset idle times
+                # Subtract departing cars from the parked map
+                self.cars_per_pixel[
+                    self.car_xy[car_indices_getting_rented, 0],
+                    self.car_xy[car_indices_getting_rented, 1]
+                ] -= 1
 
             # ------------------ 3. Relocations
+            if self.do_relocations:
+                # Update idling mask as some cars have just been rented
+                idling_mask = (self.car_states == car_state["idle"])
+                if np.any(idling_mask):  # If there are any idling cars
+                    # Calculate demand per car in existing pixels
+                    demand_source = self.demand / np.maximum(self.cars_per_pixel, 1)
+                    # Mask out pixels without idling cars
+                    demand_source[ self.cars_per_pixel == 0 ] = np.inf
+                    index_source = np.argmin(demand_source)
+                    # To make things simpler, we only try to relocate one car per tick
+                    best_demand_source = demand_source.flat[index_source]
+                    # Find a pixel with highest ratio of demand to n of parked cars plus 1:
+                    demand_target = self.demand / (self.cars_per_pixel + 1)
+                    index_target = np.argmax(demand_target)
+                    best_demand_target = demand_target.flat[index_target]
+                    # Calculate CM2 effect: take the delta of expected idle times
+                    # (inversely proportional to demand per car), convert from ticks to days,
+                    # convert from days to Eur using cm2_per_day, then subtract relocation cost
+                    predicted_cm2 = (
+                        (1/best_demand_source - 1/best_demand_target)
+                        * self.tick_in_minutes / 60 / 24
+                        * self.cm2_per_day
+                        - self.relo_cost
+                    )
+
+                    if predicted_cm2 > 0:  # Relo is expected to be profitable, let's do it
+                        source_x, source_y = np.unravel_index(index_source, self.demand.shape)
+                        target_x, target_y = np.unravel_index(index_target, self.demand.shape)
+                        logger.debug(
+                            f"Relo from ({source_x}, {source_y}) to ({target_x}, {target_y}) "
+                            f"offers cm2 of {predicted_cm2:.2f} Eur")
+
+                        # Find a car to relocate from the source pixel
+                        cars_in_source_pixel = np.where(
+                            idling_mask & (self.car_xy[:,0] == source_x)
+                                         & (self.car_xy[:,1] == source_y)
+                        )[0]
+                        logger.debug(f"Cars in source pixel: {cars_in_source_pixel}")
+                        car_to_relocate = np.random.choice(cars_in_source_pixel)
+
+                        # Relocate it to the target pixel (instanteously, for simplicity)
+                        self.car_xy[car_to_relocate] = (target_x, target_y)
+                        self.cars_per_pixel[source_x, source_y] -= 1
+                        self.cars_per_pixel[target_x, target_y] += 1
+                        self.car_timer_idle[car_to_relocate].fill(0)  # Reset idle time
 
 
             # ------------------ 4. Stats collection
@@ -268,7 +344,7 @@ class City(CityVisuals):
                 self.total_steps_that_count += 1
                 self.stats_n_appops += app_openings
 
-                # Idle times and arrivals (needed to calculate idle time per car)
+                # Idle times and total arrivals per pixel
                 np.add.at(self.stats_idle_time,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
                 np.add.at(self.stats_cm2,
@@ -276,20 +352,34 @@ class City(CityVisuals):
                 np.add.at(self.stats_n_arrivals,
                           (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
-                # Rentals, cm1, cm2
-                x0, y0 = start_positions[:, 0], start_positions[:, 1]
-                x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
-                np.add.at(self.stats_n_rentals, (x0, y0), 1)
-                self.total_rental_time += transit_times.sum()
-                cm1_increments = transit_times * cm1_per_rental_tick / 2
-                cm2_increments = cm1_increments - (transit_times * idle_tick_cost)/2
-                np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
-                np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
-                np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
-                np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
+                # Departures
+                if len(car_indices_getting_rented):
+                    x0, y0 = rental_start_positions[:, 0], rental_start_positions[:, 1]
+                    np.add.at(self.stats_n_rentals, (x0, y0), 1)
+
+                    self.total_rental_time += transit_times.sum()
+                    # cm1, cm2
+                    cm1_increments = transit_times * cm1_per_rental_tick / 2
+                    cm2_increments = cm1_increments - (transit_times * idle_tick_cost)/2
+                    x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
+                    np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
+                    np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
+                    np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
+                    np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
+                    # A minor inconsistency is that we update rental cm1 at destination
+                    # at the start of a rental, but update stats_n_arrivals at the end of it.
+                    # That's because we want to use stats_n_arrivals as a denominator
+                    # in per-parked-car formulas, so we can't book them in advance.
+
+            # Consistency checks
+            if not (self.cars_per_pixel >= 0).all():
+                negative_pixels = np.where(self.cars_per_pixel < 0)
+                raise ValueError(
+                    f"Negative number of cars in pixels {negative_pixels} at step {step}"
+                )
 
             self.total_steps_run += 1
-            # end loop
+            # End simulation loop
 
         end_time_sim = time.time()
         logger.info(f"Simulation completed in {end_time_sim - start_time_sim:.2f} seconds")
@@ -409,3 +499,58 @@ class City(CityVisuals):
             ).astype(np.int32)
 
         return chosen_destinations, transit_times
+
+
+if __name__ == "__main__":
+    # A simple test run
+
+    class ColorFormatter(logging.Formatter):
+        """Fancy color formatter for logging messages."""
+        BLUE = '\033[94m'
+        YELLOW = '\033[93m'
+        RED = '\033[91m'
+        PALEGRAY = '\033[38;5;245m'
+        RESET = '\033[0m'
+
+        def format(self, record):
+            levelname = record.levelname
+            padded_name = f"{levelname:<5}"  # Left aligned, padded to 8 chars
+            if levelname == 'INFO':
+                record.levelname = f'{self.BLUE}{padded_name}{self.RESET}'
+            elif levelname == 'WARNING':
+                record.levelname = f'{self.YELLOW}{padded_name}{self.RESET}'
+            elif levelname == 'ERROR':
+                record.levelname = f'{self.RED}{padded_name}{self.RESET}'
+            elif levelname == 'DEBUG':
+                record.levelname = f'{padded_name}' # No color change
+
+            funcName = record.funcName
+            funcName = f"{funcName:<12.12}"
+            record.funcName = f'{self.PALEGRAY}{funcName}{self.RESET}'
+            return super().format(record)
+
+    formatter = ColorFormatter(
+        fmt="%(asctime)s: %(levelname)s: %(funcName)s: %(message)s", datefmt='%I:%M:%S')
+    hnd = logging.StreamHandler(stream=sys.stdout)
+
+    # Remove default logging handler:
+    for h in logger.handlers: logger.removeHandler(h)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG) # Normally it's way to verbose, but in the console we want it so
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    logger.setLevel(logging.DEBUG)
+
+    city = City({
+        "seed": 1,
+        "settle_down_steps": 10,
+        "n_cars": 3,
+        "n_cores": 1,
+        "do_relocations": True,
+        "relo_cost": 1,
+        "city_width": 3,     # 6x6 grid
+        "grid_step": 0.5,
+        "density_sigma": 0.8,
+    })
+    city.init_cars()
+    city.simulate(n_steps=100)

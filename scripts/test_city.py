@@ -42,7 +42,8 @@ def test_visualize_city():
 
 def test_simulation():
     """Integration test of sorts. Make sure the simulation basically runs."""
-    city = City({'n_cars':100, "p_factor":1})  # Make rentals very probable
+    # Make rentals very probable, but also turn relos on just to engage the code
+    city = City({'n_cars':100, "p_factor":1, "do_relocations":True})
     city.init_cars()
     original_car_xy = city.car_xy.copy()
     city.simulate(n_steps=1)
