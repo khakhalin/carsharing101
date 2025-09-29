@@ -255,7 +255,17 @@ When an operator is low on fleet, they basically have three options only. They c
 
 # 2.8. Relocations in a Gaussian City
 
-🔥 
+🔥 Intro
+
+🔥Original figure (named Na)
+
+🔥Same with relocations (named Nb)
+
+🔥 Explain what's happening on these figures
+
+🔥 Figure with "where relocated from" and "where relocated to"
+
+🔥 Discuss distance to walk. Implement. Do Nc, explain the difference vs Nb if any. Promise that it will be more important once we get to chapter 03 and explore operating areas and their shapes.
 
 # 2.9. Precise math for a single relocation
 
