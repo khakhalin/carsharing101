@@ -1,7 +1,7 @@
 # CarSharing 101 
 ## (Introduction to Free-Floating Carsharing)
 
-##### Version 0.3.3
+##### Version 0.3.4
 
 ## Abstract
 
@@ -20,15 +20,20 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo: Text 🔥
 
+* To the intro, add a call for "if you have found a mistake, or what to contribute something important, please reach out!"
+* Add acknowledgements / dedication to my entire team
 * Re-run and re-link existing operating area figures, to give them 3XX names (not 4XX)
 * Write how everything is intentionally in notebooks, to minimize and expose the code, **except for the city simulation**. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h. Also mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 * Replace "a City and a village" schematic - it's the first schematic in the entire book, make it look less insane
 
 # Todo: Code 🔥
 
+* Move default config and simplest config update out (as a mixin?)
+* Rename all maps from `stats_` to `map_`
 * Call all ongoing maps systematically, maybe `.map_smth` to not get lost. As a step towards maybe making `self.maps.rentals`?
 * Count total relocations and report them at the end
-* Be able to show maps of from and to relos.
+* Change default relo to true. Revise old no-relo city runs with relo=False. Make sure they run.
+* Be able to show maps of relo sources and targets
 * Take relocation algo out of the main loop into a subroutine
 * Add some sort of uv requirements file to the repo to make the setup reproducible (also learn how)
 * Do we want unit tests for rental cars selection and rental destination choice? On minimalistic mocks of like 2-3 cars in a ducktyped pseudo-city?

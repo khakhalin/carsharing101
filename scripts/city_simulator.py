@@ -7,9 +7,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import colormaps
 import time
 from PIL import Image  # For image demand loading
 
@@ -114,6 +111,9 @@ class City(CityVisuals):
         self.stats_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
         # We need to track n_arrivals to calculate average idle times per car:
         self.stats_n_arrivals = np.zeros_like(self.demand, dtype=np.int32)
+        self.map_relo_sources = np.zeros_like(self.demand, dtype=np.int32)
+        self.map_relo_targets = np.zeros_like(self.demand, dtype=np.int32)
+
 
 
     def create_density_profile(self):
@@ -293,6 +293,7 @@ class City(CityVisuals):
                 ] -= 1
 
             # ------------------ 3. Relocations
+            relo_happened = False
             if self.do_relocations:
                 # Update idling mask as some cars have just been rented
                 idling_mask = (self.car_states == car_state["idle"])
@@ -338,6 +339,7 @@ class City(CityVisuals):
                         self.cars_per_pixel[source_x, source_y] -= 1
                         self.cars_per_pixel[target_x, target_y] += 1
                         self.car_timer_idle[car_to_relocate].fill(0)  # Reset idle time
+                        relo_happened = True
 
 
             # ------------------ 4. Stats collection
@@ -345,7 +347,7 @@ class City(CityVisuals):
                 self.total_steps_that_count += 1
                 self.stats_n_appops += app_openings
 
-                # Idle times and total arrivals per pixel
+                # Idle times and rental arrivals
                 np.add.at(self.stats_idle_time,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
                 np.add.at(self.stats_cm2,
@@ -353,12 +355,13 @@ class City(CityVisuals):
                 np.add.at(self.stats_n_arrivals,
                           (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
-                # Departures
+                # Rental departures
                 if len(car_indices_getting_rented):
                     x0, y0 = rental_start_positions[:, 0], rental_start_positions[:, 1]
                     np.add.at(self.stats_n_rentals, (x0, y0), 1)
 
                     self.total_rental_time += transit_times.sum()
+
                     # cm1, cm2
                     cm1_increments = transit_times * cm1_per_rental_tick / 2
                     cm2_increments = cm1_increments - (transit_times * idle_tick_cost)/2
@@ -371,6 +374,13 @@ class City(CityVisuals):
                     # at the start of a rental, but update stats_n_arrivals at the end of it.
                     # That's because we want to use stats_n_arrivals as a denominator
                     # in per-parked-car formulas, so we can't book them in advance.
+
+                # Relocations
+                if relo_happened:
+                    # We rely on the fact that relo source and target coordinates were
+                    # recently calculated. As we do only one relo per tick, += is safe.
+                    self.map_relo_sources[(source_x, source_y)] += 1
+                    self.map_relo_targets[(target_x, target_y)] += 1
 
             # Consistency checks
             if not (self.cars_per_pixel >= 0).all():
@@ -402,6 +412,8 @@ class City(CityVisuals):
                     f"{self.total_rental_time / n_rentals * cm1_per_rental_tick:.2f}")
         logger.info("Overall CM2 profit per day, Eur: "
                     f"{self.stats_cm2.sum() / n_days_that_count:.2f}")
+        logger.info("Average relocations per day: "
+                    f"{self.map_relo_sources.sum() / n_days_that_count:.2f}")
 
         self.n_days = n_days_that_count  # Used in jupyter analyses
 
