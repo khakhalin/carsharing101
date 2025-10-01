@@ -60,7 +60,7 @@ class CityVisuals():
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
                 plt.title("CM1, €/day")
-            plt.imshow(self.stats_cm1.T / n_days, aspect='auto', interpolation='none',
+            plt.imshow(self.map_cm1.T / n_days, aspect='auto', interpolation='none',
                 extent=[0, self.grid_size, 0, self.grid_size], cmap='Blues', origin='lower');
             CityVisuals._finalize_plot()
 
@@ -70,7 +70,7 @@ class CityVisuals():
                 plt.subplot(1, n_plots, plot_counter)
                 plt.title("Average idle time, days")
             # Move from total idle time to idle time per car
-            value = self.stats_idle_time / np.maximum(self.stats_n_arrivals, 1)
+            value = self.map_idle_time / np.maximum(self.map_n_arrivals, 1)
             value = value * self.tick_in_minutes / 60 / 24  # Convert to days
             value[value==0] = np.nan  # This will help to show NaNs as gray
             # cmap = plt.cm.Blues.copy()
@@ -91,7 +91,7 @@ class CityVisuals():
             # Diverging colormap, red for negative, blue for positive, light gray for zero
             cmap = colormaps.get_cmap('RdBu')
             clim_factor = 2.5  # To make profitable areas really blue
-            plt.imshow(self.stats_cm2.T / n_days, aspect='auto', interpolation='none',
+            plt.imshow(self.map_cm2.T / n_days, aspect='auto', interpolation='none',
                 extent=[0, self.grid_size, 0, self.grid_size], origin='lower',
                 # norm=plt.matplotlib.colors.CenteredNorm(),  # Center the colormap at zero
                 vmin=-self.cm2_per_day*clim_factor, vmax=self.cm2_per_day*clim_factor,
@@ -104,7 +104,7 @@ class CityVisuals():
                 plot_counter += 1
                 plt.subplot(1, n_plots, plot_counter)
                 plt.title("DFR")
-            plt.imshow(self.stats_n_rentals / np.maximum(1, self.stats_n_appops),
+            plt.imshow(self.map_n_rentals / np.maximum(1, self.map_n_appops),
                 aspect='auto', interpolation='none',
                 extent=[0, self.grid_size, 0, self.grid_size], origin='lower',
                 cmap="cividis")  # Either cividis or PuOr. But gray is prob a better neutral color

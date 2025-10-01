@@ -104,13 +104,12 @@ class City(CityVisuals):
         # with simpler models presented in this project, which means that we need to link
         # the per-tick revenue here to flat revenues per trip used elsewhere.
 
-        self.stats_cm1 = np.zeros_like(self.demand, dtype=np.float32)  # CM1 profit
-        self.stats_cm2 = np.zeros_like(self.demand, dtype=np.float32)  # CM2 profit
-        self.stats_n_appops  = np.zeros_like(self.demand, dtype=np.int32)  # Demand
-        self.stats_n_rentals = np.zeros_like(self.demand, dtype=np.int32)  # Number of rentals
-        self.stats_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
-        # We need to track n_arrivals to calculate average idle times per car:
-        self.stats_n_arrivals = np.zeros_like(self.demand, dtype=np.int32)
+        self.map_cm1 = np.zeros_like(self.demand, dtype=np.float32)  # CM1 profit
+        self.map_cm2 = np.zeros_like(self.demand, dtype=np.float32)  # CM2 profit
+        self.map_n_appops  = np.zeros_like(self.demand, dtype=np.int32)  # Demand
+        self.map_n_rentals = np.zeros_like(self.demand, dtype=np.int32)  # Outgoing rentals
+        self.map_n_arrivals = np.zeros_like(self.demand, dtype=np.int32) # Incoming rentals
+        self.map_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
         self.map_relo_sources = np.zeros_like(self.demand, dtype=np.int32)
         self.map_relo_targets = np.zeros_like(self.demand, dtype=np.int32)
 
@@ -239,7 +238,7 @@ class City(CityVisuals):
             if self.total_steps_run == self.settle_down_steps:
                 self.car_timer_idle.fill(0)
                 # Increase n_arrivals stats by one for every car already parked
-                np.add.at(self.stats_n_arrivals,
+                np.add.at(self.map_n_arrivals,
                           (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
 
             # ------------------ 1. Arrivals
@@ -345,20 +344,20 @@ class City(CityVisuals):
             # ------------------ 4. Stats collection
             if self.total_steps_run >= self.settle_down_steps:
                 self.total_steps_that_count += 1
-                self.stats_n_appops += app_openings
+                self.map_n_appops += app_openings
 
                 # Idle times and rental arrivals
-                np.add.at(self.stats_idle_time,
+                np.add.at(self.map_idle_time,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
-                np.add.at(self.stats_cm2,
+                np.add.at(self.map_cm2,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
-                np.add.at(self.stats_n_arrivals,
+                np.add.at(self.map_n_arrivals,
                           (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
                 # Rental departures
                 if len(car_indices_getting_rented):
                     x0, y0 = rental_start_positions[:, 0], rental_start_positions[:, 1]
-                    np.add.at(self.stats_n_rentals, (x0, y0), 1)
+                    np.add.at(self.map_n_rentals, (x0, y0), 1)
 
                     self.total_rental_time += transit_times.sum()
 
@@ -366,13 +365,13 @@ class City(CityVisuals):
                     cm1_increments = transit_times * cm1_per_rental_tick / 2
                     cm2_increments = cm1_increments - (transit_times * idle_tick_cost)/2
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
-                    np.add.at(self.stats_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
-                    np.add.at(self.stats_cm1, (x1, y1), cm1_increments)
-                    np.add.at(self.stats_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
-                    np.add.at(self.stats_cm2, (x1, y1), cm2_increments)
+                    np.add.at(self.map_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
+                    np.add.at(self.map_cm1, (x1, y1), cm1_increments)
+                    np.add.at(self.map_cm2, (x0, y0), cm2_increments) # 50:50 start and finish
+                    np.add.at(self.map_cm2, (x1, y1), cm2_increments)
                     # A minor inconsistency is that we update rental cm1 at destination
-                    # at the start of a rental, but update stats_n_arrivals at the end of it.
-                    # That's because we want to use stats_n_arrivals as a denominator
+                    # at the start of a rental, but update map_n_arrivals at the end of it.
+                    # That's because we want to use map_n_arrivals as a denominator
                     # in per-parked-car formulas, so we can't book them in advance.
 
                 # Relocations
@@ -402,7 +401,7 @@ class City(CityVisuals):
         n_days_that_count = self.total_steps_that_count * self.tick_in_minutes / 60 / 24
         logger.info(f"In-simulation time passed: {n_days:.0f} days")
         logger.info(f"Overall, statistics gathered over: {n_days_that_count:.0f} days")
-        n_rentals = self.stats_n_rentals.sum()
+        n_rentals = self.map_n_rentals.sum()
         logger.info(f"Cumulative rentals happened: {n_rentals}")
         logger.info("Average rentals per car per day: "
                     f"{n_rentals / self.n_cars / n_days_that_count:.2f}")
@@ -411,7 +410,7 @@ class City(CityVisuals):
         logger.info("Average CM1 gain per trip, Eur: "
                     f"{self.total_rental_time / n_rentals * cm1_per_rental_tick:.2f}")
         logger.info("Overall CM2 profit per day, Eur: "
-                    f"{self.stats_cm2.sum() / n_days_that_count:.2f}")
+                    f"{self.map_cm2.sum() / n_days_that_count:.2f}")
         logger.info("Average relocations per day: "
                     f"{self.map_relo_sources.sum() / n_days_that_count:.2f}")
 
