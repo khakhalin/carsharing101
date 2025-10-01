@@ -126,7 +126,7 @@ class City(CityVisuals):
             core_centers = [(center, center)]
         else:
             core_centers = []
-            for n_core in range(self.n_cores):
+            for i_core in range(self.n_cores):
                 # Pick a random core center within a circle inscribed in the grid
                 angle = np.random.uniform(0, 2 * np.pi) # Random angle
                 radius = np.random.uniform(center/4, center)  # Random radius within the circle

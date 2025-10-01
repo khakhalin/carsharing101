@@ -28,10 +28,14 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 
 # Todo: Code 🔥
 
-* Move default config and simplest config update out (as a mixin?)
-* Rename all maps from `stats_` to `map_`
-* Call all ongoing maps systematically, maybe `.map_smth` to not get lost. As a step towards maybe making `self.maps.rentals`?
-* Count total relocations and report them at the end
+* Rework config
+    * Make config into a separate dataclass, assigning params to it, and not to the simulation? `cfg.n_whatever`?
+    *  Move default values out, into a diff py file.
+    *  Still allow calling city with a dict config, that is used to update typed config at init, but with errors on assigning a nonexistent field
+        *  Write a unit test for this fact
+* Make `maps` into a dataclass with pre-defined fields
+    * Rename demand into map_demand?
+    * Rename current distribution of standing cars into a map_
 * Change default relo to true. Revise old no-relo city runs with relo=False. Make sure they run.
 * Be able to show maps of relo sources and targets
 * Take relocation algo out of the main loop into a subroutine
