@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

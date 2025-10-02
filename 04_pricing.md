@@ -1,5 +1,11 @@
 # 4. Pricing
 
+🔥 Problem statement
+
+🔥 What is legal or illegal in Europe
+
+🔥NOT HERE - driveless cars
+
 ## 4.1. Brief introduction to pricing
 
 The basic idea of pricing elasticity is that changing the price up and down compared to some "base value" can change the sales of the product: as the price increases, fewer and fewer people will buy the product, while as price decreases, more people may end up buying it. Obviously, this logic has its limitations: people will only buy less of a product if they can survive without it, or if they can switch to a competitor, or a substitute; and conversely, they will only buy more of a cheaper product if they can still use it. Applied to the world of transportation, we can think of several competing car-sharing companies, a public transportation option located a bit further away, an option to rent a scooter, a bike, or to walk by foot. In this situation, we can expect that changing the rate that we charge to customers would affect their behavior, and we can have either more or less rentals, depending on the price.
@@ -37,7 +43,7 @@ Assuming this is price per minute for the elas(p) part hence the 0.30, more or l
 
 For more info, see for example: Yang, H., & Huang, H. J. (2005). Mathematical and economic theory of road pricing. Emerald Group Publishing Limited.
 
-## Asymmetric prices (drop-off fees)
+# Asymmetric prices (drop-off fees)
 
 🔥 A note on how a drop-fee becomes a burden once the demand is high
 
@@ -93,9 +99,7 @@ Compare outputs on a Gaussian city and Fake Berlin.
 
 🔥 How many relocations can be avoided by asymmetric pricing? Can we compare the size of effects?
 
-## How to draw pricing zones
-
-🔥
+# How to draw pricing zones
 
 🔥 On pricing in a city, 3 different approaches:
 
@@ -103,15 +107,30 @@ Compare outputs on a Gaussian city and Fake Berlin.
 2. Work on pixels, but come up with explicit formula with flows, and thus avoid doing agent-based modeling, and do gradient descent of some sort. For each pixel set the prices, using sensitivity calculate the flows, from the total flow and expected delta cost calculate the target stock and expected flow (this part needs some thinking, as average expected relo targets and relo costs depend on the pixel, and we'll probably need some simplification here). But once this is done, we can iterate, and maybe even calculate the gradients.
 3. Realtime optimization, relying on relo-like formulas (at every point for a given price calculate the expected probability of leaving, and explicitly optimize the price). Warnings on practical stability, weird effects, necessity to limit effects irl by sanity borders. Alternatively, we can also use this approach in an agent based-model, and then look at the median achieved prices. That's the type of stats we'll use for the formulas anyways.
 
-## Next steps: Dynamic pricing
+# Pricing optimization
 
-Zheng, N., Rérat, G., & Geroliminis, N. (2016). Time-dependent area-based pricing for multimodal systems with heterogeneous users in an agent-based environment. *Transportation Research Part C: Emerging Technologies*, *62*, 133-148. https://www.sciencedirect.com/science/article/pii/S0968090X15003745?casa_token=tq__IPTB2qAAAAAA:XEqQV2c2KnF5NlJ2mXRf9IBidhMxVTtFFsK1HYpRGwCu0cR7VfNtgBIqlwH8Eht_ILffNLX3
-Here they show that one can optimize stuff, except that they optimize for a different thing, congestion; and also don't care about cognitive friction, as they are not trying to sell "good cars" to people, they are trying to dynamically punish them for using "bad", private cars.
+🔥 How? 1) measure price elasticity with explicit price fluctuations. 2) Use willingness to walk as an additional cost on top (but it still needs to be calibrated, so we may have a 2-tiered system of constant monitoring of willingness to walk as a function of space in time, and a calibration curve for it). 3) Explicit optimization in a model that does not make assumptions about the shape of the curve, but uses ML as a predictor of hire/not hire. Potentially, with ensembles of agents representing anonymized customer behavior, similar to how fancy pricing consultancies are doing it. 4) Explicit ongoing RL optimization of live, optimizing the strategy.
 
-Gu, Z., Shafiei, S., Liu, Z., & Saberi, M. (2018). Optimal distance-and time-dependent area-based pricing with the Network Fundamental Diagram. Transportation Research Part C: Emerging Technologies, 95, 1-28.
-Adaptive pricing approach to tolls: how to optimally price a toll, as a function of where people go after passing a toll. In a way, car-sharing may be considered a similar problem, except each car has a unique "toll" that you pay as you start the rental. The price you're going to pay may theoretically depend on the statistics of where customers typically go to, from this point at this time. Seems to be a more complicated approach though, compared to what we are proposing. An alternative?
+🔥 Read these references:
+
+* Kurniawan, A. C., & Arvitrida, N. I. (2021). An agent-based simulation for a trade-off between frequency and depth in retail price promotion strategy. Management & Marketing. Challenges for the Knowledge Society, 16(1), 1–12. <https://sciendo.com/article/10.2478/mmcks-2021-0001>\
+  Describes a two-agent (retailers, customers) ABM where each customer has heterogeneous preferences and bounded rationality, yielding emergent demand under different promotion/price strategies. Details conceptual modeling, simulation design, and experimentation steps, including parameterization of consumer preferences and retailer policies and validation via theoretical benchmarks. Shows how ensemble behavior across many idiosyncratic customers induces demand and profit curves as functions of price cut frequency/depth. Provides methodological guidance on building, calibrating, and analyzing agent ensembles for pricing strategy evaluation.
+* McCulloch, J., Heppenstall, A., McMeekin, P., Pearce, C., & Glen, J. (2022). Calibrating agent-based models using uncertainty quantification methods. Journal of Artificial Societies and Social Simulation, 25(2), 1. <https://www.jasss.org/25/2/1.html>\
+  Presents a practical framework to calibrate ABMs using history matching and approximate Bayesian computation, directly applicable to consumer-behavior agent ensembles. Explains point vs distributional calibration, pattern-oriented modeling, and uncertainty quantification to align simulated agents with real-world data. Offers worked examples and step-by-step procedures for parameter search, validation, and sensitivity analysis, enabling defensible pricing simulations. Emphasizes reproducibility and scalability for thousands of heterogeneous agents.
+* Kot, M. (2022). Agent-based model of consumer choice: Strategy of pricing and advertising. Operations Research and Decisions, 32(3), 81–98. <http://yadda.icm.edu.pl/baztech/element/bwmeta1.element.baztech-0b27d649-8f63-41cf-82ac-f478a70b04bb/c/kot.pdf>\
+  Builds an ABM with heterogeneous consumers (reservation prices, risk aversion, social links) and firms setting prices/ads, then aggregates micro-decisions into market demand dynamics. Details the consumer decision mechanism, information sets, Bayesian updating of quality expectations, and experiment design with parameter sweeps and replication. Demonstrates how ensemble micro-heterogeneity generates downward-sloping demand and market-share responses to price/advertising. Provides implementation specifics (Julia codebase, parameter tables) useful for replication and adaptation to pricing studies.
+* Ward, J. A., Evans, A. J., & Malleson, N. (2016). Dynamic calibration of agent-based models using data assimilation. Royal Society Open Science, 3(4), 150703. <https://royalsocietypublishing.org/doi/10.1098/rsos.150703>\
+  Introduces Ensemble Kalman Filter (EnKF) for dynamic calibration of ABMs, a powerful method to tune many-agents models to streaming or time-series data. Provides a hierarchical modeling approach and shows how to assimilate observed behaviors to keep simulated populations aligned with reality over time. Methodology generalizes to pricing simulations where demand/time-varying elasticity emerges from agent logic. Offers clear steps for implementation, uncertainty tracking, and validation of ensemble forecasts.
+* Bonabeau, E. (2002). Agent-based modeling: Methods and techniques for simulating human systems. Proceedings of the National Academy of Sciences, 99(suppl\_3), 7280–7287. <https://pmc.ncbi.nlm.nih.gov/articles/PMC128598/>\
+  Seminal overview explaining how heterogeneous agents with simple or complex decision rules produce aggregate demand and price/volume dynamics. Discusses methodological building blocks—agent rules, interaction topologies, learning/adaptation, and calibration/validation—that underpin pricing-through-simulation approaches. Offers concrete modeling patterns for constructing consumer agents and linking micro-behavior to macro curves without assuming fixed functional forms. Serves as a foundational reference for moving beyond parametric demand curves toward idiosyncratic customer ensembles.
+
+🔥 _READ on bandits vs classic RL. What methods seem to be more productive here?_
+
+🔥More on willingness to walk as a measure, and how to combine it to other methods
 
 ## Measuring price elasticity
+
+🔥_Right now I don't quite understand / remember what these notes mean_
 
 🔥 A model with 2 equivalent providers - show the curve
 🔥 How does the curve change if one provider becomes preferable
@@ -119,10 +138,22 @@ Adaptive pricing approach to tolls: how to optimally price a toll, as a function
 
 ## Willingness to walk
 
+🔥 Describe the idea
+
 1.  Distribution of walking distances: One competitor, same price
 2.  Same, but different prices 
 3.  How willingness to walk (typical walking distance) changes with price   
 4.  How willingness to walk (typical walking distance) changes with DFR
+
+🔥 If you were to provide discounts to individual customers depending on the distance to the car, how would the math look like? Also, is it legal in Europe?
+
+# Dynamic pricing
+
+Zheng, N., Rérat, G., & Geroliminis, N. (2016). Time-dependent area-based pricing for multimodal systems with heterogeneous users in an agent-based environment. *Transportation Research Part C: Emerging Technologies*, *62*, 133-148. https://www.sciencedirect.com/science/article/pii/S0968090X15003745?casa_token=tq__IPTB2qAAAAAA:XEqQV2c2KnF5NlJ2mXRf9IBidhMxVTtFFsK1HYpRGwCu0cR7VfNtgBIqlwH8Eht_ILffNLX3
+Here they show that one can optimize stuff, except that they optimize for a different thing, congestion; and also don't care about cognitive friction, as they are not trying to sell "good cars" to people, they are trying to dynamically punish them for using "bad", private cars.
+
+Gu, Z., Shafiei, S., Liu, Z., & Saberi, M. (2018). Optimal distance-and time-dependent area-based pricing with the Network Fundamental Diagram. Transportation Research Part C: Emerging Technologies, 95, 1-28.
+Adaptive pricing approach to tolls: how to optimally price a toll, as a function of where people go after passing a toll. In a way, car-sharing may be considered a similar problem, except each car has a unique "toll" that you pay as you start the rental. The price you're going to pay may theoretically depend on the statistics of where customers typically go to, from this point at this time. Seems to be a more complicated approach though, compared to what we are proposing. An alternative?
 
 # Footnotes
 
