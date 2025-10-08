@@ -39,23 +39,25 @@ class City(CityVisuals):
     def __init__(self, config=None):
         """Create a city object."""
         logger.info("Initializing city")
+        # Start with a default configuration (we'll customize it later)
         default_config = {
             # City properties
-            "name": "Verona",  # Just a pretty random name
-            "seed": None,  # Random seed for reproducibility
+            "name": "Verona",  # Just a random pretty name
+            "seed": None,  # Random seed (for when reproducibility is desirable)
             "n_cores": 1,  # Number of city cores
             "city_width": 21,    # km
             "grid_step": 0.5,    # km
-            "density_sigma": 6,  # Gaussian sigma, km
+            "density_sigma": 5,  # Gaussian sigma, km
+            "do_flatten_demand": False,  # Whether the top of the gaussian is to be flattened
             "demand_flattening_threshold": 0.4,  # Threshold for demand flattening
             "demand_flattening_factor": 15,  # Strength of demand flattening
 
             # Car trips
             "n_cars": 100,
-            "initial_r": 2,  # Initial radius in which cars are placed, km
+            "initial_r": 5,  # Initial radius in which cars are placed, km
             "trip_lambda": 8,  # Km. The higher, the further cars travel, on average 🔥VERIFY!
-            "p_factor": 0.4,  # Rental probability factor. The most important tunable parameter!
-            "tick_in_minutes": 10,  # Length of a tick in minutes
+            "p_factor": 0.2,  # Rental probability factor. Main way to adjust rentals/car/day
+            "tick_in_minutes": 5,  # Length of a tick in minutes
             "typical_trip_duration_min": 20,  # Typical trip duration, min (to contextualize CM1)
             "speed": 20.0,  # Car speed, km/h
 
@@ -65,8 +67,9 @@ class City(CityVisuals):
             "relo_cost": 20,    # Relocation cost, Eur
 
             # Simulation parameters
-            "settle_down_steps": 0,  # Number of steps without stats collection,
+            "settle_down_steps": 2,  # Number of steps without stats collection,
                                      # for the initial conditions to wear off
+                                     # IRL should always be ~1000, but for testing 0 is good.
             "do_relocations": False,  # Whether to do relocations at all
 
             # Misc
@@ -144,10 +147,11 @@ class City(CityVisuals):
 
 
         # Flatten the demand profile a bit, to avoid too extreme differences
-        f = lambda x: 1/(1+np.exp(
-            self.demand_flattening_factor*(self.demand_flattening_threshold-x))
-        )
-        self.demand = f(self.demand)
+        if self.do_flatten_demand:
+            flattener = lambda x: 1/(1+np.exp(
+                self.demand_flattening_factor*(self.demand_flattening_threshold-x))
+            )
+            self.demand = flattener(self.demand)
 
         # Normalize demand to [0, 1] range
         self.demand = self.demand / np.max(self.demand)
@@ -408,7 +412,7 @@ class City(CityVisuals):
                     f"{n_rentals / self.n_cars / n_days_that_count:.2f}")
         logger.info("Average rental time per trip, min: "
                     f"{self.total_rental_time / n_rentals * self.tick_in_minutes:.2f}")
-        logger.info("Average CM1 gain per trip, Eur: "
+        logger.info("Average CM1 profit per trip, Eur: "
                     f"{self.total_rental_time / n_rentals * cm1_per_rental_tick:.2f}")
         logger.info("Overall CM2 profit per day, Eur: "
                     f"{self.map_cm2.sum() / n_days_that_count:.2f}")
@@ -536,7 +540,7 @@ if __name__ == "__main__":
         "n_cores": 1,
         "do_relocations": True,
         "relo_cost": 1,
-        "city_width": 3,     # 6x6 grid
+        "city_width": 3,     # 3 width with 0.5 grid step means a 6x6 grid
         "grid_step": 0.5,
         "density_sigma": 0.8,
     })

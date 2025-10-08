@@ -27,7 +27,7 @@ class CityVisuals():
                 cbar.ax.tick_params(labelsize=8)
 
 
-    def visualize(self, plots="all"):
+    def visualize(self, plots="all", title=None, title_y=0.75):
         """Show visualizations of the city."""
         if isinstance(plots, str):
             if plots == "all":
@@ -36,9 +36,12 @@ class CityVisuals():
                 plots = [plots]
         n_plots = len(plots)
 
-        # Demand and current car positions:
         n_days = self.total_steps_that_count * self.tick_in_minutes / 60 / 24 + 0.001
+
+        # Below is a long-ish script with plots given one by one, just with each of them checking
+        # if we want to see it (if its name is in "plots"). The sequence is fixed.
         plot_counter = 0
+        # Demand and current car positions:
         if "cars" in plots:
             if n_plots > 1:
                 plot_counter += 1
@@ -109,5 +112,8 @@ class CityVisuals():
                 extent=[0, self.grid_size, 0, self.grid_size], origin='lower',
                 cmap="cividis")  # Either cividis or PuOr. But gray is prob a better neutral color
             CityVisuals._finalize_plot()
+
+        if title is not None:
+            plt.suptitle(title, x=0, y=title_y, fontsize=13, ha="left")
 
         plt.tight_layout()

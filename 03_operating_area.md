@@ -72,7 +72,7 @@ It is also important to note that in practice, depending on the business model o
 
 ## 2.2.2. Edge effects
 
-🔥 Find a way to model edge effects
+🔥 Model edge effects by blurring demand, but also adjusting the values at the edge so that after masking demand is redistributed as it should. Carefully design and describe just how it needs to be adjusted in order to give the desired result. It's a bit of a hack, but it's easy, and works correctly (from the common sense point of view) near the edge.
 
 🔥 Compare the CM2 map with and without relocations on this new type of a visualization, side by side
 
