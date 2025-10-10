@@ -58,8 +58,9 @@ class City(CityVisuals):
             "trip_lambda": 8,  # Km. The higher, the further cars travel, on average 🔥VERIFY!
             "p_factor": 0.2,  # Rental probability factor. Main way to adjust rentals/car/day
             "tick_in_minutes": 5,  # Length of a tick in minutes
-            "typical_trip_duration_min": 20,  # Typical trip duration, min (to contextualize CM1)
             "speed": 20.0,  # Car speed, km/h
+
+            "default_trip_duration_min": 20,  # Starting trip duration, min (to contextualize CM1)
 
             # Financials
             "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
@@ -73,6 +74,7 @@ class City(CityVisuals):
             "do_relocations": False,  # Whether to do relocations at all
 
             # Misc
+            "learning_rate": 0.01,  # Exponential moving average factor for ongoing stats
             "epsylon": 1e-8,  # Small techincal value to avoid log(0) , 1/0 etc.
         }
 
@@ -88,16 +90,20 @@ class City(CityVisuals):
         if self.seed is not None:  # If we want reproducibility
             np.random.seed(self.seed)
 
-        # Set dynamic fields
+        # Update calculatable fields
+        # Counters
         self.total_steps_run = 0  # Total number of simulation steps run so far
-        self.total_steps_that_count = 0  # Steps during stats-collecting phase (after settling down)
+        self.total_steps_that_count = 0  # Steps in stats-collecting phase (after settling down)
+        # Demand density and maps
+        self.initialize_maps()
+        # Ongoing stats
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
+        self.total_cm1 = 0  # Total CM1 so far, Eur
+        # For idle tick cost, we'll start with CM2-based estimation, then switch to CM1-based one
+        self.cm2_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
 
-        # Update calculatable fields (demand, statistics)
-        self.update_calculatable_fields()
 
-
-    def update_calculatable_fields(self):
+    def initialize_maps(self):
         """A separate method, just in case we ever change settings mid-simulation."""
         self.grid_size = int(np.ceil(self.city_width/self.grid_step))
         logger.debug(f"Grid size: {self.grid_size}x{self.grid_size}")
@@ -227,10 +233,10 @@ class City(CityVisuals):
         # TODO: Reset idle time counter for cars
 
         start_time_sim = time.time()
-        idle_tick_cost = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # CM2 cost of 1 tick
         cm1_per_rental_tick = (
-            (self.cm1_per_trip / self.typical_trip_duration_min) * self.tick_in_minutes
+            (self.cm1_per_trip / self.default_trip_duration_min) * self.tick_in_minutes
         )
+        cm2_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
 
         for step in range(n_steps):
             logger.debug(f"Sim step {step} of {n_steps}")
@@ -348,27 +354,28 @@ class City(CityVisuals):
 
             # ------------------ 4. Stats collection
             if self.total_steps_run >= self.settle_down_steps:
+                # Critically, we don't collect stats in the "settle down" phase; this is one
+                # it's important to have all stats collection happen in one place (here).
                 self.total_steps_that_count += 1
                 self.map_n_appops += app_openings
 
-                # Idle times and rental arrivals
+                # Idling cars
                 np.add.at(self.map_idle_time,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
                 np.add.at(self.map_cm2,
-                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -idle_tick_cost)
-                np.add.at(self.map_n_arrivals,
-                          (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -cm2_per_tick)
 
-                # Rental departures
+                # Rental departures (including all financial effects)
                 if len(car_indices_getting_rented):
+                    # These are self.car_xy[car_indices_getting_rented], calculated above
                     x0, y0 = rental_start_positions[:, 0], rental_start_positions[:, 1]
                     np.add.at(self.map_n_rentals, (x0, y0), 1)
 
                     self.total_rental_time += transit_times.sum()
 
-                    # cm1, cm2
+                    # cm1, cm2 for cars that got rented
                     cm1_increments = transit_times * cm1_per_rental_tick / 2
-                    cm2_increments = cm1_increments - (transit_times * idle_tick_cost)/2
+                    cm2_increments = cm1_increments - (transit_times * cm2_per_tick)/2
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                     np.add.at(self.map_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
                     np.add.at(self.map_cm1, (x1, y1), cm1_increments)
@@ -378,6 +385,10 @@ class City(CityVisuals):
                     # at the start of a rental, but update map_n_arrivals at the end of it.
                     # That's because we want to use map_n_arrivals as a denominator
                     # in per-parked-car formulas, so we can't book them in advance.
+
+                # Rental arrivals (number only)
+                np.add.at(self.map_n_arrivals,
+                          (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
                 # Relocations
                 if relo_happened:

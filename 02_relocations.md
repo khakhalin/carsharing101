@@ -259,10 +259,14 @@ When an operator is low on fleet, they basically have three options only. They c
 
 🔥 Discuss distance to walk. Implement. Do Nc, explain the difference vs Nb if any. Promise that it will be more important once we get to chapter 03 and explore operating areas and their shapes.
 
+🔥 Comment that here we still assume that we know the demand exactly, while IRL we would be measuring it from app openings, so it will be noisy and fluctuating. Refer to "Real-life considerations" section below
+
 - [x] Drive relocations per car per day down from 13 to about 5
-- [ ] Show average CM1 per car in the city, for troubleshooting purposes
-- [ ] Check if we want to boost CM1 per trip to the value set in config by somehow redistributing it. Also either force it, or change the name of the constant, as currently it's promising something (a given cm1 per trip) that isn't happening automatically. Perhaps being able to adjust is manually is enough for now?
-- [ ] Decide whether we want Gaussian or Flattened city (which one looks better?)
+- [ ] Move relocations to lost CM1 formulas (opportunity cost)
+- [ ] Rename cm1_per_trip to something like "target_cm1_per_trip", and adjust it up, to get to 5 Eur on average. Add a comment about how it's just a target.
+- [ ] At city end, output average CM1 per car in the city, for troubleshooting purposes
+- [ ] Double-check that relocation costs are applied to the source zone
+- [x] We want a Gaussian city, not flattened (in this case), to have a better border after relos are on
 - [ ] Understand why the difference with 20 Eur/relo is so relatively small. Maybe for illustrative purposes either make the gaussian smaller, or make relocations cheaper? Just to show exactly how it works?
 - [ ] Add blurring of N cars with distance-to-walk
 - [ ] Get to a reasonably good contrast between two scenarios (we want some visual difference)
