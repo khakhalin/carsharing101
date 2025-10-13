@@ -100,7 +100,7 @@ class City(CityVisuals):
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
         self.total_cm1 = 0  # Total CM1 so far, Eur
         # For idle tick cost, we'll start with CM2-based estimation, then switch to CM1-based one
-        self.cm2_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
+        self.global_cm1_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)
 
 
     def initialize_maps(self):
@@ -122,7 +122,6 @@ class City(CityVisuals):
         self.map_idle_time = np.zeros_like(self.demand, dtype=np.int32)  # Idle time in ticks
         self.map_relo_sources = np.zeros_like(self.demand, dtype=np.int32)
         self.map_relo_targets = np.zeros_like(self.demand, dtype=np.int32)
-
 
 
     def create_density_profile(self):
@@ -150,7 +149,6 @@ class City(CityVisuals):
                     # Distance in km
                     distance_squared = (((i+0.5)-x0)**2 + ((j+0.5)-y0)**2)*self.grid_step**2
                     self.demand[i,j] += np.exp(-distance_squared/(self.density_sigma)**2)
-
 
         # Flatten the demand profile a bit, to avoid too extreme differences
         if self.do_flatten_demand:
@@ -236,7 +234,7 @@ class City(CityVisuals):
         cm1_per_rental_tick = (
             (self.cm1_per_trip / self.default_trip_duration_min) * self.tick_in_minutes
         )
-        cm2_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
+        global_cm1_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
 
         for step in range(n_steps):
             logger.debug(f"Sim step {step} of {n_steps}")
@@ -363,7 +361,7 @@ class City(CityVisuals):
                 np.add.at(self.map_idle_time,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
                 np.add.at(self.map_cm2,
-                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -cm2_per_tick)
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -global_cm1_per_tick)
 
                 # Rental departures (including all financial effects)
                 if len(car_indices_getting_rented):
@@ -375,7 +373,7 @@ class City(CityVisuals):
 
                     # cm1, cm2 for cars that got rented
                     cm1_increments = transit_times * cm1_per_rental_tick / 2
-                    cm2_increments = cm1_increments - (transit_times * cm2_per_tick)/2
+                    cm2_increments = cm1_increments - (transit_times * global_cm1_per_tick)/2
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                     np.add.at(self.map_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
                     np.add.at(self.map_cm1, (x1, y1), cm1_increments)
