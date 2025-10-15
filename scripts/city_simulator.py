@@ -1,13 +1,13 @@
 """Simple city simulator, for free-floating carsharing purposes."""
 
 import logging
-import sys
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+import sys
 import numpy as np
+from scipy.signal import convolve2d
 import time
 from PIL import Image  # For image demand loading
 
@@ -51,11 +51,12 @@ class City(CityVisuals):
             "do_flatten_demand": False,  # Whether the top of the gaussian is to be flattened
             "demand_flattening_threshold": 0.4,  # Threshold for demand flattening
             "demand_flattening_factor": 15,  # Strength of demand flattening
+            "walking_distance": 0.3,  # Walking eagerness, km. For blurring, pricing etc.
 
             # Car trips
             "n_cars": 100,
             "initial_r": 5,  # Initial radius in which cars are placed, km
-            "trip_lambda": 8,  # Km. The higher, the further cars travel, on average 🔥VERIFY!
+            "trip_lambda": 8,  # Km. The higher, the further cars travel, on average
             "p_factor": 0.2,  # Rental probability factor. Main way to adjust rentals/car/day
             "tick_in_minutes": 5,  # Length of a tick in minutes
             "speed": 20.0,  # Car speed, km/h
@@ -67,11 +68,11 @@ class City(CityVisuals):
             "cm2_per_day": 20,  # CM2 cost pre day of having a car on balance, Eur
             "relo_cost": 20,    # Relocation cost, Eur
 
-            # Simulation parameters
+            # Simulation general parameters
             "settle_down_steps": 2,  # Number of steps without stats collection,
                                      # for the initial conditions to wear off
-                                     # IRL should always be ~1000, but for testing 0 is good.
-            "do_relocations": False,  # Whether to do relocations at all
+                                     # IRL should always be ~1000, but for testing 2-3 is good.
+            "do_relocations": True,  # Whether to do relocations at all
 
             # Misc
             "learning_rate": 0.01,  # Exponential moving average factor for ongoing stats
@@ -90,7 +91,7 @@ class City(CityVisuals):
         if self.seed is not None:  # If we want reproducibility
             np.random.seed(self.seed)
 
-        # Update calculatable fields
+        # -- Update calculatable fields --
         # Counters
         self.total_steps_run = 0  # Total number of simulation steps run so far
         self.total_steps_that_count = 0  # Steps in stats-collecting phase (after settling down)
@@ -109,7 +110,7 @@ class City(CityVisuals):
         logger.debug(f"Grid size: {self.grid_size}x{self.grid_size}")
 
         # Dynamic properties
-        self.create_density_profile()
+        self.create_demand_profile()
         # The calculation for cm1_per_rental_tick is a bit weird as we want to preseve consistency
         # with simpler models presented in this project, which means that we need to link
         # the per-tick revenue here to flat revenues per trip used elsewhere.
@@ -123,8 +124,21 @@ class City(CityVisuals):
         self.map_relo_sources = np.zeros_like(self.demand, dtype=np.int32)
         self.map_relo_targets = np.zeros_like(self.demand, dtype=np.int32)
 
+        # Exponential blurring kernel
+        # Kernel size: 3 sigmas
+        kernel_size = int(np.ceil(self.walking_distance / self.grid_step))*3
+        self.blur_kernel = np.zeros((2*kernel_size+1, 2*kernel_size+1), dtype=np.float32)
+        logger.debug(f"Blur kernel size: {self.blur_kernel.shape}")
+        for i in range(-kernel_size, kernel_size+1):
+            for j in range(-kernel_size, kernel_size+1):
+                distance = np.hypot(i, j)*self.grid_step
+                self.blur_kernel[i+kernel_size, j+kernel_size] = np.exp(
+                    -distance / self.walking_distance
+                )
+        self.blur_kernel /= self.blur_kernel.sum()  # Normalize
 
-    def create_density_profile(self):
+
+    def create_demand_profile(self):
         """Calculate a density profile."""
         logger.info(f"Calculating density profile for {self.n_cores} core(s)")
         # Reset density to zero
@@ -164,9 +178,9 @@ class City(CityVisuals):
         self.vectorize_demand()
 
 
-    def load_density_profile(self, filename):
-        """Loads density profile from an image."""
-        logger.info(f"Load density profile from image {filename}")
+    def load_demand_profile(self, filename):
+        """Loads demand profile from an image."""
+        logger.info(f"Load demand profile from image {filename}")
         img = Image.open(filename).convert('L') # Open and convert to grayscale
         # TODO: Maybe it's better to resize the grid, rather than the image?
         img_resized = img.resize((self.grid_size, self.grid_size), Image.Resampling.LANCZOS)
@@ -306,15 +320,23 @@ class City(CityVisuals):
                 # Update idling mask as some cars have just been rented
                 idling_mask = (self.car_states == car_state["idle"])
                 if np.any(idling_mask):  # If there are any idling cars
-                    # Calculate demand per car in existing pixels
+                    # Find relocation source
+                    # TODO: Technically here demand should be blurred, but it's irrelevant
+                    # untilwe start modeling OAs, boosting demand near the border
                     demand_source = self.demand / np.maximum(self.cars_per_pixel, 1)
                     # Mask out pixels without idling cars
                     demand_source[ self.cars_per_pixel == 0 ] = np.inf
                     index_source = np.argmin(demand_source)
                     # To make things simpler, we only try to relocate one car per tick
                     best_demand_source = demand_source.flat[index_source]
-                    # Find a pixel with highest ratio of demand to n of parked cars plus 1:
-                    demand_target = self.demand / (self.cars_per_pixel + 1)
+
+                    # Find relocation target (a pixel with highest demand/(n+1))
+                    self.cars_per_pixel_blurred = convolve2d(
+                        self.cars_per_pixel,
+                        self.blur_kernel,
+                        mode='same', boundary='fill', fillvalue=0
+                    )
+                    demand_target = self.demand / (self.cars_per_pixel_blurred + 1)
                     index_target = np.argmax(demand_target)
                     best_demand_target = demand_target.flat[index_target]
                     # Calculate CM2 effect: take the delta of expected idle times
@@ -332,7 +354,7 @@ class City(CityVisuals):
                         target_x, target_y = np.unravel_index(index_target, self.demand.shape)
                         logger.debug(
                             f"Relo from ({source_x}, {source_y}) to ({target_x}, {target_y}) "
-                            f"offers cm2 of {predicted_cm2:.2f} Eur")
+                            f"offers cm1 of {predicted_cm2:.2f} Eur")
 
                         # Find a car to relocate from the source pixel
                         cars_in_source_pixel = np.where(
