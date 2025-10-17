@@ -61,10 +61,10 @@ class City(CityVisuals):
             "tick_in_minutes": 5,  # Length of a tick in minutes
             "speed": 20.0,  # Car speed, km/h
 
-            "default_trip_duration_min": 20,  # Starting trip duration, min (to contextualize CM1)
+            "default_trip_duration_min": 18,  # Starting trip duration, min (to contextualize CM1)
 
             # Financials
-            "cm1_per_trip": 5,  # CM1 revenue per typical trip, Eur
+            "cm1_per_trip": 5,  # CM1 revenue per TYPICAL (see duration) trip, Eur
             "cm2_per_day": 20,  # CM2 cost pre day of having a car on balance, Eur
             "relo_cost": 20,    # Relocation cost, Eur
 
