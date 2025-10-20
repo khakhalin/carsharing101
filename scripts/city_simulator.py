@@ -416,6 +416,8 @@ class City(CityVisuals):
                     # recently calculated. As we do only one relo per tick, += is safe.
                     self.map_relo_sources[(source_x, source_y)] += 1
                     self.map_relo_targets[(target_x, target_y)] += 1
+                    # Applying full relo cost to the source, as i's the source that triggers it
+                    self.map_cm2[(source_x, source_y)] -= self.relo_cost
 
             # Consistency checks
             if not (self.cars_per_pixel >= 0).all():
