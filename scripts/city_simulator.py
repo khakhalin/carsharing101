@@ -53,20 +53,20 @@ class City(CityVisuals):
             "demand_flattening_factor": 15,  # Strength of demand flattening
             "walking_distance": 0.3,  # Walking eagerness, km. For blurring, pricing etc.
 
-            # Car trips
+            # Car behavior
             "n_cars": 100,
             "initial_r": 5,  # Initial radius in which cars are placed, km
             "trip_lambda": 8,  # Km. The higher, the further cars travel, on average
             "p_factor": 0.2,  # Rental probability factor. Main way to adjust rentals/car/day
             "tick_in_minutes": 5,  # Length of a tick in minutes
-            "speed": 20.0,  # Car speed, km/h
 
-            "default_trip_duration_min": 18,  # Starting trip duration, min (to contextualize CM1)
-
-            # Financials
-            "cm1_per_trip": 5,  # CM1 revenue per TYPICAL (see duration) trip, Eur
+            # Financials & typical trip properties
+            "default_price_per_trip": 10,  # Default price per TYPICAL (see duration) trip, Eur
+            "cm1_per_trip": 5,  # CM1 cost per TYPICAL (see duration) trip, Eur
             "cm2_per_day": 20,  # CM2 cost pre day of having a car on balance, Eur
             "relo_cost": 20,    # Relocation cost, Eur
+            "speed": 20.0,  # Car speed, km/h
+            "default_trip_duration_min": 18,  # Starting trip duration, min (to contextualize CM1)
 
             # Simulation general parameters
             "settle_down_steps": 2,  # Number of steps without stats collection,
@@ -246,7 +246,8 @@ class City(CityVisuals):
 
         start_time_sim = time.time()
         cm1_per_rental_tick = (
-            (self.cm1_per_trip / self.default_trip_duration_min) * self.tick_in_minutes
+            ((self.default_price_per_trip - self.cm1_per_trip) / self.default_trip_duration_min)
+            * self.tick_in_minutes
         )
         global_cm1_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
 

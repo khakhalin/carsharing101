@@ -288,7 +288,6 @@ Is it also worth mentioning that in our Gaussian city simulations, the demand is
 
 🔥 Text:
 - [ ] Discuss whether to apply relo cost to the source pixel or 50/50 when calculating a CM2 map. Given the results of the "imperfect relocations" experiments, i would argue that relocations are always caused by the source pixel, not by some sort of a "pull" between source and destination pixels. At least if you have weak pixels on your map that's the case: you remove weak pixels, you no longer have all the relocations from them. So I'll apply 100% of relo cost to the source pixel. But one can also come up with a different allocation plan.
-- [ ] Write the whole paragraph about robocars and relocations about robocars. How if you leave it to the market, you'll get more cars on the street as cycling in the center would actually become profitable (show the math). So robocars are cool (describe automated relocations towards parkings at night at 20 km/h: sorta like "auto-cleaning garbage" that self-collects into garbage bins). But it's really down to cities to regulate and require that, it won't happen naturally. The interests of the people and of the company here will diverge, as the company will be tempted to fall into a wrong local minimum.
 
 🔥 Code:
 

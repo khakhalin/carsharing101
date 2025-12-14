@@ -1,16 +1,13 @@
 # Todo: Text 🔥
 
-* To the intro, add a call for "if you have found a mistake, or what to contribute something important, please reach out!"
 * Re-run and re-link existing operating area figures, to give them 3XX names (not 4XX)
 * Write how everything is intentionally in notebooks, to minimize and expose the code, **except for the city simulation**. Which is based on all the same principles, and uses same formulas, but optimized for performance, and so hides some of this unnecessary complexity from the viewer. Conceptually, the only difference between the city simulation and simplified models presented so far is that in the city simulation travel is not instantaneous, but car are assumed to be traveling at a constant speed of 30 km/h.
 * Mention that the simulation uses Gumbel-Max trick to vectorize Monte-Carlo operations (provide a ref), but that explaining the principles of this trick in detail is out of scope for this work.
 
 # Todo: Code 🔥
 
-* Move to uv, add info to readme about how to install and run the city simulator
-
 * Rework config:
-    * Move default config values and their processor (config intializer) out into `config.py`
+    * Move default config values and their processor (config initializer) out into `config.py`
     * Make it a mixin base class for the city (a city is not a config, but it has config functionality)
 * Be able to show maps of relo sources and targets
 * Take relocation algo out of the main loop into a subroutine

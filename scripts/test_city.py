@@ -1,4 +1,4 @@
-"""Minimalistic test, mostly to avoid stupid syntactic mistakes that break the code."""
+"""Minimalistic pytest test, mostly to avoid stupid syntactic mistakes breaking the code."""
 
 import pytest
 from city_simulator import City, car_state
