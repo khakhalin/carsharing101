@@ -7,10 +7,9 @@
 
 # Todo: Code 🔥
 
-* Add requirements.txt (manually?)
-* Add a very brief note to the intro about how to run the city simulation?
+* Move to uv, add info to readme about how to install and run the city simulator
 
-* Rework config: 
+* Rework config:
     * Move default config values and their processor (config intializer) out into `config.py`
     * Make it a mixin base class for the city (a city is not a config, but it has config functionality)
 * Be able to show maps of relo sources and targets
@@ -24,7 +23,7 @@ Testing
 Ideas that I'm not sure about
 * Instead of making config a mixin, make it a separate pydantic dataclass, assigning params to it, and not to the simulation. In which case parameters will be referred not as `self.n_steps`, but as `self.cfg.n_steps` (for example)
 * ❓Still allow calling city with a dict config, and then use this dict to fill up matching fields at init. If a field like that doesn't exist however, raise an error (not only on init, always. We want the list of fields to be closed.)
-    * Write 1-2 unit tests for this functionality (init with a dict, existing field update, nonexistent field update)    
+    * Write 1-2 unit tests for this functionality (init with a dict, existing field update, nonexistent field update)
 * ❓Make `maps` into a dataclass with pre-defined fields
     * Rename demand into map_demand
     * Rename current distribution of standing cars into a map_whatever
@@ -50,6 +49,6 @@ if single_points_accompanied_by_averages:
     plt.plot(x, y, '.', alpha=0.1, markersize=10)
     plt.plot(x.mean(axis=0), y.mean(axis=0), 'ks-')
 elif scatterplot_alone:
-	plt.plot(x, y, '.', alpha=0.3, markersize=10) 
+	plt.plot(x, y, '.', alpha=0.3, markersize=10)
 plt.tight_layout()
 ```
