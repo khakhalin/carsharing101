@@ -12,8 +12,8 @@ import time
 from PIL import Image  # For image demand loading
 
 # Mixins and utils
-from utils import LoggerFormatter
-from city_visuals import CityVisuals
+from .utils import LoggerFormatter
+from .city_visuals import CityVisuals
 
 
 # Console handdler for logging to become visible in notebooks
@@ -552,31 +552,4 @@ class City(CityVisuals):
         return chosen_destinations, transit_times
 
 
-if __name__ == "__main__":
-    # A simple test run
-
-    formatter = LoggerFormatter(
-        fmt="%(asctime)s: %(levelname)s: %(funcName)s: %(message)s", datefmt='%I:%M:%S')
-    hnd = logging.StreamHandler(stream=sys.stdout)
-
-    # Remove default logging handler:
-    for h in logger.handlers: logger.removeHandler(h)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG) # Normally it's way to verbose, but in the console we want it so
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    logger.setLevel(logging.DEBUG)
-
-    city = City({
-        "seed": 1,
-        "settle_down_steps": 10,
-        "n_cars": 3,
-        "n_cores": 1,
-        "do_relocations": True,
-        "relo_cost": 1,
-        "city_width": 3,     # 3 width with 0.5 grid step means a 6x6 grid
-        "grid_step": 0.5,
-        "density_sigma": 0.8,
-    })
-    city.init_cars()
-    city.simulate(n_steps=100)
+# Run via: python -m carsharing101

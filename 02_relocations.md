@@ -293,11 +293,11 @@ Is it also worth mentioning that in our Gaussian city simulations, the demand is
 
 - [x] Drive relocations per car per day down from 13 to about 4
 - [x] Apply relocations costs to the source zone
-- [ ] With pricing, we'll change the price per "typical trip" (or prices per tick), while the CM1 costs per tick (or typical trip) will be fixed. Let's change to this mode right away:
-    - [ ] Set a typical trip length (min), state clearly that it's an adjustment factor
-    - [ ] Set a price per typical trip
-    - [ ] Set CM1 cost per typical trip
-    - [ ] Calculate CM1 cost per tick and price per tick, log them, use them everywhere
+- [x] With pricing, we'll change the price per "typical trip" (or prices per tick), while the CM1 costs per tick (or typical trip) will be fixed. Let's change to this mode right away:
+    - [x] Set a typical trip length (min), state clearly that it's an adjustment factor
+    - [x] Set a price per typical trip
+    - [x] Set CM1 cost per typical trip
+    - [x] Calculate CM1 cost per tick and price per tick, log them, use them everywhere
 - [ ] Start tracking ongoing CM1 per car per day
 - [ ] At city end, output average CM1 per car per day in the city, for troubleshooting purposes
 - [ ] Move relocations to lost CM1 formulas (opportunity cost)

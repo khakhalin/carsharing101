@@ -1,7 +1,7 @@
 """Minimalistic pytest test, mostly to avoid stupid syntactic mistakes breaking the code."""
 
 import pytest
-from city_simulator import City, car_state
+from carsharing101 import City, car_state
 
 # -------------- CITY CREATION AND SETUP --------------
 
