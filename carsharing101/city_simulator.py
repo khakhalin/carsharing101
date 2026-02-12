@@ -16,12 +16,13 @@ from .utils import LoggerFormatter
 from .city_visuals import CityVisuals
 
 
-# Console handdler for logging to become visible in notebooks
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+# Console handler for logging to become visible in notebooks
+if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
 
 # A list of car states, to be used in numpy arrays
@@ -97,6 +98,11 @@ class City(CityVisuals):
         self.total_steps_that_count = 0  # Steps in stats-collecting phase (after settling down)
         # Demand density and maps
         self.initialize_maps()
+        # Derived financial constants
+        self.cm1_per_rental_tick = (
+            ((self.default_price_per_trip - self.cm1_per_trip) / self.default_trip_duration_min)
+            * self.tick_in_minutes
+        )
         # Ongoing stats
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
         self.total_cm1 = 0  # Total CM1 so far, Eur
@@ -189,6 +195,7 @@ class City(CityVisuals):
         # Invert (assuming 0=black, 255=white -> we want black=1, white=0)
         demand_map = 1.0 - (img_array / 255.0)
         demand_map = np.clip(demand_map, 0, 1) # Ensure values are in [0, 1]
+        self.demand = demand_map
         logger.info("Demand map loaded successfully")
         self.vectorize_demand()
 
@@ -245,11 +252,6 @@ class City(CityVisuals):
         # TODO: Reset idle time counter for cars
 
         start_time_sim = time.time()
-        cm1_per_rental_tick = (
-            ((self.default_price_per_trip - self.cm1_per_trip) / self.default_trip_duration_min)
-            * self.tick_in_minutes
-        )
-        global_cm1_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)  # Starting value
 
         for step in range(n_steps):
             logger.debug(f"Sim step {step} of {n_steps}")
@@ -316,66 +318,14 @@ class City(CityVisuals):
                 ] -= 1
 
             # ------------------ 3. Relocations
-            relo_happened = False
+            relo_source = relo_target = None
             if self.do_relocations:
-                # Update idling mask as some cars have just been rented
                 idling_mask = (self.car_states == car_state["idle"])
-                if np.any(idling_mask):  # If there are any idling cars
-                    # Find relocation source
-                    # TODO: Technically here demand should be blurred, but it's irrelevant
-                    # untilwe start modeling OAs, boosting demand near the border
-                    demand_source = self.demand / np.maximum(self.cars_per_pixel, 1)
-                    # Mask out pixels without idling cars
-                    demand_source[ self.cars_per_pixel == 0 ] = np.inf
-                    index_source = np.argmin(demand_source)
-                    # To make things simpler, we only try to relocate one car per tick
-                    best_demand_source = demand_source.flat[index_source]
-
-                    # Find relocation target (a pixel with highest demand/(n+1))
-                    self.cars_per_pixel_blurred = convolve2d(
-                        self.cars_per_pixel,
-                        self.blur_kernel,
-                        mode='same', boundary='fill', fillvalue=0
-                    )
-                    demand_target = self.demand / (self.cars_per_pixel_blurred + 1)
-                    index_target = np.argmax(demand_target)
-                    best_demand_target = demand_target.flat[index_target]
-                    # Calculate CM2 effect: take the delta of expected idle times
-                    # (inversely proportional to demand per car), convert from ticks to days,
-                    # convert from days to Eur using cm2_per_day, then subtract relocation cost
-                    predicted_cm2 = (
-                        (1/best_demand_source - 1/best_demand_target)
-                        * self.tick_in_minutes / 60 / 24
-                        * self.cm2_per_day
-                        - self.relo_cost
-                    )
-
-                    if predicted_cm2 > 0:  # Relo is expected to be profitable, let's do it
-                        source_x, source_y = np.unravel_index(index_source, self.demand.shape)
-                        target_x, target_y = np.unravel_index(index_target, self.demand.shape)
-                        logger.debug(
-                            f"Relo from ({source_x}, {source_y}) to ({target_x}, {target_y}) "
-                            f"offers cm1 of {predicted_cm2:.2f} Eur")
-
-                        # Find a car to relocate from the source pixel
-                        cars_in_source_pixel = np.where(
-                            idling_mask & (self.car_xy[:,0] == source_x)
-                                         & (self.car_xy[:,1] == source_y)
-                        )[0]
-                        logger.debug(f"Cars in source pixel: {cars_in_source_pixel}")
-                        car_to_relocate = np.random.choice(cars_in_source_pixel)
-
-                        # Relocate it to the target pixel (instanteously, for simplicity)
-                        self.car_xy[car_to_relocate] = (target_x, target_y)
-                        self.cars_per_pixel[source_x, source_y] -= 1
-                        self.cars_per_pixel[target_x, target_y] += 1
-                        self.car_timer_idle[car_to_relocate].fill(0)  # Reset idle time
-                        relo_happened = True
-
+                relo_source, relo_target = self._do_relocations(idling_mask)
 
             # ------------------ 4. Stats collection
             if self.total_steps_run >= self.settle_down_steps:
-                # Critically, we don't collect stats in the "settle down" phase; this is one
+                # We don't want to collect stats in the transient "settle down" phase; this is why
                 # it's important to have all stats collection happen in one place (here).
                 self.total_steps_that_count += 1
                 self.map_n_appops += app_openings
@@ -384,7 +334,8 @@ class City(CityVisuals):
                 np.add.at(self.map_idle_time,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
                 np.add.at(self.map_cm2,
-                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), -global_cm1_per_tick)
+                        (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]),
+                        -self.global_cm1_per_tick)
 
                 # Rental departures (including all financial effects)
                 if len(car_indices_getting_rented):
@@ -393,10 +344,11 @@ class City(CityVisuals):
                     np.add.at(self.map_n_rentals, (x0, y0), 1)
 
                     self.total_rental_time += transit_times.sum()
+                    self.total_cm1 += (transit_times * self.cm1_per_rental_tick).sum()
 
                     # cm1, cm2 for cars that got rented
-                    cm1_increments = transit_times * cm1_per_rental_tick / 2
-                    cm2_increments = cm1_increments - (transit_times * global_cm1_per_tick)/2
+                    cm1_increments = transit_times * self.cm1_per_rental_tick / 2
+                    cm2_increments = cm1_increments - (transit_times * self.global_cm1_per_tick) / 2
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                     np.add.at(self.map_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
                     np.add.at(self.map_cm1, (x1, y1), cm1_increments)
@@ -412,13 +364,17 @@ class City(CityVisuals):
                           (self.car_xy[arriving_mask, 0], self.car_xy[arriving_mask, 1]), 1)
 
                 # Relocations
-                if relo_happened:
-                    # We rely on the fact that relo source and target coordinates were
-                    # recently calculated. As we do only one relo per tick, += is safe.
-                    self.map_relo_sources[(source_x, source_y)] += 1
-                    self.map_relo_targets[(target_x, target_y)] += 1
-                    # Applying full relo cost to the source, as i's the source that triggers it
-                    self.map_cm2[(source_x, source_y)] -= self.relo_cost
+                if relo_source is not None:
+                    self.map_relo_sources[relo_source] += 1
+                    self.map_relo_targets[relo_target] += 1
+                    # Applying full relo cost to the source, as it's the source that triggers it
+                    self.map_cm2[relo_source] -= self.relo_cost
+
+                # Update running CM1 estimate (starts at CM2 proxy, converges to actuals)
+                if self.total_steps_that_count > 100:
+                    self.global_cm1_per_tick = (
+                        self.total_cm1 / (self.n_cars * self.total_steps_that_count)
+                    )
 
             # Consistency checks
             if not (self.cars_per_pixel >= 0).all():
@@ -438,22 +394,90 @@ class City(CityVisuals):
         n_days_full = self.total_steps_run * self.tick_in_minutes / 60 / 24
         # Total days with stats collection
         n_days_that_count = self.total_steps_that_count * self.tick_in_minutes / 60 / 24
+        self.n_days = n_days_that_count  # Used in jupyter analyses
+
+        # Compute summary KPIs and store them for programmatic access
+        n_rentals = self.map_n_rentals.sum()
+        self.stats = {
+            "n_days": n_days_that_count,
+            "n_rentals": int(n_rentals),
+            "rentals_per_car_per_day": n_rentals / self.n_cars / max(n_days_that_count, 0.001),
+            "avg_trip_min": (self.total_rental_time / max(n_rentals, 1)
+                            * self.tick_in_minutes),
+            "cm1_per_trip": (self.total_rental_time / max(n_rentals, 1)
+                            * self.cm1_per_rental_tick),
+            "cm2_per_day": self.map_cm2.sum() / max(n_days_that_count, 0.001),
+            "relos_per_day": self.map_relo_sources.sum() / max(n_days_that_count, 0.001),
+            "cm1_per_tick_estimate": self.global_cm1_per_tick,
+            "dfr": self.map_n_rentals.sum() / max(self.map_n_appops.sum(), 1),
+        }
+
         logger.info(f"In-simulation time passed: {n_days:.0f} days")
         logger.info(f"Overall, statistics gathered over: {n_days_that_count:.0f} days")
-        n_rentals = self.map_n_rentals.sum()
         logger.info(f"Cumulative rentals happened: {n_rentals}")
-        logger.info("Average rentals per car per day: "
-                    f"{n_rentals / self.n_cars / n_days_that_count:.2f}")
-        logger.info("Average rental time per trip, min: "
-                    f"{self.total_rental_time / n_rentals * self.tick_in_minutes:.2f}")
-        logger.info("Average CM1 profit per trip, Eur: "
-                    f"{self.total_rental_time / n_rentals * cm1_per_rental_tick:.2f}")
-        logger.info("Overall CM2 profit per day, Eur: "
-                    f"{self.map_cm2.sum() / n_days_that_count:.2f}")
-        logger.info("Average relocations per day: "
-                    f"{self.map_relo_sources.sum() / n_days_that_count:.2f}")
+        logger.info(f"Average rentals per car per day: {self.stats['rentals_per_car_per_day']:.2f}")
+        logger.info(f"Average rental time per trip, min: {self.stats['avg_trip_min']:.2f}")
+        logger.info(f"Average CM1 profit per trip, Eur: {self.stats['cm1_per_trip']:.2f}")
+        logger.info(f"Overall CM2 profit per day, Eur: {self.stats['cm2_per_day']:.2f}")
+        logger.info(f"Average relocations per day: {self.stats['relos_per_day']:.2f}")
 
-        self.n_days = n_days_that_count  # Used in jupyter analyses
+
+    def _do_relocations(self, idling_mask):
+        """Attempt one relocation per tick if profitable.
+
+        Returns (source_xy, target_xy) tuples, or (None, None) if no relo happened.
+        """
+        if not np.any(idling_mask):
+            return None, None
+
+        # Find relocation source: pixel with lowest demand-per-car
+        # TODO: Technically here demand should be blurred, but it's irrelevant
+        # until we start modeling OAs, boosting demand near the border
+        demand_source = self.demand / np.maximum(self.cars_per_pixel, 1)
+        demand_source[self.cars_per_pixel == 0] = np.inf
+        index_source = np.argmin(demand_source)
+        best_demand_source = demand_source.flat[index_source]
+
+        # Find relocation target: pixel with highest demand/(n+1), cars blurred
+        self.cars_per_pixel_blurred = convolve2d(
+            self.cars_per_pixel,
+            self.blur_kernel,
+            mode='same', boundary='fill', fillvalue=0
+        )
+        demand_target = self.demand / (self.cars_per_pixel_blurred + 1)
+        index_target = np.argmax(demand_target)
+        best_demand_target = demand_target.flat[index_target]
+
+        # Predicted CM1 gain: delta of expected idle times × CM1 per tick, minus relo cost
+        predicted_cm2 = (
+            (1/best_demand_source - 1/best_demand_target)
+            * self.global_cm1_per_tick
+            - self.relo_cost
+        )
+
+        if predicted_cm2 <= 0:
+            return None, None
+
+        # Relo is expected to be profitable — execute it
+        source_x, source_y = np.unravel_index(index_source, self.demand.shape)
+        target_x, target_y = np.unravel_index(index_target, self.demand.shape)
+        logger.debug(
+            f"Relo from ({source_x}, {source_y}) to ({target_x}, {target_y}) "
+            f"predicted effect {predicted_cm2:.2f} Eur")
+
+        cars_in_source_pixel = np.where(
+            idling_mask & (self.car_xy[:, 0] == source_x)
+                        & (self.car_xy[:, 1] == source_y)
+        )[0]
+        car_to_relocate = np.random.choice(cars_in_source_pixel)
+
+        # Relocate instantaneously (for simplicity)
+        self.car_xy[car_to_relocate] = (target_x, target_y)
+        self.cars_per_pixel[source_x, source_y] -= 1
+        self.cars_per_pixel[target_x, target_y] += 1
+        self.car_timer_idle[car_to_relocate] = 0
+
+        return (source_x, source_y), (target_x, target_y)
 
 
     def identify_new_rentals(self, idling_mask):

@@ -59,15 +59,17 @@ def main():
     plt.close()
     print(f"\nDebug figure saved to: {os.path.abspath(out_path)}")
 
-    # Print a compact summary
-    n_days = city.n_days
+    # Print a compact summary from the stats dict
+    s = city.stats
     print(f"\n{'='*60}")
-    print(f"  Simulated days (stats):  {n_days:.1f}")
-    print(f"  Total rentals:           {city.map_n_rentals.sum()}")
-    print(f"  Rentals/car/day:         {city.map_n_rentals.sum() / city.n_cars / n_days:.2f}")
-    print(f"  Total CM2, €/day:        {city.map_cm2.sum() / n_days:.2f}")
-    print(f"  Relocations/day:         {city.map_relo_sources.sum() / n_days:.2f}")
-    print(f"  Mean DFR:                {city.map_n_rentals.sum() / max(1, city.map_n_appops.sum()):.3f}")
+    print(f"  Simulated days (stats):  {s['n_days']:.1f}")
+    print(f"  Total rentals:           {s['n_rentals']}")
+    print(f"  Rentals/car/day:         {s['rentals_per_car_per_day']:.2f}")
+    print(f"  CM1/trip, €:             {s['cm1_per_trip']:.2f}")
+    print(f"  CM2/day, €:              {s['cm2_per_day']:.2f}")
+    print(f"  Relocations/day:         {s['relos_per_day']:.2f}")
+    print(f"  DFR:                     {s['dfr']:.3f}")
+    print(f"  CM1/tick estimate:       {s['cm1_per_tick_estimate']:.4f}")
     print(f"{'='*60}")
 
 

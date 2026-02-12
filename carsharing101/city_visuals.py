@@ -113,6 +113,32 @@ class CityVisuals():
                 cmap="cividis")  # Either cividis or PuOr. But gray is prob a better neutral color
             CityVisuals._finalize_plot()
 
+        if "relo_sources" in plots:
+            if n_plots > 1:
+                plot_counter += 1
+                plt.subplot(1, n_plots, plot_counter)
+                plt.title("Relo sources, /day")
+            cmap_rs = colormaps.get_cmap('Oranges').copy()
+            cmap_rs.set_bad(color='lightgray')
+            value = self.map_relo_sources.astype(float) / n_days
+            value[value == 0] = np.nan
+            plt.imshow(value.T, aspect='auto', interpolation='none',
+                extent=[0, self.grid_size, 0, self.grid_size], cmap=cmap_rs, origin='lower')
+            CityVisuals._finalize_plot()
+
+        if "relo_targets" in plots:
+            if n_plots > 1:
+                plot_counter += 1
+                plt.subplot(1, n_plots, plot_counter)
+                plt.title("Relo targets, /day")
+            cmap_rt = colormaps.get_cmap('Greens').copy()
+            cmap_rt.set_bad(color='lightgray')
+            value = self.map_relo_targets.astype(float) / n_days
+            value[value == 0] = np.nan
+            plt.imshow(value.T, aspect='auto', interpolation='none',
+                extent=[0, self.grid_size, 0, self.grid_size], cmap=cmap_rt, origin='lower')
+            CityVisuals._finalize_plot()
+
         if title is not None:
             plt.suptitle(title, x=0, y=title_y, fontsize=13, ha="left")
 
