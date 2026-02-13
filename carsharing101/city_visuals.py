@@ -27,7 +27,7 @@ class CityVisuals():
                 cbar.ax.tick_params(labelsize=8)
 
 
-    def visualize(self, plots="all", title=None, title_y=0.75):
+    def visualize(self, plots="all", title=None):
         """Show visualizations of the city."""
         if isinstance(plots, str):
             if plots == "all":
@@ -38,6 +38,9 @@ class CityVisuals():
 
         n_days = self.total_steps_that_count * self.tick_in_minutes / 60 / 24 + 0.001
 
+        # Use at least 3 columns so that fewer subplots don't stretch vertically
+        n_cols = max(n_plots, 3)
+
         # Below is a long-ish script with plots given one by one, just with each of them checking
         # if we want to see it (if its name is in "plots"). The sequence is fixed.
         plot_counter = 0
@@ -45,7 +48,7 @@ class CityVisuals():
         if "cars" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("Demand profile,\n car positions")
             plt.imshow(self.demand.T, aspect='auto', interpolation='none',
                 extent=[0, self.grid_size, 0, self.grid_size], cmap='gray_r',
@@ -61,7 +64,7 @@ class CityVisuals():
         if "cm1" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("CM1, €/day")
             plt.imshow(self.map_cm1.T / n_days, aspect='auto', interpolation='none',
                 extent=[0, self.grid_size, 0, self.grid_size], cmap='Blues', origin='lower');
@@ -70,7 +73,7 @@ class CityVisuals():
         if "idle_times" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("Average idle time, days")
             # Move from total idle time to idle time per car
             value = self.map_idle_time / np.maximum(self.map_n_arrivals, 1)
@@ -89,7 +92,7 @@ class CityVisuals():
         if "cm2" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("CM2, €/day")
             # Diverging colormap, red for negative, blue for positive, light gray for zero
             cmap = colormaps.get_cmap('RdBu')
@@ -105,7 +108,7 @@ class CityVisuals():
         if "dfr" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("DFR")
             plt.imshow(self.map_n_rentals / np.maximum(1, self.map_n_appops),
                 aspect='auto', interpolation='none',
@@ -116,7 +119,7 @@ class CityVisuals():
         if "relo_sources" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("Relo sources, /day")
             cmap_rs = colormaps.get_cmap('Oranges').copy()
             cmap_rs.set_bad(color='lightgray')
@@ -129,7 +132,7 @@ class CityVisuals():
         if "relo_targets" in plots:
             if n_plots > 1:
                 plot_counter += 1
-                plt.subplot(1, n_plots, plot_counter)
+                plt.subplot(1, n_cols, plot_counter)
                 plt.title("Relo targets, /day")
             cmap_rt = colormaps.get_cmap('Greens').copy()
             cmap_rt.set_bad(color='lightgray')
@@ -139,7 +142,14 @@ class CityVisuals():
                 extent=[0, self.grid_size, 0, self.grid_size], cmap=cmap_rt, origin='lower')
             CityVisuals._finalize_plot()
 
-        if title is not None:
-            plt.suptitle(title, x=0, y=title_y, fontsize=13, ha="left")
-
         plt.tight_layout()
+
+        if title is not None:
+            # Position the title just above the tallest *subplot* axis (skip colorbars)
+            fig = plt.gcf()
+            subplot_tops = [
+                ax.get_position().y1 for ax in fig.axes
+                if ax.get_position().width > 0.05  # colorbars are very narrow
+            ]
+            top = max(subplot_tops) if subplot_tops else 0.7
+            plt.suptitle(title, x=0, y=top + 0.07, fontsize=13, ha="left", va="bottom")

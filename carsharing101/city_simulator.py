@@ -106,8 +106,11 @@ class City(CityVisuals):
         # Ongoing stats
         self.total_rental_time = 0  # Total rental time, in ticks, for all cars
         self.total_cm1 = 0  # Total CM1 so far, Eur
-        # For idle tick cost, we'll start with CM2-based estimation, then switch to CM1-based one
-        self.global_cm1_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)
+        # Actual leasing cost per tick — used for CM2 accounting
+        self.cm2_cost_per_tick = self.cm2_per_day / (24 * 60 / self.tick_in_minutes)
+        # Average CM1 per car per tick — used only for relo profitability checks (opportunity cost).
+        # Starts at a very rough CM2 proxy, then self-calibrates from actual CM1 data.
+        self.global_cm1_per_tick = self.cm2_cost_per_tick
 
 
     def initialize_maps(self):
@@ -335,7 +338,7 @@ class City(CityVisuals):
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]), 1)
                 np.add.at(self.map_cm2,
                         (self.car_xy[idling_mask, 0], self.car_xy[idling_mask, 1]),
-                        -self.global_cm1_per_tick)
+                        -self.cm2_cost_per_tick)
 
                 # Rental departures (including all financial effects)
                 if len(car_indices_getting_rented):
@@ -348,7 +351,7 @@ class City(CityVisuals):
 
                     # cm1, cm2 for cars that got rented
                     cm1_increments = transit_times * self.cm1_per_rental_tick / 2
-                    cm2_increments = cm1_increments - (transit_times * self.global_cm1_per_tick) / 2
+                    cm2_increments = cm1_increments - (transit_times * self.cm2_cost_per_tick) / 2
                     x1, y1 = chosen_destinations[:, 0], chosen_destinations[:, 1]
                     np.add.at(self.map_cm1, (x0, y0), cm1_increments) # 50:50 start and finish
                     np.add.at(self.map_cm1, (x1, y1), cm1_increments)

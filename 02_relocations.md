@@ -282,35 +282,16 @@ But also, on the third hand, in our Gaussian city simulations, the demand map th
 The positions of cars however should be blurred even in a Gaussian model, unless our pixel size is much larger than the distance of customers' walks. If we run with 1 km -wide pixels, blurring with a 300m-wide exponential kernel won't change much (Figure 2.8.2 below, 2nd panel). Conversely, if we work with 100m-wide pixels, blurring becomes absolutely critical (Figure 2.8.2, the rightmost panel).
 
 ![One-dimensional idle time profile, blurred](figures/02relos_08city_02blur.svg)
-	
+sdfdsfds
 
-🔥 Implement distance to walk in the program.
 
-🔥 Text:
-- [ ] Discuss whether to apply relo cost to the source pixel or 50/50 when calculating a CM2 map. Given the results of the "imperfect relocations" experiments, i would argue that relocations are always caused by the source pixel, not by some sort of a "pull" between source and destination pixels. At least if you have weak pixels on your map that's the case: you remove weak pixels, you no longer have all the relocations from them. So I'll apply 100% of relo cost to the source pixel. But one can also come up with a different allocation plan.
+![One-dimensional idle time profile, blurred](figures/02relos_08city_01control.svg)
 
-🔥 Code:
+..
 
-- [x] Drive relocations per car per day down from 13 to about 4
-- [x] Apply relocations costs to the source zone
-- [x] With pricing, we'll change the price per "typical trip" (or prices per tick), while the CM1 costs per tick (or typical trip) will be fixed. Let's change to this mode right away:
-    - [x] Set a typical trip length (min), state clearly that it's an adjustment factor
-    - [x] Set a price per typical trip
-    - [x] Set CM1 cost per typical trip
-    - [x] Calculate CM1 cost per tick and price per tick, log them, use them everywhere
-- [ ] Start tracking ongoing CM1 per car per day
-- [ ] At city end, output average CM1 per car per day in the city, for troubleshooting purposes
-- [ ] Move relocations to lost CM1 formulas (opportunity cost)
-- [x] We want a Gaussian city, not flattened (in this case), to have a better border after relos are on
-- [ ] Understand why the difference with 20 Eur/relo is so relatively small. Maybe for illustrative purposes either make the gaussian smaller, or make relocations cheaper? Just to show exactly how it works?
-- [ ] Add blurring of N cars with distance-to-walk
-- [ ] Get to a reasonably good contrast between two scenarios (we want some visual difference)
-- [ ] Add a possibility of maps of relo sources and destinations. Generate as a separate figure.
-- [ ] Figures that compare stats and fancy stats
+Discuss whether to apply relo cost to the source pixel or 50/50 when calculating a CM2 map. Given the results of the "imperfect relocations" experiments, i would argue that relocations are always caused by the source pixel, not by some sort of a "pull" between source and destination pixels. At least if you have weak pixels on your map that's the case: you remove weak pixels, you no longer have all the relocations from them. So I'll apply 100% of relo cost to the source pixel. But one can also come up with a different allocation plan.
 
-🔥Original figure (named Na)
-
-🔥Same with relocations (named Nb)
+![One-dimensional idle time profile, blurred](figures/02relos_08city_02relocations.svg "One-dimensional idle time profile, blurred")
 
 🔥 Explain what's happening on these figures
 
