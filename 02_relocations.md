@@ -285,15 +285,17 @@ The positions of cars however should be blurred even in a Gaussian model, unless
 sdfdsfds
 
 
-![One-dimensional idle time profile, blurred](figures/02relos_08city_01control.svg)
+![Gaussian city without relocations](figures/02relos_08city_03control.svg)
 
 ..
 
 Discuss whether to apply relo cost to the source pixel or 50/50 when calculating a CM2 map. Given the results of the "imperfect relocations" experiments, i would argue that relocations are always caused by the source pixel, not by some sort of a "pull" between source and destination pixels. At least if you have weak pixels on your map that's the case: you remove weak pixels, you no longer have all the relocations from them. So I'll apply 100% of relo cost to the source pixel. But one can also come up with a different allocation plan.
 
-![One-dimensional idle time profile, blurred](figures/02relos_08city_02relocations.svg "One-dimensional idle time profile, blurred")
+![Gaussian city with relocation](figures/02relos_08city_04relocations.svg)
 
 🔥 Explain what's happening on these figures
+
+![Gaussian city without relocations](figures/02relos_08city_05sources_targets.svg)
 
 🔥 Figure with "where relocated from" and "where relocated to"
 
