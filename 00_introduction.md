@@ -4,29 +4,29 @@
 
 Let's be honest, as I am writing these words in 2025, the public image of carsharing is not particularly stellar[^1]. During the era of cheap money of the 2010s, the field was plagued by provider over-saturation. Some markets that could only support 1-2 competing networks had 4-5 providers engaged in price wars[^2]. This period was followed by a series of unproductive mergers and acquisitions[^weshare][^f2m_purchase][^f2m_sale]), chaotic market exits and expansions[^brussels_plus][^brussels_plus2][^brussels_minus], and even legal scandals[^miles]. Combined with changes in political climate, where at least in some cities urbanization and quality of life got threatened by reactionary governments[^ontario][^berlin_cdu][^trump], it created a narrative of distrust towards carsharing as a business model. This unfortunate history made many people believe that carsharing simply cannot be profitable; that it is somehow a dead-end, akin to other unsustainable fads of the 2010s, like daily deal sites or on-demand laundry.
 
-The main reason I started working on this manual is that, as a data scientist, and an advocate for car-minimalistic future, I don't think that this perception is true! I believe that it is absolutely possible to build a profitable free-floating carsharing business, and that all the necessary parts for this to happen already do exist on the market, just not necessarily within a single company. A good car-sharing company should have good management, good cars, good tech stack, and manage its operations wisely. Now that I no longer work in carsharing, I cannot help with the first three problems, but I can still help with the last, by publishing this work, and hopefully helping all competing companies at once to improve their operations. At worst, you can use these texts to onboard new team members. At best, you can learn something from them, and boost your profitability here and there. Or one can also try to use this collection of models as a backbone for a practical introductory course in transportation data science.
+The main reason I started working on this manual is that, as a data scientist, and an advocate for car-minimalistic future, I don't think that this perception is true! I believe that it is absolutely possible to build a profitable free-floating carsharing business, and that all the necessary parts for this to happen already do exist on the market, just not necessarily within a single company. A good car-sharing company should have good management, good cars, good tech stack, and manage its operations wisely. Now that I no longer work in carsharing, I cannot help with the first three problems, but I can still help with the last, by publishing this work, and hopefully helping all competing companies at once to improve their operations. At worst, you can use these texts to onboard new team members. Or you can use it as a context for a coding harness and one-shot vibe-code full data backend for your company. Or one can also try to use this collection of models as a backbone for a practical introductory course in transportation data science. I hope someone out there will find these notes helpful :)
 
-The writing here alternates between basic common sense considerations, mathematical models, simulation outputs, and **practical business advice** that stem from these models. I will use GitHub-specific Markdown to drive these practical points down. For example, you'll see business tips in the text, shown liks this:
+The writing here alternates between basic common sense considerations, mathematical models, the description of simulation outputs, and practical business advice that stems from these models and their outputs. I will use GitHub-specific Markdown to drive these practical points down; for example, practical tips in the text will shown like this:
 
 > [!TIP]
-> Helpful advice for doing carsharing better or more easily. That's your practical take-away!
+> Helpful advice for how to do something better or more easily. That's your practical take-away!
 
-If a point is conceptually important, but perhaps can't be _immediately_ translated into an action item, it may be given as a note:
+If a point is conceptually important, but perhaps can't be _immediately_ translated into an action item, it will be given as a note:
 
 > [!NOTE]
 > Typically, a TLDR for a few paragraphs immediately above.
 
-In other situations, to outline a dangerous pitfall, I will give you a warning:
+In other situations, to outline a dangerous pitfall, I will try to give you a warning:
 
 > [!WARNING]
 > Urgent info that needs immediate user attention to avoid problems. Common misunderstandings and things that need to be done if you venture in this direction. Don't forget to do this!
 
-Or give you a caution:
+Or a caution:
 
 > [!CAUTION]
 > Advice about risks of certain actions. Things you should not do. Don't do it.
 
-Theoretically, you can try to use these items as a form of TLDR, and skim through the text from one shout-out to another, grasping the main ideas of this work, but ignoring the details and the justifications.
+Theoretically, you could even try to use these items as a form of TLDR, and jump through the text, from one shout-out to another, grasping the main ideas, but ignoring the details and the justifications.
 
 If however you prefer to dive deeper into the code and math that stands behind each of the graphs, you can always track the graph back to the code! All graphs in this repository are generated by scripts (Jupyter notebooks) from the `notebooks` folder. To find a script that generated a certain figure you need to search by this figure's name: say, you got curious about Figure 2.2.4 from section 2.4 in chapter 2. You can right-click on the image, and learn that the png file for it is named `02relos_02stations_04fleet_size_few_stations` or something like that (note that chapter numbers, figure numbers, and file names are all aligned). You can then search across all Jupyter notebooks in the `notebooks` folder for this name, as there is certainly a `plt.savefig()` command somewhere that saves this figure on disk. And in most cases the notebook will be called `02relos_02stations...` or something like that. The random generator seed in the notebooks is typically set at the beginning of the script, which means that re-running the script should re-generate the exact same image that is linked in the text of the article. But then of course you can play with the notebook and generate other figures like that, just remember that if you change the code, the figure will also change, so maybe either comment out the `plt.savefig()` command before changing the code, or use `git` to explore it in safety!
 
