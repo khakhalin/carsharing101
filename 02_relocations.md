@@ -353,17 +353,47 @@ This last point, about only partial competition, and partial interchangeability 
 
 One potential approach to mitigating this complexity is in following a mixed, modular strategy, where each of the parameters of the "profitability formula" is estimated by a separate expressive ML model, but then the outputs of these model are combined into a final profitability prediction by an explicit formula. This approach, somewhat similar to the "Neural additive model" approach [^Agarwal2020] preserves both interpretability and expressiveness, but allows for independent retraining of different parts of the model. It also allows for simplifying fall-backs in case one of the sub-models becomes problematic, because of a technical issue, problem with data, or a sudden change in business environment. For example, the "average generated profit" $\bar π_t(t)$ can be approximated by either a constant, or a set of 24 simple averages for each hour of the day, or a set of averages for different hours and weekdays, or by a simple regression model, or by a full-fledged tree-based ML solution etc. The same is true for most other values of interest. As long as the relocation tool is designed in a modular way, one can change this complexity on the fly, substituting different sources for one part of the "big formula", without compromising or invalidating any of the other parts.
 
-## 2.9.2 Other optimizable aspects
+## 2.9.2 Other optimizations
 
-🛠️ Under construction 🛠️ 
+There are a few more interesting aspects to relocations, but instead of trying to tie them all into a single formula and a single narrative, I will just mention them below, in broad strokes, as a food for thought. All of them can be included into a mature relocation model; one just has to keep an eye on the overall complexity of the solution, and the integrity of data sources.
+
+🔥 Competitors
+
+🔥 Combining with recharging, cleaning
+
+🔥 terms for parking costs, charging, overflow costs. The case of airports and overflow charges
+
+🔥 Simulation as a way to enhance the training dataset
+
+🔥 3 car at once
+
+🔥 Star principle of route optimization
+
+🔥 That Streetcroud shouldn't be possible, if people do relocations right
 
 ## 2.9.3. Long-term plans and seasonality
 
-🛠️ Under construction 🛠️ 
+🔥 Finally, now that we have a sketch for a fancy relocation logic, how does this thought sit together with the "optimal relocation volumes" optimization that we discussed earlier? If each relocation is so individual, and is triggered by a complex ML system, how can you, or rather, should you even try to predict the "total monthly volume of relocations" upfront? The answer is, yes you can, and you certainly should. You should because it improves your planning, your staffing and/or long-term contracts with third-parties (including pricing negotiations), and because operationally it is much easier and cheaper to have the daily volume of relocations "smoothed" over a week, with about the same number of relocations daily. The costs of daily idling in a bad location (in this work, €20) are probably about equal to the cost of a single relocation anyway (in this work, also €20), which means that in most cases it's better to wait an extra day rather than pay a surcharge for an uncomfortable urgent relocation. (With some notable exceptions, such as airports, see below). But also, you definitely _can_ predict average volumes for a given relocation algorithms, if you have a good city model, and you definitely can find a correspondence between these volumes, and the sets of parameters and thresholds set in your adaptive ML algorithm. An ideal relocation system therefore utilizes both long-term planning and short-term decision making, and is regularly (quarterly? yearly?) recalibrated, to make sure that both of them match.
+
+On performance of peripheral hubs in August (a weak month) 🔥🔥 _EDIT BELOW_
+
+Essentially, peripheral hubs have a bit of this "threshold" quality to them, if you will. When the fleet is low (relative to demand), it can be sucked away from the hubs both by relocations and by vin-based pricing. But when the fleet is high, then VIN-based pricing doesn't help, as there's no real urgency to move the cars (so the price doesn't drop that low), and there's even less demand to actually act on this price (so the cars aren't moved). So in a situation when fleet (aka average DFR) is different in different cities, and then suddenly August happens, whether the periphery reports a very bad month depends almost entirely on the fleet-demand situation, and not on the fine details of how VIN-based pricing works.
+
+🔥 _So a low-demand month is equivalent to a high fleet month_
+
+🔥🔥🔥 _Do we even want this section_? 
+
+WIth relocations it should in theory be different, as relocations typically don't shut down when there's nothing profitable to relocate; they keep proposing cars, even if these are just barely breaking even, or even if they were unprofitable. So with relocations running high, peripheral hubs should never accumulate fleet, even at low demand it's better to have the fleet in the center than on the periphery... But oddly, in a situation of low demand (aka August) the financial effect would be the same, as relos would have just moved the fleet form the periphery to the center, which would probably break even, but not bring much value. So while peripheral hubs do underperform on low demand months when relocations are turned off, paradoxically, it's not bad, it's fine. Having relocations wouldn't have saved it.
+
+🔥 Another extreme example - airports. Describe when and how.
 
 ## 2.9.4. Airport relocations
 
-🛠️ Under construction 🛠️ 
+🔥 Maybe add some basic info about how a real scenario is always between the worst and the best scenario? And how we're trying to move the needle within this band of opportunities?
+
+🔥 Think if an airport "ideal" algorithm is presentable here.
+
+🔥🔥OLD RANDOM SKETCH: The airport is usually empty in the evenings, and relocations are usually least effective in the evenings, as the lost revenue is minimal in the evenings (given that night is low on activity). So if your agents addressed the most unfortunate cars during the day (those that more than 12 hours expected idle time), then evening relocations to the airport shouldn’t be that profitable. (Very roughly: a car with some 10 hours expected idle time in the evening would miss only, what, 1-2 night rentals? Let’s optimistically say 10€ in CM1 revenue. You relocate it to the airport, lose some 25€ or so in relo costs, so you are 15€ down. A single rental from the airport is probably about 20€, of which some 25%, very roughly, is fuel cost. So you earn 15€ back, arriving at net 0. Is it worth the hassle?)
 
 ## 2.9.5 Relocations and self-driving cars
 
