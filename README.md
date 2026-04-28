@@ -12,8 +12,8 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 0. [Introduction](00_introduction.md)
 1. [The natural behavior of cars](01_natural_behavior.md)
 2. [Relocations](02_relocations.md)
-3. [Operating area](03_operating_area.md)
-4. [Pricing](04_pricing.md)
+3. [Operating area](03_operating_area.md) - 🛠️ Under construction 🛠️
+4. [Pricing](04_pricing.md) - 🛠️ Under construction 🛠️
 5. [Conclusions](05_conclusions.md)
 6. [Appendix: Default parameters](06_appendix.md)
 7. [References](07_references.md)
