@@ -1,7 +1,7 @@
 # CarSharing 101 
 ## (Introduction to Free-Floating Carsharing)
 
-##### Version 0.3.4
+##### Version 0.4.0
 
 ## Abstract
 
@@ -18,3 +18,6 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 6. [Appendix: Default parameters](06_appendix.md)
 7. [References](07_references.md)
 
+As I'm writing this thing for about 2 years now, and the world is changing at breathtaking speeds, I think I should make it public as an incomplete text _now_, and then hopefull fill the gaps later. Two full chapters are missing for now (they are in drafts that still need lots of work), but oh well.  They will come.  I'm sure eventually they will come!
+
+If you find anything that is obviously wrong in these texts, please sent me a note ( at khakhalin@gmail.com ), I'll be grateful!

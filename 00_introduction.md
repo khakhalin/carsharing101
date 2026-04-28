@@ -54,7 +54,7 @@ While ultimately I was introduced to carsharing by my stint as a data scientist 
 
 I'd like to acknowledge, or you know what, maybe even _dedicate_ this work to my old team, who helped me transition from academia to industry and from the US to Europe: Deike, Nadja, Sebastian, Andrea, Moritz, Stephan, Clemens, Anastasia, Olek, Mäx, and Tom. You were the coolest team I've ever been a part of, and I do really miss our work together!
 
-This document was written in [Zettlr](https://www.zettlr.com/), which is the best open-source Zettelkasten and academic publishing system I know, ideal for writing this type of documentation! It hits a sweet spot of functionality and simplicity, and it has my full and emotional endorsement!
+This document was written in [Zettlr](https://www.zettlr.com/), which is the best open-source academic publishing-oriented Zettelkasten system I know, ideal for writing this type of documentation! It hits a sweet spot of functionality and simplicity, and it has my full and emotional endorsement!
 
 # Core terms and concepts
 
