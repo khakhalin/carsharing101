@@ -1,12 +1,15 @@
 # 5. Conclusions
 
-🔥 On how carsharing cannot replace public transit, and should never be positioned as such, because we fundamentally depend on cars being a cherry on top, a preferred, but not the only means of transportation. By nature how cars behave in space, we cannot guarantee a good **service** (availability), a good **price**, and a good **coverage** at the same time.
+If you have made it this far, I hope the journey was worth it. Throughout this work we have been zooming in on different topics and aspects of carsharing: individual cars, zones, algorithms, but in this last chapter I want to take a step back and think about some of the bigger, more general questions that feel, in some ways, almost philosophical. And let's start with one that feels most important to me personally, and also that carries a lot of political weight. From everything that we discussed we can conclude quite confindently that **carsharing and public transportation don't compete with each other**. They belong to entirely different categories of urban mobility, carsharing cannot replace pubic transit, and should not be ever positioned as an alternative to it. Every car-sharing company fundamentally depends on cars being a "cherry on top" of an existing transportantion network; cars may be preferred by users in some cases, perhaps for some users even in most cases, as they offer privacy, speed, and most crucially, flexibility, but they _cannot_ ever become the only, or even the main means of transportation for the city.
+
+By nature of how cars "behave", of how they are used and redistributged in space, we cannot guarantee a good **service** (availability), a good **price**, and a good **coverage** at the same time. The logic here is quite simple:
 
 * To guarantee a good service and a good price we would have to limit our offerings only to high-demand areas of the city, becoming a fancy "Drive-it-yourself" shuttle between a few fixed mobility stations.
 * To offer a good service and high coverage with on-street parking, we would have to increase the fleet, and then somehow recuperate the costs, making the service expensive.
 * Finally, we can offer a good price and a wide coverage by dropping the DFR and resigning to a shadow existence of a fun but unreliable means of transportation.
 
 You can pick any two, but you cannot get all three!
+
 
 ![Pick any two KPIs](figures/venn.svg)
 
