@@ -5,7 +5,7 @@
 
 ## Abstract
 
-Free-floating car-sharing is hard, and no company so far has convincently demonstrated that it can be profitable. This richly illustrated collection of python scripts offers a practical introduction to the topic, as well as a set of practical hints to make car-sharing profitable. Follow them, and make your city better! Your competitors will hate these simple tricks!
+Free-floating car-sharing is hard, and no company so far has convincently demonstrated that it can be profitable. This richly illustrated free textbook (dare I say that?), accompanied by a collection of runnable python scripts, offers a practical introduction to the topic, as well as a set of practical hints to make car-sharing profitable. Follow them, and make your city better!! Your competitors will hate these simple tricks!!
 
 ## Table of Contents
 
