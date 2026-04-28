@@ -5,7 +5,7 @@
 
 ## Abstract
 
-Free-floating car-sharing is hard, and no company so far has convincently demonstrated that it can be profitable. This richly illustrated free textbook (dare I say that?), accompanied by a collection of runnable python scripts, offers a practical introduction to the topic, as well as a set of practical hints to make car-sharing profitable. Follow them, and make your city better!! Your competitors will hate these simple tricks!!
+Free-floating car-sharing is hard, and no company so far has convincingly demonstrated that it can be profitable. This richly illustrated free textbook (dare I say that?), accompanied by a collection of runnable Python scripts, offers a practical introduction to the topic, as well as a set of practical hints on how to make car-sharing profitable. Follow them, and make your city better!! Your competitors will hate these simple tricks!!
 
 ## Table of Contents
 
@@ -18,6 +18,6 @@ Free-floating car-sharing is hard, and no company so far has convincently demons
 6. [Appendix: Default parameters](06_appendix.md)
 7. [References](07_references.md)
 
-As I'm writing this thing for about 2 years now, and the world is changing at breathtaking speeds, I think I should make it public as an incomplete text _now_, and then hopefull fill the gaps later. Two full chapters are missing for now (they are in drafts that still need lots of work), but oh well.  They will come.  I'm sure eventually they will come!
+As I have been working on this text on and off for about two years now, and as the world suddenly started to change at breathtaking speed, I think I should make it public even as an incomplete text _now_, and then hopefully fill the gaps later. Two full chapters are missing for now (they are in drafts that still need lots of work), but oh well.  But they will come.  I'm sure eventually they will come!
 
-If you find anything that is obviously wrong in these texts, please sent me a note ( at khakhalin@gmail.com ), I'll be grateful!
+If you find anything in these texts that is obviously wrong, please send me a note ( at khakhalin@gmail.com ), I'll be grateful! Maybe together we can fix it! :)
